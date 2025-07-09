@@ -1,0 +1,54 @@
+version: "3.8"
+
+# postgresql - 17
+services:
+  postgres:
+    image: postgres:17
+    container_name: mongo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+# mongo - 6
+  mongo:
+    image: mongo:6.0
+    container_name: monew-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # spring boot - monew
+  app:
+    build:
+      context: .
+    image: monew:local
+    restart: unless-stopped
+    env_file:
+      - .env
+    container_name: spring-monew-app
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      JVM_OPTS: ""
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+      - mongo
+    volumes:
+      - spring-monew-volume:/app/files
+
+volumes:
+  postgresql-data:
+  spring-monew-volume:
+  mongo-data:
