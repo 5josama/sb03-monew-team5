@@ -2,6 +2,7 @@ package com.sprint5team.monew.repository.article;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
