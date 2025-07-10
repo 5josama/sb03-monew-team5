@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.article.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Table(name = "tbl_article_count")
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ArticleCount {
 
     @Id

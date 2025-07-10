@@ -1,11 +1,15 @@
 package com.sprint5team.monew.domain.article.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "tbl_article_keyword")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ArticleKeyword {
 
     @Id
