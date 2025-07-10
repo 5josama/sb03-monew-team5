@@ -1,5 +1,7 @@
 package com.sprint5team.monew.domain.interest.dto;
 
+import com.sprint5team.monew.domain.interest.entity.Interest;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  */
 
 public record CursorPageResponseInterestDto(
-    List<Object> content,
+    List<InterestDto> content,
     String nextCursor,
     Instant nextAfter,
     Integer size,
