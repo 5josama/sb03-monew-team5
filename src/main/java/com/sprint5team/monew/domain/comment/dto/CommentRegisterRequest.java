@@ -1,4 +1,4 @@
-package com.sprint5team.monew.domain.comment.dto.request;
+package com.sprint5team.monew.domain.comment.dto;
 
 import java.util.UUID;
 
