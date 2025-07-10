@@ -13,6 +13,7 @@ import java.time.Instant;
 @Getter
 @Table(name = "tbl_user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class UserEntity extends BaseEntity {
 
     @Column(length = 100, nullable = false, unique = true)
