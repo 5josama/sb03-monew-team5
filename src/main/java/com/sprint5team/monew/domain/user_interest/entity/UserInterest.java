@@ -1,10 +1,40 @@
 package com.sprint5team.monew.domain.user_interest.entity;
 
+import com.sprint5team.monew.base.entity.BaseEntity;
+import com.sprint5team.monew.domain.interest.entity.Interest;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
+
 /**
  * PackageName  : com.sprint5team.domain.interest.user_interest.entity
  * FileName     : UserInterest
  * Author       : dounguk
  * Date         : 2025. 7. 10.
  */
-public class UserInterest {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Getter
+@Table(name = "tbl_user_interest")
+public class UserInterest extends BaseEntity {
+
+    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    private Instant createdAt;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "interest_id", nullable = false)
+//    private Interest interest;
+
 }
