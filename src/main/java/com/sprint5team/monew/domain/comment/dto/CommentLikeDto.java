@@ -12,6 +12,6 @@ public record CommentLikeDto (
    UUID commentUserId,
    String commentUserNickname,
    String commentContent,
-   String commentLikeCount,
+   Long commentLikeCount,
    Instant commentCreatedAt
 ) {}
