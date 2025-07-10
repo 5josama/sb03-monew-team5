@@ -14,29 +14,29 @@ import java.time.Instant;
 @Table(name = "tbl_user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UserEntity extends BaseEntity {
+public class User extends BaseEntity {
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "nickname", length = 20, nullable = false)
     private String nickname;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "password", length = 20, nullable = false)
     private String password;
 
     @CreatedDate
-    @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
     private Instant createdAt;
 
-    private Boolean is_deleted;
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 
-    public UserEntity(String email, String nickname, String password) {
+    public User(String email, String nickname, String password) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
-        this.is_deleted = false;
-        this.createdAt = Instant.now();
+        this.isDeleted = false;
     }
 
     public void updateNickname(String nickname) {
