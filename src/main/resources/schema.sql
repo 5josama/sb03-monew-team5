@@ -44,8 +44,9 @@ CREATE TABLE IF NOT EXISTS tbl_interest (
     id           UUID PRIMARY KEY,
     created_at   TIMESTAMPTZ NOT NULL,
     updated_at   TIMESTAMPTZ,
+    subscriber_count BIGINT NOT NULL,
     name         VARCHAR(50) NOT NULL
-);
+    );
 -- 뉴스 관심사
 CREATE TABLE tbl_article_keyword (
     id UUID PRIMARY KEY,
@@ -104,14 +105,21 @@ CREATE TABLE tbl_notification
 -- 키워드
 CREATE TABLE IF NOT EXISTS tbl_keyword (
     id               UUID PRIMARY KEY,
+    interest_id      UUID NOT NULL,
     created_at       TIMESTAMPTZ NOT NULL,
-    subscriber_count BIGINT NOT NULL
-);
--- 관심사별 키워드
-CREATE TABLE IF NOT EXISTS tbl_interest_keyword (
-    interest_id UUID NOT NULL,
-    keyword_id  UUID NOT NULL,
+    name    VARCHAR(20) NOT NULL,
+
+    CONSTRAINT fk_interest_id FOREIGN KEY (interest_id) REFERENCES tbl_interest (id) ON DELETE CASCADE,
+    CONSTRAINT uq_interest_keyword UNIQUE (interest_id, name)
+    );
+
+-- 사용자관심사
+CREATE TABLE IF NOT EXISTS tbl_user_interest (
+    id          UUID    PRIMARY KEY,
+    user_id     UUID    NOT NULL,
+    interest_id UUID    NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL,
+
     CONSTRAINT fk_interest FOREIGN KEY (interest_id) REFERENCES tbl_interest(id) ON DELETE CASCADE,
-    CONSTRAINT fk_keyword  FOREIGN KEY (keyword_id)  REFERENCES tbl_keyword(id) ON DELETE CASCADE,
-    CONSTRAINT uk_interest_keyword UNIQUE (interest_id, keyword_id)
-);
+    CONSTRAINT uq_user_interest UNIQUE (user_id, interest_id)
+    );
