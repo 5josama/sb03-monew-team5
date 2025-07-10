@@ -32,9 +32,9 @@ CREATE TABLE tbl_article (
 );
 -- 뉴스 조회수
 CREATE TABLE tbl_article_count (
+    id UUID PRIMARY KEY,
     article_id UUID NOT NULL,
     user_id UUID NOT NULL,
-    PRIMARY KEY (article_id, user_id),
     FOREIGN KEY (article_id) REFERENCES tbl_article(id) on delete cascade,
     FOREIGN KEY (user_id) REFERENCES tbl_user(id) on delete cascade
 );
@@ -48,11 +48,11 @@ CREATE TABLE IF NOT EXISTS tbl_interest (
 );
 -- 뉴스 관심사
 CREATE TABLE tbl_article_keyword (
-     article_id UUID NOT NULL,
-     interest_id UUID NOT NULL,
-     PRIMARY KEY (article_id, interest_id),
-     FOREIGN KEY (article_id) REFERENCES tbl_article(id) on delete cascade,
-     FOREIGN KEY (interest_id) REFERENCES tbl_interest(id) on delete cascade
+    id UUID PRIMARY KEY,
+    article_id UUID NOT NULL,
+    interest_id UUID NOT NULL,
+    FOREIGN KEY (article_id) REFERENCES tbl_article(id) on delete cascade,
+    FOREIGN KEY (interest_id) REFERENCES tbl_interest(id) on delete cascade
 );
 -- 댓글
 CREATE TABLE IF NOT EXISTS tbl_comment
