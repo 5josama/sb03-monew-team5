@@ -37,3 +37,4 @@ out/
 ### VS Code ###
 .vscode/
 .env
+src/main/java/com/sprint5team/monew/domain/keyword/entity/.DS_Store

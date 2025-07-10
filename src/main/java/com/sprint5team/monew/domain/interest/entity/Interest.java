@@ -1,0 +1,38 @@
+package com.sprint5team.monew.domain.interest.entity;
+
+import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
+
+/**
+ * PackageName  : com.sprint5team.monew.domain.interest.entity
+ * FileName     : Interest
+ * Author       : dounguk
+ * Date         : 2025. 7. 9.
+ */
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Getter
+@Table(name = "tbl_interest")
+public class Interest extends BaseUpdatableEntity {
+
+    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    private Instant createdAt;
+
+    @Column(name = "name", nullable = false, length = 50)
+    String name;
+
+    @Column(name = "subscriber_count", nullable = false)
+    long subscriberCount;
+}
