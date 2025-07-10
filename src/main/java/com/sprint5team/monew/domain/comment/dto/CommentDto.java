@@ -1,4 +1,4 @@
-package com.sprint5team.monew.domain.comment;
+package com.sprint5team.monew.domain.comment.dto;
 
 import java.time.Instant;
 import java.util.UUID;

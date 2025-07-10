@@ -1,4 +1,4 @@
-package com.sprint5team.monew.domain.comment;
+package com.sprint5team.monew.domain.comment.entity;
 
 import com.sprint5team.monew.base.entity.BaseEntity;
 import jakarta.persistence.Column;
