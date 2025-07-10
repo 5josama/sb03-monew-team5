@@ -4,22 +4,3 @@ server:
 logging:
   level:
     root: info
-
-# AWS 환경용 데이터 로드 설정
-spring:
-  sql:
-    init:
-      data-locations: classpath:data.sql
-
-# 헬스체크 엔드포인트 설정
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info   # 헬스체크와 정보 엔드포인트 노출
-  endpoint:
-    health:
-      show-details: always      # 헬스체크 상세 정보 표시
-  health:
-    db:
-      enabled: true # 데이터베이스 헬스체크 활성화
