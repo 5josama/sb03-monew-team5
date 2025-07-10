@@ -15,11 +15,11 @@ public class Like extends BaseEntity {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @CreatedDate
-    @Column(name = "created_at", columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
-    private Instant createdAt;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
+//
+//    @CreatedDate
+//    @Column(name = "created_at", columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
+//    private Instant createdAt;
 }
