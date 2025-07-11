@@ -2,6 +2,7 @@ package com.sprint5team.monew.domain.user_interest.entity;
 
 import com.sprint5team.monew.base.entity.BaseEntity;
 import com.sprint5team.monew.domain.interest.entity.Interest;
+import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
