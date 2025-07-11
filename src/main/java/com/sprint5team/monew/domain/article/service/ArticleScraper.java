@@ -41,10 +41,13 @@ public class ArticleScraper {
     @Value("${naver.client-secret}")
     private String clientSecret;
 
+    // TODO: keywordRepository 개발 완료되면 키워드 중복 없이 get
+    private final List<String> keywords = List.of("AI", "경제", "개발");
+
     private static final List<String> RSS_FEEDS = List.of(
             "https://www.hankyung.com/feed/rss/all-news",            // 한국경제
             "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml", // 조선일보
-            "https://www.yna.co.kr/rss/all"                          // 연합뉴스
+            "http://www.yonhapnewstv.co.kr/browse/feed/"                          // 연합뉴스
     );
 
     public void scrapeAll() {
@@ -74,9 +77,6 @@ public class ArticleScraper {
      * Naver OpenAPI 요청 전용 메서드
      */
     public void scrapeNaverApi() {
-        // TODO: keywordRepository 개발 완료되면 키워드 중복 없이 get
-        List<String> keywords = List.of("AI", "경제", "개발");
-
         for (String keyword : keywords) {
             String url = UriComponentsBuilder
                     .fromUriString("https://openapi.naver.com/v1/search/news.xml")
@@ -132,17 +132,26 @@ public class ArticleScraper {
                 Element item = (Element) items.item(i);
 
                 String title = getTagValue("title", item);
-                String link = getTagValue("link", item);
                 String description = getTagValue("description", item);
+
+                boolean hasKeyword = keywords.stream()
+                        .anyMatch(keyword -> title.contains(keyword) || description.contains(keyword));
+                if (!hasKeyword) continue;
+
+                String link = getTagValue("link", item);
                 Instant pubDate = parsePubDate(getTagValue("pubDate", item));
                 String source = getTagValue("source", item);
 
-                // TODO: articleRepository.save() 를 통해 저장할 도메인 객체 매핑 및 저장
-                articles.add(new Article(source, link, title, description, false, pubDate));
-
                 if (articleRepository.existsBySourceUrl(link)) continue;
+
+                Article article = new Article(source, link, title, description, false, pubDate);
+                articles.add(article);
+            }
+
+            if (!articles.isEmpty()) {
                 articleRepository.saveAll(articles);
             }
+
         } catch (Exception e) {
             log.error("XML 파싱 오류", e);
         }
