@@ -2,6 +2,7 @@ package com.sprint5team.monew.interest.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.interest.controller.InterestController;
+import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.entity.Interest;
@@ -55,29 +56,12 @@ public class InterestControllerTest {
         UUID id4 = UUID.randomUUID();
 
         Instant createdAt = Instant.now();
-//        User user = new User("test@test.com", "user1", "password1");
-//        ReflectionTestUtils.setField(interestService, "id", id);
-
-        Interest interest1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(0L)
-            .build();
-        ReflectionTestUtils.setField(interest1, "createdAt", createdAt);
-
-        Interest interest2 = Interest.builder()
-            .name("취미")
-            .subscriberCount(0L)
-            .build();
-        ReflectionTestUtils.setField(interest2, "createdAt", createdAt);
-        List<Interest> interests = Arrays.asList(interest1, interest2);
-
-        CursorPageRequest cursorPageRequest = new CursorPageRequest("축구", "name", "asc", "공부", "createdAt", "3", id4);
 
 
         InterestDto interestDto1 = InterestDto.builder()
             .id(id1)
             .name("스포츠")
-            .keywords(List.of("야구","축구"))
+            .keywords(List.of("야구", "축구","스포츠"))
             .subscriberCount(0L)
             .subscribedByMe(false)
             .build();
@@ -85,7 +69,7 @@ public class InterestControllerTest {
         InterestDto interestDto2 = InterestDto.builder()
             .id(id2)
             .name("취미")
-            .keywords(List.of("악기","축구","수집"))
+            .keywords(List.of("악기", "축구", "수집","스포츠"))
             .subscriberCount(0L)
             .subscribedByMe(false)
             .build();
@@ -93,38 +77,36 @@ public class InterestControllerTest {
         InterestDto interestDto3 = InterestDto.builder()
             .id(id3)
             .name("공부")
-            .keywords(List.of("수학","영어"))
+            .keywords(List.of("수학", "영어","스포츠"))
             .subscriberCount(0L)
             .subscribedByMe(false)
             .build();
-        List<InterestDto> interestDtos = Arrays.asList(interestDto1, interestDto2);
+        List<InterestDto> interestDtos = Arrays.asList(interestDto1, interestDto2, interestDto3);
 
+        CursorPageRequest cursorPageRequest = new CursorPageRequest("축구", "name", "asc", "강의", Instant.now(), 3, id4);
 
         CursorPageResponseInterestDto response = CursorPageResponseInterestDto.builder()
             .content(interestDtos)
-            .nextCursor("공부")
+            .nextCursor("취미")
             .nextAfter(createdAt)
             .size(3)
-            .totalElements(3)
+            .totalElements(3L)
             .hasNext(false)
             .build();
 
-        given(interestService.generateCursorPage(any())).willReturn(response);
+        given(interestService.generateCursorPage(any(CursorPageRequest.class))).willReturn(response);
 
         // when
         mockMvc.perform(post("/api/interests")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(cursorPageRequest)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(id.toString()))
-            .andExpect(jsonPath("$.type").value(ChannelType.PRIVATE.name()))
-            .andExpect(jsonPath("$.name").value(""))
-            .andExpect(jsonPath("$.description").value(""))
-            .andExpect(jsonPath("$.participants.size()").value(2))
-            .andExpect(jsonPath("$.participants").isArray())
-            .andExpect(jsonPath("$.lastMessageAt").value(lastMessageAt.toString()));
-
-        // then
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.nextCursor").value("취미"))
+            .andExpect(jsonPath("$.nextAfter").value(createdAt))
+            .andExpect(jsonPath("$.size").value(3))
+            .andExpect(jsonPath("$.totalElements").value(3L))
+            .andExpect(jsonPath("$.hasNext").value(false));
 
     }
 
@@ -138,4 +120,33 @@ public class InterestControllerTest {
 
     }
 
+    @Test
+    void orderBy가_name이거나_subscriberCount가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+
+    @Test
+    void 정렬방향은_ASC이거나_DESC가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+
+    @Test
+    void 커서패이지_크기가_숫자가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
 }

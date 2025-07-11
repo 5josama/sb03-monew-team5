@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.interest.service;
 
+import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 
 /**
@@ -10,5 +11,5 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
  */
 public interface InterestService{
 
-    CursorPageResponseInterestDto generateCursorPage();
+    CursorPageResponseInterestDto generateCursorPage(CursorPageRequest request);
 }

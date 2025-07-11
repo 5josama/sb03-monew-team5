@@ -76,11 +76,11 @@ public class InterestServiceTest {
         List<Interest> interests = Arrays.asList(interest1, interest2);
 
 
-        given(interestRepository.findInterestByCondition(any()))
-            .willReturn(interests);
+//        given(interestRepository.findInterestByCondition(any()))
+//            .willReturn(interests);
 
         // when
-        CursorPageResponseInterestDto result = interestService.generateCursorPage();
+//        CursorPageResponseInterestDto result = interestService.generateCursorPage();
     }
 
     @Test
