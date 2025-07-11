@@ -55,18 +55,51 @@ public class CommentControllerTest {
         given(commentService.create(any(CommentRegisterRequest.class))).willReturn(createdComment);
 
         //When && Then
-        mockMvc.perform(post("api/comments")
+        mockMvc.perform(post("/api/comments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(commentRegisterRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(commentId.toString()))
                 .andExpect(jsonPath("$.articleId").value(articleId.toString()))
-                .andExpect(jsonPath("$.userId").value(articleId.toString()))
+                .andExpect(jsonPath("$.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.userNickName").value("UserNickname"))
                 .andExpect(jsonPath("$.content").value("테스트 댓글 입니다."))
                 .andExpect(jsonPath("$.likeCount").value(0))
                 .andExpect(jsonPath("$.likedByMe").value(false));
 
+    }
+
+    @Test
+    public void 댓글등록_실패_내용_길이초과() throws Exception {
+        //Given
+        UUID articleId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        String longContent = "a".repeat(1001); // 1000자 초과
+
+        CommentRegisterRequest commentRegisterRequest = new CommentRegisterRequest(articleId, userId, longContent);
+
+        //When && Then
+        mockMvc.perform(post("/api/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentRegisterRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    public void 댓글등록_실패_빈_내용() throws Exception {
+        //Given
+        UUID articleId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        CommentRegisterRequest commentRegisterRequest = new CommentRegisterRequest(articleId, userId, "");
+
+        //When && Then
+        mockMvc.perform(post("/api/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentRegisterRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
     }
 
 
