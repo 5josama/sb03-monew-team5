@@ -67,6 +67,23 @@ class UserControllerTest {
   }
 
   @Test
+  void 사용자_회원가입_실패_이메일_형식_위반() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test", // 이메일 형식 위반
+        "가나다라",
+        "test1234"
+    );
+
+    // when & then
+    mockMvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("이메일 형식이 올바르지 않습니다."));
+  }
+
+  @Test
   void 사용자_회원가입_실패_닉네임_길이_제한_초과() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
@@ -79,7 +96,8 @@ class UserControllerTest {
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("닉네임은 20자 이하로 입력해주세요."));
   }
 
   @Test
@@ -95,6 +113,7 @@ class UserControllerTest {
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("비밀번호는 6자리 이상 20자리 이하로 입력해주세요."));
   }
 }
