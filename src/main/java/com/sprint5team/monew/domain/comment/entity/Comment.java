@@ -1,14 +1,18 @@
 package com.sprint5team.monew.domain.comment.entity;
 
 import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
+import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "tbl_comment")
+@NoArgsConstructor
 @Getter
 public class Comment extends BaseUpdatableEntity {
 
@@ -24,20 +28,28 @@ public class Comment extends BaseUpdatableEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name="content")
+    @Column(name = "content")
     private String content;
 
-    @Column(name="is_deleted")
+    @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name="like_count")
+    @Column(name = "like_count")
     private Long likeCount;
 
-    public void update(String content){
+    public Comment(Article article, User user, String content) {
+        this.article = article;
+        this.user = user;
+        this.content = content;
+        this.isDeleted = false;
+        this.likeCount = (long) 0;
+    }
+
+    public void update(String content) {
         this.content = content;
     }
 
-    public void update(Long likeCount){
+    public void update(Long likeCount) {
         this.likeCount = likeCount;
     }
 
