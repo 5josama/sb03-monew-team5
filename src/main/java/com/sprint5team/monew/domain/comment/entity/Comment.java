@@ -1,6 +1,8 @@
 package com.sprint5team.monew.domain.comment.entity;
 
 import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
+import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

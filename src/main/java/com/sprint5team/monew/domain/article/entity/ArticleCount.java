@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.article.entity;
 
+import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,4 +27,9 @@ public class ArticleCount {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public ArticleCount(Article article, User user) {
+        this.article = article;
+        this.user = user;
+    }
 }

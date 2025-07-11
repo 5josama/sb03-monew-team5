@@ -1,6 +1,7 @@
 package com.sprint5team.monew.domain.comment.entity;
 
 import com.sprint5team.monew.base.entity.BaseEntity;
+import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;

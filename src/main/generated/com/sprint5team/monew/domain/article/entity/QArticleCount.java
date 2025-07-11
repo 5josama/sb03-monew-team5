@@ -26,7 +26,7 @@ public class QArticleCount extends EntityPathBase<ArticleCount> {
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
-    public final NumberPath<User> user = createNumber("user", User.class);
+    public final com.sprint5team.monew.domain.user.entity.QUser user;
 
     public QArticleCount(String variable) {
         this(ArticleCount.class, forVariable(variable), INITS);
@@ -47,6 +47,7 @@ public class QArticleCount extends EntityPathBase<ArticleCount> {
     public QArticleCount(Class<? extends ArticleCount> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.article = inits.isInitialized("article") ? new QArticle(forProperty("article")) : null;
+        this.user = inits.isInitialized("user") ? new com.sprint5team.monew.domain.user.entity.QUser(forProperty("user")) : null;
     }
 
 }
