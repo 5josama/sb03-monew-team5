@@ -1,5 +1,6 @@
 package com.sprint5team.monew.controller.article;
 
+import com.sprint5team.monew.domain.article.controller.ArticleController;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import org.junit.jupiter.api.DisplayName;
