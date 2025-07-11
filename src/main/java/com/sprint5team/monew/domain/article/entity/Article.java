@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
@@ -34,4 +35,17 @@ public class Article extends BaseEntity {
 
     @Column(name = "original_created_at", columnDefinition = "timestamp with time zone")
     private Instant originalDateTime;
+
+    @CreatedDate
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone")
+    private Instant createdAt;
+
+    public Article(String source, String sourceUrl, String title, String summary, Instant originalDateTime) {
+        this.source = source;
+        this.sourceUrl = sourceUrl;
+        this.title = title;
+        this.summary = summary;
+        this.originalDateTime = originalDateTime;
+        this.isDeleted = false;
+    }
 }

@@ -21,6 +21,8 @@ public class QArticle extends EntityPathBase<Article> {
 
     public final com.sprint5team.monew.base.entity.QBaseEntity _super = new com.sprint5team.monew.base.entity.QBaseEntity(this);
 
+    public final DateTimePath<java.time.Instant> createdAt = createDateTime("createdAt", java.time.Instant.class);
+
     //inherited
     public final ComparablePath<java.util.UUID> id = _super.id;
 

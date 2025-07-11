@@ -16,7 +16,7 @@ spring:
       schema-locations: classpath:schema.sql
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     properties:
@@ -29,3 +29,7 @@ logging:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     root: info
+
+naver:
+  client_id: ${X_Naver_Client_Id}
+  client_secret: ${X_Naver_Client_Secret}
