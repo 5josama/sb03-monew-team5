@@ -43,6 +43,7 @@ public class ArticleScraperTest {
             </rss>
         """;
 
+        // Naver OpenAPI 요청 mocking
         ResponseEntity<String> responseEntity = new ResponseEntity<>(dummyXml, HttpStatus.OK);
         given(restTemplate.exchange(
                 anyString(),
@@ -51,8 +52,12 @@ public class ArticleScraperTest {
                 eq(String.class)
         )).willReturn(responseEntity);
 
+        // RSS 피드 요청 mocking (3개 정도 필요)
+        given(restTemplate.getForEntity(anyString(), eq(String.class)))
+                .willReturn(responseEntity);
+
         // when
-        articleScraper.scrape();
+        articleScraper.scrapeAll();
 
         // then
         then(articleRepository).should(atLeastOnce()).saveAll(anyList());

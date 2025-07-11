@@ -41,7 +41,39 @@ public class ArticleScraper {
     @Value("${naver.client-secret}")
     private String clientSecret;
 
-    public void scrape() {
+    private static final List<String> RSS_FEEDS = List.of(
+            "https://www.hankyung.com/feed/rss/all-news",            // 한국경제
+            "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml", // 조선일보
+            "https://www.yna.co.kr/rss/all"                          // 연합뉴스
+    );
+
+    public void scrapeAll() {
+        scrapeNaverApi(); // 기존 OpenAPI 수집
+        scrapeRssFeeds(); // RSS 기반 수집
+    }
+
+    /**
+     * RSS 요청 전용 메서드
+     */
+    private void scrapeRssFeeds() {
+        for (String feedUrl : RSS_FEEDS) {
+            try {
+                ResponseEntity<String> response = restTemplate.getForEntity(feedUrl, String.class);
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    parseAndSaveArticles(response.getBody());
+                } else {
+                    log.warn("RSS 수집 실패 - URL: {} 상태: {}", feedUrl, response.getStatusCode());
+                }
+            } catch (Exception e) {
+                log.error("RSS 수집 중 오류 발생 - URL: {}", feedUrl, e);
+            }
+        }
+    }
+
+    /**
+     * Naver OpenAPI 요청 전용 메서드
+     */
+    public void scrapeNaverApi() {
         // TODO: keywordRepository 개발 완료되면 키워드 중복 없이 get
         List<String> keywords = List.of("AI", "경제", "개발");
 
