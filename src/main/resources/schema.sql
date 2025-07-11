@@ -45,6 +45,7 @@ CREATE TABLE tbl_article_count
     id         UUID PRIMARY KEY,
     article_id UUID NOT NULL,
     user_id    UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
     FOREIGN KEY (article_id) REFERENCES tbl_article (id) on delete cascade,
     FOREIGN KEY (user_id) REFERENCES tbl_user (id) on delete cascade
 );
