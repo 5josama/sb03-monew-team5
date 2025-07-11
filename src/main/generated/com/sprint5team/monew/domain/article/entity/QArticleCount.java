@@ -22,9 +22,14 @@ public class QArticleCount extends EntityPathBase<ArticleCount> {
 
     public static final QArticleCount articleCount = new QArticleCount("articleCount");
 
+    public final com.sprint5team.monew.base.entity.QBaseEntity _super = new com.sprint5team.monew.base.entity.QBaseEntity(this);
+
     public final QArticle article;
 
-    public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
+    public final DateTimePath<java.time.Instant> createdAt = createDateTime("createdAt", java.time.Instant.class);
+
+    //inherited
+    public final ComparablePath<java.util.UUID> id = _super.id;
 
     public final com.sprint5team.monew.domain.user.entity.QUser user;
 

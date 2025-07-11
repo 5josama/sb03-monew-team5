@@ -1,6 +1,6 @@
 package com.sprint5team.monew.domain.article.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -19,12 +19,12 @@ import java.util.UUID;
 public record ArticleViewDto(
         UUID id,
         UUID viewedBy,
-        LocalDateTime createdAt,
+        Instant createdAt,
         UUID articleId,
         String source,
         String sourceUrl,
         String title,
-        LocalDateTime publishDate,
+        Instant publishDate,
         String summary,
         long commentCount,
         long viewCount

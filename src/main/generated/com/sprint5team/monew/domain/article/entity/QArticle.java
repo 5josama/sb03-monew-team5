@@ -26,7 +26,7 @@ public class QArticle extends EntityPathBase<Article> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
-    public final DateTimePath<java.time.LocalDateTime> originalDateTime = createDateTime("originalDateTime", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.Instant> originalDateTime = createDateTime("originalDateTime", java.time.Instant.class);
 
     public final StringPath source = createString("source");
 
