@@ -13,8 +13,8 @@ spring:
     hibernate:
       ddl-auto: update
 naver:
-  client-id: ${X-Naver-Client-Secret}
-  client_secret: ${X-Naver-Client-Secret}
+  client_id: ${X_Naver_Client_Id}
+  client_secret: ${X_Naver_Client_Secret}
 logging:
   level:
     root: debug

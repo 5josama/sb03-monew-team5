@@ -22,7 +22,7 @@ public class ArticleRepositoryTest {
     @Test
     void 뉴스_기사를_저장할_수_있다() {
         // given
-        Article article = new Article("NAVER", "https://naver.com/news/12333", "test title", "test summary", false, Instant.now());
+        Article article = new Article("NAVER", "https://naver.com/news/12333", "test title", "test summary", Instant.now());
 
         // when
         Article saved = articleRepository.save(article);

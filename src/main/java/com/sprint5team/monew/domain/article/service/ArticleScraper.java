@@ -5,7 +5,10 @@ import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,7 +20,6 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,19 +37,25 @@ public class ArticleScraper {
     private final RestTemplate restTemplate;
 //    private final KeywordRepository keywordRepository;
 
-    @Value("${naver.client-id}")
+    @Value("${naver.client_id}")
     private String clientId;
 
-    @Value("${naver.client-secret}")
+    @Value("${naver.client_secret}")
     private String clientSecret;
 
     // TODO: keywordRepository 개발 완료되면 키워드 중복 없이 get
     private final List<String> keywords = List.of("AI", "경제", "개발");
 
     private static final List<String> RSS_FEEDS = List.of(
-            "https://www.hankyung.com/feed/rss/all-news",            // 한국경제
+            "https://www.hankyung.com/feed/all-news",            // 한국경제
             "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml", // 조선일보
             "http://www.yonhapnewstv.co.kr/browse/feed/"                          // 연합뉴스
+    );
+
+    private static final List<String> SOURCES = List.of(
+            "한국경제",
+            "조선일보",
+            "연합뉴스"
     );
 
     public void scrapeAll() {
@@ -59,11 +67,26 @@ public class ArticleScraper {
      * RSS 요청 전용 메서드
      */
     private void scrapeRssFeeds() {
-        for (String feedUrl : RSS_FEEDS) {
+        for (int i = 0; i < RSS_FEEDS.size(); i++) {
+            String feedUrl = RSS_FEEDS.get(i);
+            String source = SOURCES.get(i);
+
             try {
-                ResponseEntity<String> response = restTemplate.getForEntity(feedUrl, String.class);
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("User-Agent", "Mozilla/5.0");
+                headers.set("Accept", "application/rss+xml");
+
+                HttpEntity<Void> request = new HttpEntity<>(headers);
+
+                ResponseEntity<String> response = restTemplate.exchange(
+                        feedUrl,
+                        HttpMethod.GET,
+                        request,
+                        String.class
+                );
+
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    parseAndSaveArticles(response.getBody());
+                    parseAndSaveArticles(response.getBody(), source);
                 } else {
                     log.warn("RSS 수집 실패 - URL: {} 상태: {}", feedUrl, response.getStatusCode());
                 }
@@ -76,21 +99,23 @@ public class ArticleScraper {
     /**
      * Naver OpenAPI 요청 전용 메서드
      */
-    public void scrapeNaverApi() {
+    private void scrapeNaverApi() {
+        System.out.println("clientId = " + clientId);
+        System.out.println("clientSecret = " + clientSecret);
         for (String keyword : keywords) {
             String url = UriComponentsBuilder
-                    .fromUriString("https://openapi.naver.com/v1/search/news.xml")
+                    .fromUriString("https://openapi.naver.com")
+                    .path("/v1/search/news.xml")
                     .queryParam("query", keyword)
                     .queryParam("display", 100)
                     .queryParam("sort", "sim")
+                    .encode()
                     .build()
-                    .encode(StandardCharsets.UTF_8)
                     .toUriString();
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-Naver-Client-Id", clientId);
             headers.set("X-Naver-Client-Secret", clientSecret);
-            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
             HttpEntity<Void> request = new HttpEntity<>(headers);
 
@@ -103,7 +128,7 @@ public class ArticleScraper {
                 );
 
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    parseAndSaveArticles(response.getBody());
+                    parseAndSaveArticles(response.getBody(), "NAVER");
                 } else {
                     log.warn("키워드 [{}] 에 대한 응답 실패: {}", keyword, response.getStatusCode());
                 }
@@ -118,7 +143,7 @@ public class ArticleScraper {
      *
      * @param xml
      */
-    private void parseAndSaveArticles(String xml) {
+    private void parseAndSaveArticles(String xml, String source) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -140,11 +165,10 @@ public class ArticleScraper {
 
                 String link = getTagValue("link", item);
                 Instant pubDate = parsePubDate(getTagValue("pubDate", item));
-                String source = getTagValue("source", item);
 
                 if (articleRepository.existsBySourceUrl(link)) continue;
 
-                Article article = new Article(source, link, title, description, false, pubDate);
+                Article article = new Article(source, link, title, description, pubDate);
                 articles.add(article);
             }
 
