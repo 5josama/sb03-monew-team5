@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "tbl_article")
@@ -32,6 +32,6 @@ public class Article extends BaseEntity {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @Column(name = "original_created_at")
-    private LocalDateTime originalDateTime;
+    @Column(name = "original_created_at", columnDefinition = "timestamp with time zone")
+    private Instant originalDateTime;
 }
