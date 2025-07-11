@@ -29,3 +29,7 @@ logging:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     root: info
+
+naver:
+  client-id: ${X-Naver-Client-Secret}
+  client_secret: ${X-Naver-Client-Secret}
