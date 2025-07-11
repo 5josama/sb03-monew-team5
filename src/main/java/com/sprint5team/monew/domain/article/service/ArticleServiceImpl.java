@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.article.service;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
@@ -25,9 +26,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(
-                () -> new IllegalArgumentException("Article id " + articleId + " not found")
-        );
+        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("User id " + userId + " not found")
