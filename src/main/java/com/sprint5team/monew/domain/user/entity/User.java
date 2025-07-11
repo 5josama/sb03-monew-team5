@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
+@Builder
 @Entity
 @Getter
 @Table(name = "tbl_user")
