@@ -100,8 +100,6 @@ public class ArticleScraper {
      * Naver OpenAPI 요청 전용 메서드
      */
     private void scrapeNaverApi() {
-        System.out.println("clientId = " + clientId);
-        System.out.println("clientSecret = " + clientSecret);
         for (String keyword : keywords) {
             String url = UriComponentsBuilder
                     .fromUriString("https://openapi.naver.com")
