@@ -11,6 +11,6 @@ import java.util.UUID;
  * Author       : dounguk
  * Date         : 2025. 7. 11.
  */
-public interface InterestRepostory extends JpaRepository<Interest, UUID>,InterestRepositoryCustom {
+public interface InterestRepository extends JpaRepository<Interest, UUID>,InterestRepositoryCustom {
 
 }

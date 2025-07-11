@@ -1,6 +1,7 @@
 package com.sprint5team.monew.domain.interest.service;
 
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
+import org.springframework.stereotype.Service;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service
@@ -8,7 +9,13 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
  * Author       : dounguk
  * Date         : 2025. 7. 11.
  */
-public interface InterestService{
 
-    CursorPageResponseInterestDto generateCursorPage();
+@Service
+public class InterestServiceImpl implements InterestService{
+
+    public CursorPageResponseInterestDto generateCursorPage() {
+
+
+        return null;
+    }
 }

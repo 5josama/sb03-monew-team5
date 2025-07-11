@@ -1,6 +1,7 @@
 package com.sprint5team.monew.domain.interest.dto;
 
 import com.sprint5team.monew.domain.interest.entity.Interest;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * Author       : dounguk
  * Date         : 2025. 7. 10.
  */
-
+@Builder
 public record CursorPageResponseInterestDto(
     List<InterestDto> content,
     String nextCursor,
