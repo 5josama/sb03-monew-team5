@@ -1,15 +1,16 @@
 package com.sprint5team.monew.service.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.entity.User;
-import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
+import com.sprint5team.monew.domain.user.exception.UserException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
@@ -58,14 +59,15 @@ class UserServiceTest {
   void 사용자_등록_성공() {
     // given
     UserRegisterRequest request = new UserRegisterRequest(email, nickname, password);
-    when(userRepository.save(user)).thenReturn(user);
-    when(userMapper.toDto(user)).thenReturn(userDto);
+    given(userRepository.save(any(User.class))).willReturn(user);
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
     // when
     UserDto result = userService.register(request);
 
     // then
-    then(userRepository).should().save(user);
+    assertThat(result).isEqualTo(userDto);
+    verify(userRepository).save(any(User.class));
   }
 
   @Test
@@ -76,7 +78,7 @@ class UserServiceTest {
 
     // when & then
     assertThatThrownBy(() -> userService.register(request))
-        .isInstanceOf(UserAlreadyExistsException.class);
+        .isInstanceOf(UserException.class);
   }
 
 }

@@ -4,7 +4,7 @@ import com.sprint5team.monew.base.exception.BaseException;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 
-public class UserAlreadyExistsException extends BaseException {
+public class UserException extends BaseException {
 
   @Override
   public Instant getTimestamp() {
