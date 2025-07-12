@@ -1,8 +1,7 @@
 package com.sprint5team.monew.base.exception;
 
-import org.springframework.http.HttpStatus;
-
 import java.time.Instant;
+import org.springframework.http.HttpStatus;
 
 public abstract class BaseException extends RuntimeException {
 
