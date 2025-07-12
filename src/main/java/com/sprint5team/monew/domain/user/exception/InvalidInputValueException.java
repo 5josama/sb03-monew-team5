@@ -4,7 +4,7 @@ import com.sprint5team.monew.base.exception.BaseException;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 
-public class UserAlreadyExistsException extends BaseException {
+public class InvalidInputValueException extends BaseException {
 
   @Override
   public Instant getTimestamp() {
@@ -18,7 +18,7 @@ public class UserAlreadyExistsException extends BaseException {
 
   @Override
   public String getMessage() {
-    return "이미 존재하는 이메일 입니다.";
+    return "닉네임은 1자 이상 20자 이하로 작성해주세요";
   };
 
   @Override

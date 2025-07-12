@@ -45,7 +45,7 @@ class UserRepositoryTest {
     assertThat(savedUser.getNickname()).isEqualTo(nickname);
     assertThat(savedUser.getPassword()).isEqualTo(password);
     assertThat(savedUser.getCreatedAt()).isNotNull();
-    assertThat(savedUser.getCreatedAt()).isAfterOrEqualTo(Instant.now());
+    assertThat(savedUser.getCreatedAt()).isBeforeOrEqualTo(Instant.now());
   }
 
 }
