@@ -3,7 +3,7 @@ package com.sprint5team.monew.domain.user.service;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.entity.User;
-import com.sprint5team.monew.domain.user.exception.UserException;
+import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
     String password = request.password();
 
     if (userRepository.existsByEmail(email)) {
-      throw new UserException();
+      throw new UserAlreadyExistsException();
     }
 
     User user = User.builder()

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.entity.User;
-import com.sprint5team.monew.domain.user.exception.UserException;
+import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
@@ -78,7 +78,7 @@ class UserServiceTest {
 
     // when & then
     assertThatThrownBy(() -> userService.register(request))
-        .isInstanceOf(UserException.class);
+        .isInstanceOf(UserAlreadyExistsException.class);
   }
 
 }
