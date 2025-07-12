@@ -8,7 +8,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -19,9 +18,6 @@ class UserRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
-
-  @Autowired
-  private TestEntityManager entityManager;
 
   private User createTestUser(String email, String nickname, String password) {
     User user = new User(email, nickname, password);

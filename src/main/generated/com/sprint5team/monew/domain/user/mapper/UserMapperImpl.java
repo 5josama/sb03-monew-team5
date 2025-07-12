@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-07-11T14:22:07+0900",
+    date = "2025-07-13T02:00:15+0900",
     comments = "version: 1.6.3, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.14.2.jar, environment: Java 17.0.15 (Homebrew)"
 )
 @Component
@@ -21,15 +21,15 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
+        UUID userId = null;
         String email = null;
         String nickname = null;
         Instant createdAt = null;
 
+        userId = user.getId();
         email = user.getEmail();
         nickname = user.getNickname();
         createdAt = user.getCreatedAt();
-
-        UUID userId = null;
 
         UserDto userDto = new UserDto( userId, email, nickname, createdAt );
 
