@@ -325,27 +325,6 @@ public class InterestServiceTest {
     }
 
     @Test
-    void 보조커서_기준으로_조회한다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
-    @Test
-    void 커서_페이지_크기로_조회한다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
-    @Test
-    @DisplayName("")
     void 유저_기반_구독여부를_판단한다() throws Exception {
         // given
 
@@ -354,35 +333,4 @@ public class InterestServiceTest {
         // then
 
     }
-
-    @Test
-    void orderBy가_name이거나_subscriberCount가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
-        // given
-        UUID id = UUID.randomUUID();
-
-        String invalidOrderBy = "invalid";
-
-        // when
-    }
-
-    @Test
-    void 정렬방향은_ASC이거나_DESC가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
-    @Test
-    void 커서패이지_크기가_숫자가_아닐경우_정상적으로_동작하지_않는다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
 }

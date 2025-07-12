@@ -58,7 +58,7 @@ class UserInterestRepositoryTest {
     @BeforeEach
     void setUp() {
         globalUser = new User("user@user.com", "user1", "password");
-        ReflectionTestUtils.setField(globalUser, "createdAt", Instant.now()us);
+        ReflectionTestUtils.setField(globalUser, "createdAt", Instant.now());
         userRepository.saveAndFlush(globalUser);
 
         Interest interest1 = Interest.builder()
@@ -105,9 +105,10 @@ class UserInterestRepositoryTest {
     }
 
     @Test
-    void userid를_통해_유저가_구독한_관심사를_가져온다() throws Exception {
+    void 사용자id를_통해_사용자가_구독한_관심사를_가져온다() throws Exception {
         // when
         Set<UserInterest> userInterests = userInterestRepository.findByUserId(globalUser.getId());
+
         Set<String> interestnames = userInterests.stream()
             .map(userInterest -> userInterest.getInterest().getName())
             .collect(Collectors.toSet());

@@ -10,16 +10,15 @@ import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.user_interest.mapper.InterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service
@@ -37,23 +36,30 @@ public class InterestServiceImpl implements InterestService{
 
     private final UserInterestRepository userInterestRepository;
 
+    private final InterestMapper interestMapper;
+
     public CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request) {
 
         // contents
+        // 여기를 repo에서 만들고 테스트 해야함
         List<Interest> contents = interestRepository.findAllInterestByRequest(request);
 
-        Set<UserInterest> userInterests = userInterestRepository.findByUserId(request.getUserId());
+        // 그냥 이름만 가져올까?
+        Set<UUID> userInterestIds = userInterestRepository.findByUserId(request.getUserId()).stream()
+            .map(userInterest -> userInterest.getInterest().getId())
+            .collect(Collectors.toSet());
 
-        Set<InterestDto> contentDtos = new HashSet<>();
-        for (Interest interest : contents){
-            List<String> keywordNames = keywordRepository.findAllByInterest(interest).stream().map(Keyword::getName).toList();
-            boolean subscribedByMe = false;
-            if(userInterests.contains(interest)){
-                subscribedByMe = true;
-            }
-            InterestDto interestDto = new InterestDto(interest.getId(), interest.getName(), keywordNames, interest.getSubscriberCount(), subscribedByMe);
-            contentDtos.add(interestDto);
-        }
+
+        List<InterestDto> interestDtos = contents.stream()
+            .map(interest -> {
+                List<String> keywordNames = keywordRepository.findAllByInterest(interest).stream()
+                    .map(Keyword::getName)
+                    .toList();
+
+                boolean subscribedByMe = userInterestIds.contains(interest.getId());
+
+                return interestMapper.toDto(interest, keywordNames, subscribedByMe);
+            }).toList();
 
 
         return null;
