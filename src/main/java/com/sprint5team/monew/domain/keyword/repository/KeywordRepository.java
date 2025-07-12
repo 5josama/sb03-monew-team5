@@ -5,6 +5,7 @@ import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -14,5 +15,5 @@ import java.util.UUID;
  * Date         : 2025. 7. 11.
  */
 public interface KeywordRepository extends JpaRepository<Keyword, UUID> {
-    List<String> findAllNameByInterest(Interest interest);
+    Set<Keyword> findAllByInterest(Interest interest);
 }

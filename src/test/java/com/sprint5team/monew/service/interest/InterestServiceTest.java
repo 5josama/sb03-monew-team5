@@ -268,10 +268,59 @@ public class InterestServiceTest {
     @Test
     void 커서값을_기준으로_조회한다() throws Exception {
         // given
+        String keyword = "스포츠";
+        String orderBy = "name";
+        String direction = "desc";
+        String cursor = "게임";
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+
+
+        Interest interestB = Interest.builder()
+            .name("다큐멘터리").subscriberCount(50L).build();
+        ReflectionTestUtils.setField(interestB, "createdAt", now.minusMinutes(20));
+        Interest interestC = Interest.builder()
+            .name("스포츠").subscriberCount(200L).build();
+        ReflectionTestUtils.setField(interestC, "createdAt", now.minusMinutes(5));
+        List<Interest> interests = Arrays.asList(interestB, interestC);
+
+        given(interestRepository.findAllInterestByRequest(any(CursorPageRequest.class)))
+            .willReturn(interests);
+
+
+        InterestDto expectedDtoB = InterestDto.builder()
+            .id(UUID.nameUUIDFromBytes(interestB.getId().toString().getBytes()))
+            .name(interestB.getName())
+            .subscriberCount(interestB.getSubscriberCount())
+            .keywords(Collections.emptyList())
+            .subscribedByMe(false).build();
+        InterestDto expectedDtoC = InterestDto.builder()
+            .id(UUID.nameUUIDFromBytes(interestC.getId().toString().getBytes()))
+            .name(interestC.getName())
+            .subscriberCount(interestC.getSubscriberCount())
+            .keywords(Collections.emptyList())
+            .subscribedByMe(false).build();
+        List<InterestDto> expectedInterestDtos = Arrays.asList(expectedDtoB, expectedDtoC);
 
         // when
+        CursorPageResponseInterestDto result = interestService.generateCursorPage(request);
 
         // then
+        verify(interestRepository).findAllInterestByRequest(request);
+
+        assertThat(result.content())
+            .isNotNull()
+            .hasSize(interests.size())
+            .containsExactlyElementsOf(expectedInterestDtos);
+        assertThat(result.content().get(0).name())
+            .isEqualTo("expectedDtoB");
+
+        assertThat(result.nextCursor()).isEqualTo(interestC.getId().toString());
+        assertThat(result.hasNext()).isFalse();
 
     }
 

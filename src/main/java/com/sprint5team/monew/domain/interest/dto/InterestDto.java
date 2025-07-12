@@ -16,7 +16,7 @@ public record InterestDto (
     UUID id,
     String name,
     List<String> keywords,
-    Long subscriberCount,
+    long subscriberCount,
     boolean subscribedByMe
 ){
 }
