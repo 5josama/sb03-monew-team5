@@ -2,8 +2,10 @@ package com.sprint5team.monew.service.article;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.S3Uploader;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.article.service.ArticleBackUpService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +32,7 @@ public class ArticleBackUpTest {
 
     @Test
     void 주어진날짜의_뉴스기사를_조회하여_JSON으로_직렬화하여_S3에_업로드할_수_있다() throws JsonProcessingException {
-        LocalDate date = LocalDate.of(2025, 7, 12);
+        LocalDate date = LocalDate.now();
         Instant start = date.atStartOfDay(ZoneId.of("UTC")).toInstant();
         Instant end = date.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
 
@@ -50,7 +52,7 @@ public class ArticleBackUpTest {
         articleBackUpService.backupArticles(date);
 
         // then
-        String fileName = "backup/news_2025-07-10.json";
+        String fileName = "backup/news_" + date + ".json";
         Mockito.verify(s3Uploader).upload(fileName, "json-문자열");
     }
 }
