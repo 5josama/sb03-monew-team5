@@ -324,6 +324,7 @@ public class InterestServiceTest {
 
     }
 
+
     @Test
     void 유저_기반_구독여부를_판단한다() throws Exception {
         // given
@@ -333,4 +334,30 @@ public class InterestServiceTest {
         // then
 
     }
+
+        @Test
+    void 커서_페이지_크기로_조회한다() throws Exception {
+//        // given
+//        String keyword = null;
+//        String orderBy = "subscriberCount";
+//        String direction = "asc";
+//        String cursor = null;
+//        Instant after = null;
+//        Integer limit = 2;
+//        UUID userId = UUID.randomUUID();
+//
+//        List<Interest> sortedInterest = List.of(interestA, interestC);
+//
+//        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+//        // when
+//        List<Interest> result = interestRepository.findAllInterestByRequest(request);
+//
+//        // then
+//        assertThat(result)
+//            .isNotNull()
+//            .hasSize(sortedInterest.size())
+//            .containsExactlyElementsOf(sortedInterest);
+    }
+
+
 }

@@ -4,10 +4,7 @@ import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
@@ -23,6 +20,7 @@ import java.time.Instant;
 @Builder
 @Entity
 @Getter
+@ToString
 @Table(name = "tbl_interest")
 public class Interest extends BaseUpdatableEntity {
 

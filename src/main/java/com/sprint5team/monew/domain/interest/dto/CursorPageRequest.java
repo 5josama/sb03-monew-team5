@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.interest.dto;
 
+import com.querydsl.core.types.Order;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -40,4 +41,8 @@ public class CursorPageRequest {
 
     @NotBlank
     private UUID userId;
+
+    public Order getDirectionAsOrder() {
+        return Order.valueOf(direction.toUpperCase());
+    }
 }
