@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
+    private static final String NAME = "name";S
+
     private final InterestRepository interestRepository;
 
     private final KeywordRepository keywordRepository;
@@ -37,11 +40,11 @@ public class InterestServiceImpl implements InterestService{
     private final UserInterestRepository userInterestRepository;
 
     private final InterestMapper interestMapper;
-    private final UserRepository userRepository;
+
 
     public CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request) {
 
-        // 1. contents
+        // 1. get contents
         List<Interest> contents = interestRepository.findAllInterestByRequest(request);
 
         // TODO 그냥 이름만 가져올까?
@@ -49,6 +52,24 @@ public class InterestServiceImpl implements InterestService{
             .map(userInterest -> userInterest.getInterest().getId())
             .collect(Collectors.toSet());
 
+        // 2. make cursor
+        long totalElements = interestRepository.countTotalElements(request);
+        String nextCursor = null;
+        Instant nextAfter = null;
+        boolean hasNext = contents.size() == request.getLimit() + 1;
+
+        if (hasNext) {
+            contents = contents.subList(0,request.getLimit());
+            Interest lastContent = contents.get(contents.size() - 1);
+            nextAfter = lastContent.getCreatedAt();
+
+            switch (request.getOrderBy()){
+                case NAME ->  nextCursor = lastContent.getName();
+                default ->  nextCursor = String.valueOf(lastContent.getSubscriberCount());
+            }
+        }
+
+        // 3. map contents to interestDtos
         List<InterestDto> interestDtos = contents.stream()
             .map(interest -> {
                 List<String> keywordNames = keywordRepository.findAllByInterest(interest).stream()
@@ -60,12 +81,16 @@ public class InterestServiceImpl implements InterestService{
                 return interestMapper.toDto(interest, keywordNames, subscribedByMe);
             }).toList();
 
-        // 2. cursor
-        long totalElements = interestRepository.countTotalElements(request);
+        // 4. combine all together to CursorPageResponseInterestDto
+        CursorPageResponseInterestDto result = CursorPageResponseInterestDto.builder()
+            .content(interestDtos)
+            .nextCursor(nextCursor)
+            .nextAfter(nextAfter)
+            .size(request.getLimit())
+            .totalElements(totalElements)
+            .hasNext(hasNext)
+            .build();
 
-
-
-
-        return null;
+        return result;
     }
 }

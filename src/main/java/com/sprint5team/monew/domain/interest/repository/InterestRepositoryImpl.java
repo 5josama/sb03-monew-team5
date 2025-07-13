@@ -32,8 +32,25 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom{
 
     @Override
     public long countTotalElements(CursorPageRequest request) {
-        
-        return 0;
+        QInterest interest = QInterest.interest;
+        QKeyword keyword = QKeyword.keyword;
+        BooleanBuilder where = new BooleanBuilder();
+
+        if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+            where.and(interest.name.containsIgnoreCase(request.getKeyword())
+                .or(JPAExpressions.selectOne()
+                    .from(keyword)
+                    .where(keyword.interest.eq(interest)
+                        .and(keyword.name.containsIgnoreCase(request.getKeyword())))
+                    .exists()));
+        }
+
+        Long totalElements = queryFactory
+            .select(interest.count())
+            .from(interest)
+            .where(where)
+            .fetchOne();
+        return totalElements == null ? 0 : totalElements;
     }
 
     @Override
