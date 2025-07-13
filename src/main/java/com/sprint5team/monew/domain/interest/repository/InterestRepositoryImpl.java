@@ -29,6 +29,13 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
 
+
+    @Override
+    public long countTotalElements(CursorPageRequest request) {
+        
+        return 0;
+    }
+
     @Override
     public List<Interest> findAllInterestByRequest(CursorPageRequest request) {
 

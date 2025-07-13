@@ -37,18 +37,17 @@ public class InterestServiceImpl implements InterestService{
     private final UserInterestRepository userInterestRepository;
 
     private final InterestMapper interestMapper;
+    private final UserRepository userRepository;
 
     public CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request) {
 
-        // contents
-        // 여기를 repo에서 만들고 테스트 해야함
+        // 1. contents
         List<Interest> contents = interestRepository.findAllInterestByRequest(request);
 
-        // 그냥 이름만 가져올까?
+        // TODO 그냥 이름만 가져올까?
         Set<UUID> userInterestIds = userInterestRepository.findByUserId(request.getUserId()).stream()
             .map(userInterest -> userInterest.getInterest().getId())
             .collect(Collectors.toSet());
-
 
         List<InterestDto> interestDtos = contents.stream()
             .map(interest -> {
@@ -60,6 +59,11 @@ public class InterestServiceImpl implements InterestService{
 
                 return interestMapper.toDto(interest, keywordNames, subscribedByMe);
             }).toList();
+
+        // 2. cursor
+        long totalElements = interestRepository.countTotalElements(request);
+
+
 
 
         return null;

@@ -70,10 +70,13 @@ public class InterestRepositoryCustomTest {
         interestRepository.save(interestC);
     }
 
+    /**
+     *  findAllInterestByRequest() test
+     */
     @Test
     void 이름으로_정렬한다() throws Exception {
-        Instant createdAt = Instant.now();
         // given
+        Instant createdAt = Instant.now();
         Keyword keywordEntity = new Keyword(createdAt, "스포츠", interestB);
         keywordRepository.save(keywordEntity);
 
@@ -260,4 +263,153 @@ public class InterestRepositoryCustomTest {
             .hasSize(sortedInterest.size())
             .containsExactlyElementsOf(sortedInterest);
     }
+
+    /**
+     * countTotalElements() test
+     */
+    @Test
+    void 조건이_없으면_모든_관심사들의_수를_반환한다() throws Exception {
+        // given
+        String keyword = null;
+        String orderBy = "name";
+        String direction = "asc";
+        String cursor = null;
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        long result = interestRepository.countTotalElements(request);
+
+        // then
+        assertThat(result).isEqualTo(3);
+
+    }
+
+    @Test
+    void 키워드가_interest_name에_포함될때_정확한_개수를_반환한다() throws Exception {
+        // given
+        /**
+         * Interest: 다큐맨터리,게임,스포츠
+         */
+        String keyword = "게임";
+        String orderBy = "name";
+        String direction = "asc";
+        String cursor = null;
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        long result = interestRepository.countTotalElements(request);
+
+        // then
+        assertThat(result).isEqualTo(1);
+    }
+
+    @Test
+    void 키워드가_keyword_name에_포함될때_정확한_개수를_반환한다() throws Exception {
+        // given
+        /**
+         * Interest: 다큐맨터리, 게임(keyword:스포츠), 스포츠
+         */
+        Instant createdAt = Instant.now();
+        Keyword keywordEntity = new Keyword(createdAt, "스포츠", interestB);
+        keywordRepository.save(keywordEntity);
+
+        String keyword = "스포츠";
+        String orderBy = "name";
+        String direction = "asc";
+        String cursor = null;
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        long result = interestRepository.countTotalElements(request);
+
+        // then
+        assertThat(result).isEqualTo(2);
+    }
+
+    @Test
+    void 조건에_만족하는_관심사가_없을떄_0을_반환한다() throws Exception {
+        // given
+        /**
+         * Interest: 다큐맨터리,게임,스포츠
+         */
+        String keyword = "피규어 수집";
+        String orderBy = "name";
+        String direction = "asc";
+        String cursor = null;
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        long result = interestRepository.countTotalElements(request);
+
+        // then
+        assertThat(result).isEqualTo(0);
+    }
+
+    @Test
+    void 조건은_대소문자를_구분하지_않고_반환한다() throws Exception {
+        interestRepository.deleteAll();
+
+        // given
+        Instant createdAt = Instant.now();
+        Interest interestA1 = Interest.builder()
+            .name("sport1234")
+            .subscriberCount(50L)
+            .createdAt(createdAt.minus(Duration.ofMinutes(10)))
+            .build();
+        interestRepository.save(interestA1);
+        Interest interestB1 = Interest.builder()
+            .name("SPORT4321")
+            .subscriberCount(200L)
+            .createdAt(createdAt.minus(Duration.ofMinutes(20)))
+            .build();
+        interestRepository.save(interestB1);
+        Interest interestC1 = Interest.builder()
+            .name("Sport1152")
+            .subscriberCount(100L)
+            .createdAt(createdAt.minus(Duration.ofMinutes(5)))
+            .build();
+        interestRepository.save(interestC1);
+        Interest interestD1 = Interest.builder()
+            .name("운동")
+            .subscriberCount(100L)
+            .createdAt(createdAt.minus(Duration.ofMinutes(5)))
+            .build();
+        interestRepository.save(interestD1);
+
+        Keyword keywordEntity = new Keyword(createdAt, "SPORt", interestD1);
+        keywordRepository.save(keywordEntity);
+
+        String keyword = "sport";
+        String orderBy = "name";
+        String direction = "asc";
+        String cursor = null;
+        Instant after = null;
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        long result = interestRepository.countTotalElements(request);
+
+        // then
+        assertThat(result).isEqualTo(4);
+    }
+
 }

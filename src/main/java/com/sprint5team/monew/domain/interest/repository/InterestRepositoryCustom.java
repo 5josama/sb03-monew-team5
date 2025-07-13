@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface InterestRepositoryCustom {
 
+    long countTotalElements(CursorPageRequest request);
+
     List<Interest> findAllInterestByRequest(CursorPageRequest request);
 }
 
