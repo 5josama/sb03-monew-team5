@@ -1,7 +1,9 @@
 package com.sprint5team.monew.repository.keyword;
 
+import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import org.hibernate.validator.internal.metadata.aggregated.FieldCascadable;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DataJpaTest
 @ActiveProfiles("test")
+@Import({QuerydslConfig.class})
 @DisplayName("Keyword Repository 슬라이스 테스트")
 class KeywordRepositoryTest {
 
@@ -40,6 +44,7 @@ class KeywordRepositoryTest {
 
 
     private Interest globalInterest;
+
     @BeforeEach
     void setUp() {
         globalInterest = Interest.builder()

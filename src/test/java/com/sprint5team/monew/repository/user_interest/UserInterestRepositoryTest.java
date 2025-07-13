@@ -3,8 +3,10 @@ package com.sprint5team.monew.repository.user_interest;
 
 
 
+import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -24,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * PackageName  : com.sprint5team.monew.repository.user_interest
  * FileName     : UserInterestTest
@@ -33,12 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Import({QuerydslConfig.class})
 @DisplayName("user interest Repository 슬라이스 테스트")
 class UserInterestRepositoryTest {
-
-    @Autowired
-    private KeywordRepository keywordRepository;
-
     @Autowired
     private InterestRepository interestRepository;
 
@@ -50,9 +51,7 @@ class UserInterestRepositoryTest {
 
 
     private User globalUser;
-    private UserInterest globalUserInterest1;
-    private UserInterest globalUserInterest2;
-    private UserInterest globalUserInterest3;
+    private UserInterest globalUserInterest1, globalUserInterest2, globalUserInterest3;
     private Interest interest3;
 
     @BeforeEach

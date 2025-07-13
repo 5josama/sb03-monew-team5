@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
-    private static final String NAME = "name";S
+    private static final String NAME = "name";
 
     private final InterestRepository interestRepository;
 
@@ -40,7 +40,6 @@ public class InterestServiceImpl implements InterestService{
     private final UserInterestRepository userInterestRepository;
 
     private final InterestMapper interestMapper;
-
 
     public CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request) {
 
