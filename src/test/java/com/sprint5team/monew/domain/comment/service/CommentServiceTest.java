@@ -2,6 +2,7 @@
 package com.sprint5team.monew.domain.comment.service;
 
 import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
@@ -10,8 +11,6 @@ import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.global.exception.ArticleNotFoundException;
-import com.sprint5team.monew.global.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +60,7 @@ public class CommentServiceTest {
     @BeforeEach
     void setUp() {
         commentId = UUID.randomUUID();
-        article = new Article("Naver","http://naver.com/testURL","테스트 기사","테스트 기사 내용 요약", false, LocalDateTime.now());
+        article = new Article("Naver","http://naver.com/testURL","테스트 기사","테스트 기사 내용 요약", Instant.now());
         user = new User("test@test.com","테스트 사용자","test1234");
         createdAt = Instant.now();
         content = "테스트 댓글";
