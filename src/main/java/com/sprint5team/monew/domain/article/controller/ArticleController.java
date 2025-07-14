@@ -57,7 +57,7 @@ public class ArticleController {
                 after,
                 limit
         );
-        CursorPageResponseArticleDto articles = articleService.getArticles(filter);
+        CursorPageResponseArticleDto articles = articleService.getArticles(filter, userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(articles);

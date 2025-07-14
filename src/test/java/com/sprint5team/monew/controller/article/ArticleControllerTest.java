@@ -85,7 +85,7 @@ public class ArticleControllerTest {
                 false
         );
 
-        given(articleService.getArticles(any())).willReturn(articles);
+        given(articleService.getArticles(any(), any())).willReturn(articles);
 
         // when & then
         mockMvc.perform(get("/api/articles")
