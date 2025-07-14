@@ -54,12 +54,6 @@ public class InterestIntegrationTest {
     private KeywordRepository keywordRepository;
 
     @Autowired
-    private UserInterestRepository userInterestRepository;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
     private InterestService interestService;
 
 
@@ -127,7 +121,7 @@ public class InterestIntegrationTest {
     }
 
     @Test
-    void 정렬_기준_오류가_있을경우_400에러가_발생한다() throws Exception {
+    void 정렬_기준_오류가_있을경우_ConstraintViolationException_400_에러가_발생한다() throws Exception {
         // given
         MvcResult result = mockMvc.perform(get("/api/interests")
                 .param("orderBy", "name")
@@ -144,7 +138,7 @@ public class InterestIntegrationTest {
     }
 
     @Test
-    void 페이지네이션_파라미터에_오류가_있을경우_400_에러가_발생한다() throws Exception {
+    void 페이지네이션_파라미터에_오류가_있을경우_ConstraintViolationException_400_에러가_발생한다() throws Exception {
         // given
         MvcResult result = mockMvc.perform(get("/api/interests")
                 .param("orderBy", "invalid")

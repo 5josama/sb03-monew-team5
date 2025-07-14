@@ -24,7 +24,7 @@ import java.time.Instant;
 @Table(name = "tbl_interest")
 public class Interest extends BaseUpdatableEntity {
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone", nullable = false)
     @CreatedDate
     private Instant createdAt;
 

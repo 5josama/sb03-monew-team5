@@ -23,3 +23,7 @@ spring:
       schema-locations:
         - classpath:schema.sql
         - classpath:interest-dummy.sql
+
+naver:
+  client_id: ${X_Naver_Client_Id}
+  client_secret: ${X_Naver_Client_Secret}

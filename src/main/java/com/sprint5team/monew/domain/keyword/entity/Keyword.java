@@ -30,7 +30,7 @@ import java.time.Instant;
 )
 public class Keyword extends BaseEntity {
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone", nullable = false)
     @CreatedDate
     private Instant createdAt;
 

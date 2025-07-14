@@ -19,10 +19,9 @@ CREATE TABLE tbl_user
     id         uuid PRIMARY KEY,
     email      varchar(100) UNIQUE   NOT NULL,
     nickname   varchar(20)           NOT NULL,
-    password   varchar(60)           NOT NULL,
+    password   varchar(20)           NOT NULL,
     created_at TIMESTAMPTZ           NOT NULL,
-    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
-    updated_at TIMESTAMPTZ           NOT NULL
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 
