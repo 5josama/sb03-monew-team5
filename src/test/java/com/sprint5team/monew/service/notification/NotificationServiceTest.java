@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificationDto;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
@@ -22,12 +23,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -139,5 +143,40 @@ class NotificationServiceTest {
         assertEquals(userId, result.userId());
         assertEquals(ResourceType.COMMENT, result.resourceType());
         assertEquals(commentId, result.resourceId());
+    }
+
+    @Test
+    void 알림_목록_커서_기반_조회() {
+        // given
+        String cursor = UUID.randomUUID().toString();
+        Instant after = Instant.now().minus(1, ChronoUnit.DAYS);
+        int limit = 10;
+
+        Notification notification = Notification.builder()
+                .user(testUser)
+                .content("알림 내용입니다")
+                .resourceType(ResourceType.INTEREST)
+                .interest(mock(Interest.class))
+                .createdAt(Instant.now())
+                .confirmed(false)
+                .build();
+        ReflectionTestUtils.setField(notification, "id", UUID.randomUUID());
+
+        List<Notification> notificationList = List.of(notification);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
+        given(notificationRepository.findAllByUserIdAndConfirmedIsFalseWithCursorPaging(
+                eq(userId), eq(cursor), eq(after), eq(limit))).willReturn(notificationList);
+
+        // when
+        CursorPageResponseNotificationDto result = notificationService.getAllNotifications(userId, cursor, after, limit);
+
+        // then
+        then(userRepository).should().findById(userId);
+        then(notificationRepository).should()
+                .findAllByUserIdAndConfirmedIsFalseWithCursorPaging(userId, cursor, after, limit);
+        assertEquals(userId, result.content().get(0).userId());
+        assertEquals(ResourceType.INTEREST, result.content().get(0).resourceType());
+        assertEquals(interestId, result.content().get(0).resourceId());
     }
 }

@@ -4,6 +4,7 @@ import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificationDto;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
@@ -13,6 +14,7 @@ import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -66,5 +68,10 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification saved = notificationRepository.save(notification);
         return NotificationDto.from(saved);
+    }
+
+    @Override
+    public CursorPageResponseNotificationDto getAllNotifications(UUID userId, String cursor, Instant after, int limit) {
+        return null;
     }
 }
