@@ -15,7 +15,6 @@ import java.util.List;
  * Date         : 2025. 7. 10.
  */
 @Builder
-@Valid
 public record InterestRegisterRequest(
     @NotNull @Size(min = 1, max = 50)
     String name,

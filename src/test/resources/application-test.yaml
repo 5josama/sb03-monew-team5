@@ -1,6 +1,11 @@
 spring:
   jackson:
     time-zone: UTC
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
   h2:
     console:
       enabled: true
@@ -13,7 +18,7 @@ spring:
     init:
       mode: always
       platform: h2
-      schema-locations: classpath:schema.sql
+      schema-locations: classpath:schema-test.sql
   jpa:
     hibernate:
       ddl-auto: none
@@ -29,6 +34,13 @@ logging:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     root: info
+
+aws:
+  s3:
+    access-key: ${AWS_S3_ACCESS_KEY}
+    secret-key: ${AWS_S3_SECRET_KEY}
+    region: ${AWS_S3_REGION}
+    bucket: ${AWS_S3_BUCKET}
 
 naver:
   client_id: ${X_Naver_Client_Id}

@@ -4,3 +4,26 @@ server:
 logging:
   level:
     root: info
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - classpath:schema.sql
+        - classpath:interest-dummy.sql
+
+naver:
+  client_id: ${X_Naver_Client_Id}
+  client_secret: ${X_Naver_Client_Secret}
