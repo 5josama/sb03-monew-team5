@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -50,5 +52,23 @@ class NotificationRepositoryTest {
         notificationRepository.save(notification);
         // then
         assertNotNull(notification.getId());
+    }
+
+    @Test
+    @DisplayName("user가 없는 알림 저장 시 예외가 발생해야 한다")
+    void 알림_저장_실패_user_null() {
+        // given
+        Notification notification = Notification.builder()
+                .user(null)
+                .content("알림입니다.")
+                .resourceType(ResourceType.COMMENT)
+                .confirmed(false)
+                .createdAt(Instant.now())
+                .build();
+
+        // when & then
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            notificationRepository.saveAndFlush(notification);
+        });
     }
 }

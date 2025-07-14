@@ -3,13 +3,16 @@ package com.sprint5team.monew.service.notification;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
+import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.notification.service.NotificationServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +37,15 @@ class NotificationServiceTest {
 
     @Mock
     private NotificationRepository notificationRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private InterestRepository interestRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private NotificationServiceImpl notificationService;
@@ -74,6 +87,8 @@ class NotificationServiceTest {
                 .build();
 
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
+        given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
+        given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
 
         // when
         NotificationDto result = notificationService.notifyArticleForInterest(userId, interestId, interestName, articleCount);
@@ -111,6 +126,8 @@ class NotificationServiceTest {
 
         // repository mocking
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
+        given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         // when
         NotificationDto result = notificationService.notifyCommentLiked(userId, commentId, likerName);
