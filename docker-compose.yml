@@ -51,4 +51,4 @@ services:
 volumes:
   postgresql-data:
   spring-monew-volume:
-  mongo-data:
+#  mongo-data:

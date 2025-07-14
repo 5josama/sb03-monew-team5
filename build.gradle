@@ -26,6 +26,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.postgresql:postgresql'
 //    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -36,6 +37,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Spring Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    testImplementation("org.springframework.batch:spring-batch-test")
 
     //Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
@@ -49,19 +53,22 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    // AWS SDK
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
-def querydslSrcDir = 'src/main/generated'
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
 // QueryDsl : 자동 생성 소스 파일 gradle clean으로 제거
 clean {
-    delete file(querydslSrcDir);
+    delete file(querydslDir);
 }
 
 //QueryDsl : 자바 컴파일할때, 자동 생성된 Q 클래스를 querydslSrcDir 경로에 생성
 tasks.withType(JavaCompile) {
-    options.generatedSourceOutputDirectory = file(querydslSrcDir)
+    options.generatedSourceOutputDirectory = file(querydslDir)
 
 }
 
