@@ -107,7 +107,11 @@ public class InterestServiceTest {
             .build();
         ReflectionTestUtils.setField(userInterest, "id", validRequest.getUserId());
 
-        Keyword validKeyword = Keyword.builder().build();
+        Keyword validKeyword = Keyword.builder()
+            .name("관심사")
+            .interest(interestB)
+            .build();
+        ReflectionTestUtils.setField(validKeyword, "id", UUID.randomUUID());
 
         given(interestRepository.findAllInterestByRequest(validRequest))
             .willReturn(List.of(interestB));
@@ -118,8 +122,8 @@ public class InterestServiceTest {
         given(interestRepository.countTotalElements(validRequest))
             .willReturn(1L);
 
-        given(keywordRepository.findAllByInterest(any(Interest.class)))
-            .willReturn(Set.of(validKeyword));
+        given(keywordRepository.findAllByInterestIn(any()))
+            .willReturn(List.of(validKeyword));
 
         given(interestMapper.toDto(any(),any(),eq(true)))
             .willReturn(mock(InterestDto.class));
@@ -148,14 +152,20 @@ public class InterestServiceTest {
             .userId(UUID.randomUUID())
             .build();
 
+        Keyword validKeyword = Keyword.builder()
+            .name("관심사")
+            .interest(interestB)
+            .build();
+        ReflectionTestUtils.setField(validKeyword, "id", UUID.randomUUID());
+
         given(interestRepository.findAllInterestByRequest(request))
             .willReturn(List.of(interestA, interestB, interestC));
 
         given(interestRepository.countTotalElements(request))
             .willReturn(3L);
 
-        given(keywordRepository.findAllByInterest(any(Interest.class)))
-            .willReturn(Set.of(Keyword.builder().name("키워드").build()));
+        given(keywordRepository.findAllByInterestIn(any()))
+            .willReturn(List.of(validKeyword));
 
         given(userInterestRepository.findByUserId(request.getUserId()))
             .willReturn(Set.of(
@@ -203,7 +213,7 @@ public class InterestServiceTest {
 
         given(interestRepository.findAllInterestByRequest(any())).willReturn(List.of(interestA));
         given(interestRepository.countTotalElements(any())).willReturn(1L);
-        given(keywordRepository.findAllByInterest(any())).willReturn(Set.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(any(), any(), eq(false))).willReturn(dto);
 
@@ -226,6 +236,12 @@ public class InterestServiceTest {
             .userId(userId)
             .build();
 
+        Keyword validKeyword = Keyword.builder()
+            .name("관심사")
+            .interest(interestA)
+            .build();
+        ReflectionTestUtils.setField(validKeyword, "id", UUID.randomUUID());
+
         UserInterest userInterest = UserInterest.builder()
             .interest(interestA)
             .build();
@@ -243,8 +259,8 @@ public class InterestServiceTest {
             .willReturn(List.of(interestA));
         given(interestRepository.countTotalElements(any()))
             .willReturn(1L);
-        given(keywordRepository.findAllByInterest(any()))
-            .willReturn(Set.of(Keyword.builder().name("키워드").build()));
+        given(keywordRepository.findAllByInterestIn(any()))
+            .willReturn(List.of(validKeyword));
         given(userInterestRepository.findByUserId(userId))
             .willReturn(Set.of(userInterest));
         given(interestMapper.toDto(eq(interestA), any(), eq(true)))
@@ -281,7 +297,7 @@ public class InterestServiceTest {
 
         given(interestRepository.findAllInterestByRequest(any())).willReturn(List.of(interestC,interestA,interestB));
         given(interestRepository.countTotalElements(any())).willReturn(1L);
-        given(keywordRepository.findAllByInterest(any())).willReturn(Set.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(any(), any(), eq(false))).willReturn(dto);
 
@@ -323,7 +339,7 @@ public class InterestServiceTest {
 
         given(interestRepository.findAllInterestByRequest(any())).willReturn(List.of(interestA,interestC));
         given(interestRepository.countTotalElements(any())).willReturn(2L);
-        given(keywordRepository.findAllByInterest(any())).willReturn(Set.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(eq(interestA), any(), eq(false))).willReturn(dto);
         given(interestMapper.toDto(eq(interestC), any(), eq(false))).willReturn(dto2);
@@ -368,7 +384,7 @@ public class InterestServiceTest {
 
         given(interestRepository.findAllInterestByRequest(any())).willReturn(List.of(interestA,interestC));
         given(interestRepository.countTotalElements(any())).willReturn(2L);
-        given(keywordRepository.findAllByInterest(any())).willReturn(Set.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(eq(interestA), any(), eq(false))).willReturn(dto);
         given(interestMapper.toDto(eq(interestC), any(), eq(false))).willReturn(dto2);

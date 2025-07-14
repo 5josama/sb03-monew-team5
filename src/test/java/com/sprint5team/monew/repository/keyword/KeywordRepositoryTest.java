@@ -64,7 +64,6 @@ class KeywordRepositoryTest {
             .interest(globalInterest)
             .createdAt(Instant.now())
             .build();
-
         keywordRepository.save(keyword1);
 
         Keyword keyword2 = Keyword.builder()
@@ -74,9 +73,10 @@ class KeywordRepositoryTest {
             .build();
         keywordRepository.save(keyword2);
 
+        List<Interest> globalInterestList = List.of(globalInterest);
 
         // when
-        Set<Keyword> keywords = keywordRepository.findAllByInterest(globalInterest);
+        List<Keyword> keywords = keywordRepository.findAllByInterestIn(globalInterestList);
         Set<String> keywordNames = keywords.stream().map(Keyword::getName).collect(Collectors.toSet());
 
         // then

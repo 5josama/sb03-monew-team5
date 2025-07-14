@@ -14,6 +14,7 @@ import com.sprint5team.monew.domain.user_interest.mapper.InterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  */
 @Validated
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
@@ -43,21 +45,22 @@ public class InterestServiceImpl implements InterestService{
 
     public CursorPageResponseInterestDto generateCursorPage(CursorPageRequest request) {
 
-        // 1. get contents
+        log.info("1. content 조회");
         List<Interest> contents = interestRepository.findAllInterestByRequest(request);
 
-        // TODO 그냥 이름만 가져올까?
+
         Set<UUID> userInterestIds = userInterestRepository.findByUserId(request.getUserId()).stream()
             .map(userInterest -> userInterest.getInterest().getId())
             .collect(Collectors.toSet());
 
-        // 2. make cursor
+        log.info("2. 커서 생성");
         long totalElements = interestRepository.countTotalElements(request);
         String nextCursor = null;
         Instant nextAfter = null;
         boolean hasNext = contents.size() == request.getLimit() + 1;
 
         if (hasNext) {
+            log.info("다음 페이지 있음");
             contents = contents.subList(0, request.getLimit());
             Interest lastContent = contents.get(contents.size() - 1);
             nextAfter = lastContent.getCreatedAt();
@@ -68,19 +71,22 @@ public class InterestServiceImpl implements InterestService{
             }
         }
 
-        // 3. map contents to interestDtos
+        log.info("3. uuid와 keywords로 매핑");
+        Map<UUID, List<String>> interestKeywordMap = keywordRepository.findAllByInterestIn(contents).stream()
+            .collect(Collectors.groupingBy(
+                keyword -> keyword.getInterest().getId(),
+                Collectors.mapping(Keyword::getName, Collectors.toList())
+            ));
+
+        log.info("4. InterestDto로 매핑");
         List<InterestDto> interestDtos = contents.stream()
             .map(interest -> {
-                List<String> keywordNames = keywordRepository.findAllByInterest(interest).stream()
-                    .map(Keyword::getName)
-                    .toList();
-
+                List<String> keywordNames = interestKeywordMap.getOrDefault(interest.getId(), List.of());
                 boolean subscribedByMe = userInterestIds.contains(interest.getId());
-
                 return interestMapper.toDto(interest, keywordNames, subscribedByMe);
             }).toList();
 
-        // 4. combine all together to CursorPageResponseInterestDto
+        log.info("5. CursorPageResponseInterestDto로 매핑");
         CursorPageResponseInterestDto result = CursorPageResponseInterestDto.builder()
             .content(interestDtos)
             .nextCursor(nextCursor)
