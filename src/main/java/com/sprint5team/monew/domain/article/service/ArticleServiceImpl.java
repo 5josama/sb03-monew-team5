@@ -1,6 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
+import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
+import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
@@ -38,5 +40,10 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         return articleViewMapper.toDto(article, user, articleCount.orElse(null));
+    }
+
+    @Override
+    public CursorPageResponseArticleDto getArticles(CursorPageFilter filter) {
+        return null;
     }
 }
