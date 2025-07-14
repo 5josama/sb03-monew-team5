@@ -41,7 +41,6 @@ public class ArticleIntegrationTest {
                 "https://naver.com/news/123331",
                 "title",
                 "요약",
-                false,
                 Instant.now()
         );
         articleRepository.save(article);
