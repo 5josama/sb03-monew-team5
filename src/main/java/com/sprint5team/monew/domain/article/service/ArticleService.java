@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface ArticleService {
     ArticleViewDto saveArticleView(UUID articleId, UUID userId);
 
-    CursorPageResponseArticleDto getArticles(CursorPageFilter filter);
+    CursorPageResponseArticleDto getArticles(CursorPageFilter filter, UUID userId);
 }
