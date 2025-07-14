@@ -1,5 +1,6 @@
 package com.sprint5team.monew.integration.article;
 
+import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;

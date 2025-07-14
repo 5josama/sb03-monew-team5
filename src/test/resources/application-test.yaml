@@ -18,7 +18,7 @@ spring:
     init:
       mode: always
       platform: h2
-      schema-locations: classpath:schema.sql
+      schema-locations: classpath:schema-test.sql
   jpa:
     hibernate:
       ddl-auto: none

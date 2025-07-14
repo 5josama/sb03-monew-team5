@@ -59,16 +59,16 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
-def querydslSrcDir = 'src/main/generated'
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
 // QueryDsl : 자동 생성 소스 파일 gradle clean으로 제거
 clean {
-    delete file(querydslSrcDir);
+    delete file(querydslDir);
 }
 
 //QueryDsl : 자바 컴파일할때, 자동 생성된 Q 클래스를 querydslSrcDir 경로에 생성
 tasks.withType(JavaCompile) {
-    options.generatedSourceOutputDirectory = file(querydslSrcDir)
+    options.generatedSourceOutputDirectory = file(querydslDir)
 
 }
 
