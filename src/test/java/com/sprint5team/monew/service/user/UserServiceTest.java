@@ -81,4 +81,18 @@ class UserServiceTest {
         .isInstanceOf(UserAlreadyExistsException.class);
   }
 
+  @Test
+  void 사용자_로그인_성공() {
+    // given
+    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(user);
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
+
+    // when
+    UserDto result = userService.login(email, password);
+
+    // then
+    assertThat(result).isEqualTo(userDto);
+    verify(userRepository).findByEmailAndPassword(eq(email), eq(password));
+  }
+
 }
