@@ -12,6 +12,7 @@ import com.sprint5team.monew.domain.user.controller.UserController;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserLoginRequest;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
+import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
 import java.time.Instant;
 import java.util.UUID;
@@ -137,6 +138,7 @@ class UserControllerTest {
         "test@test.kr",
         "wrongpassword"
     );
+    given(userService.login(any(String.class), any(String.class))).willThrow(new InvalidLoginException());
 
     // when and then
     mockMvc.perform(post("/api/users/login")

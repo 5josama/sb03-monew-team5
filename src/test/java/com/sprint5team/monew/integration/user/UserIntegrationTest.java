@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
+import com.sprint5team.monew.domain.user.service.UserServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,6 +28,12 @@ class UserIntegrationTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Autowired
+  private UserServiceImpl userService;
+
+  @Autowired
+  private EntityManager entityManager;
 
   @Test
   void 사용자_등록_API_통합_테스트() throws Exception {
@@ -93,5 +101,29 @@ class UserIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 사용자_로그인_API_통합_테스트() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test@test.kr",
+        "test",
+        "test" // 비밀번호 최소 길이 위반
+    );
+    userService.register(request);
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // when and then
+    mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.createdAt").exists())
+        .andExpect(jsonPath("$.email").value("test@test.kr"))
+        .andExpect(jsonPath("$.userId").isNotEmpty())
+        .andExpect(jsonPath("$.nickname").value("test"));
   }
 }

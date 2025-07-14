@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService{
         .email(email)
         .nickname(nickname)
         .password(password)
+        .isDeleted(false)
         .build();
     userRepository.save(user);
 
