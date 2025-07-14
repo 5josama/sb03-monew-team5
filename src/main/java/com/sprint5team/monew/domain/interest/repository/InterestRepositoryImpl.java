@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.interest.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
@@ -74,32 +75,33 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom{
         }
 
         if(request.getCursor()!= null && request.getAfter() != null) {
-            BooleanBuilder cursorCondition = new BooleanBuilder();
+            BooleanExpression cursorCondition = null;
             if (request.getOrderBy().equals(NAME)) {
                 if (direction == Order.ASC) {
-                    cursorCondition.or(
-                            interest.name.gt(request.getCursor()))
-                        .or(interest.name.eq(request.getCursor()).and(interest.createdAt.gt(request.getAfter())));
-
-                } else if (direction == Order.DESC) {
-                    cursorCondition.or(
-                            interest.name.lt(request.getCursor()))
-                        .or(interest.name.eq(request.getCursor()).and(interest.createdAt.lt(request.getAfter())));
+                    cursorCondition =
+                        interest.name.gt(request.getCursor())
+                            .or(interest.name.eq(request.getCursor()).and(interest.createdAt.gt(request.getAfter())));
+                } else {
+                    cursorCondition =
+                        interest.name.lt(request.getCursor())
+                            .or(interest.name.eq(request.getCursor()).and(interest.createdAt.lt(request.getAfter())));
                 }
             }
             else if (request.getOrderBy().equals(SUBSCRIBER_COUNT)) {
+                Long cursorCount = Long.valueOf(request.getCursor());
                 if (direction == Order.ASC) {
-                    cursorCondition.or(
-                            interest.subscriberCount.gt(Long.valueOf(request.getCursor())))
-                        .or(interest.subscriberCount.eq(Long.valueOf(request.getCursor())).and(interest.createdAt.gt(request.getAfter())));
-                }
-                 else if (direction == Order.DESC) {
-                    cursorCondition.or(
-                            interest.subscriberCount.lt(Long.valueOf(request.getCursor())))
-                        .or(interest.subscriberCount.eq(Long.valueOf(request.getCursor())).and(interest.createdAt.lt(request.getAfter())));
+                    cursorCondition =
+                        interest.subscriberCount.gt(cursorCount)
+                            .or(interest.subscriberCount.eq(cursorCount).and(interest.createdAt.gt(request.getAfter())));
+                } else {
+                    cursorCondition =
+                        interest.subscriberCount.lt(cursorCount)
+                            .or(interest.subscriberCount.eq(cursorCount).and(interest.createdAt.lt(request.getAfter())));
                 }
             }
-            where.and(cursorCondition);
+            if (cursorCondition != null) {
+                where.and(cursorCondition);
+            }
         }
 
         OrderSpecifier<?> primaryOrder = getOrderSpecifier(request.getOrderBy(), direction, interest);

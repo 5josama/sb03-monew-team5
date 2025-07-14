@@ -41,7 +41,7 @@ public class InterestServiceImpl implements InterestService{
 
     private final InterestMapper interestMapper;
 
-    public CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request) {
+    public CursorPageResponseInterestDto generateCursorPage(CursorPageRequest request) {
 
         // 1. get contents
         List<Interest> contents = interestRepository.findAllInterestByRequest(request);
@@ -58,13 +58,13 @@ public class InterestServiceImpl implements InterestService{
         boolean hasNext = contents.size() == request.getLimit() + 1;
 
         if (hasNext) {
-            contents = contents.subList(0,request.getLimit());
+            contents = contents.subList(0, request.getLimit());
             Interest lastContent = contents.get(contents.size() - 1);
             nextAfter = lastContent.getCreatedAt();
 
-            switch (request.getOrderBy()){
-                case NAME ->  nextCursor = lastContent.getName();
-                default ->  nextCursor = String.valueOf(lastContent.getSubscriberCount());
+            switch (request.getOrderBy()) {
+                case NAME -> nextCursor = lastContent.getName();
+                default -> nextCursor = String.valueOf(lastContent.getSubscriberCount());
             }
         }
 

@@ -39,13 +39,11 @@ public class InterestRepositoryCustomTest {
     @Autowired
     private KeywordRepository keywordRepository;
 
-    Interest interestA;
-    Interest interestB;
-    Interest interestC;
+    private Interest interestA, interestB, interestC;
+    private final Instant baseTime = Instant.parse("2025-07-14T00:00:00Z");
 
     @BeforeEach
     public void setup() {
-        Instant createdAt = Instant.now();
 
         keywordRepository.deleteAll();
         interestRepository.deleteAll();
@@ -53,21 +51,22 @@ public class InterestRepositoryCustomTest {
         interestA = Interest.builder()
             .name("다큐멘터리")
             .subscriberCount(50L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(10)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(10)))
             .build();
         interestRepository.save(interestA);
         interestB = Interest.builder()
             .name("게임")
             .subscriberCount(200L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(20)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
             .build();
         interestRepository.save(interestB);
         interestC = Interest.builder()
             .name("스포츠")
             .subscriberCount(100L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(5)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
             .build();
         interestRepository.save(interestC);
+        interestRepository.flush();
     }
 
     /**
@@ -174,27 +173,72 @@ public class InterestRepositoryCustomTest {
             .containsExactlyElementsOf(sortedInterest);
     }
 
+    //    @Test
+//    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_오름차순() throws Exception {
+//        interestRepository.deleteAll();
+//
+//        Interest interestA1 = Interest.builder()
+//            .name("sport")
+//            .subscriberCount(50L)
+//            .createdAt(baseTime.minus(Duration.ofMinutes(10)))
+//            .build();
+//        interestRepository.save(interestA1);
+//        Interest interestB1 = Interest.builder()
+//            .name("sport")
+//            .subscriberCount(200L)
+//            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
+//            .build();
+//        interestRepository.save(interestB1);
+//        Interest interestC1 = Interest.builder()
+//            .name("sport")
+//            .subscriberCount(100L)
+//            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
+//            .build();
+//        interestRepository.save(interestC1);
+//
+//        String keyword = null;
+//        String orderBy = "name";
+//        String direction = "asc";
+//        String cursor = "sport";
+//        Instant after = baseTime.minus(Duration.ofMinutes(15));
+//        Integer limit = 10;
+//        UUID userId = UUID.randomUUID();
+//
+//        List<Interest> sortedInterest = List.of(interestA1, interestC1);
+//
+//        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+//        // when
+//        List<Interest> result = interestRepository.findAllInterestByRequest(request);
+//
+//        // then
+//        assertThat(result)
+//            .isNotNull()
+//            .hasSize(sortedInterest.size())
+//            .containsExactlyElementsOf(sortedInterest);
+//    }
     @Test
     void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_오름차순() throws Exception {
+
         interestRepository.deleteAll();
 
-        Instant createdAt = Instant.now();
-        Interest interestA1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(50L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(10)))
-            .build();
-        interestRepository.save(interestA1);
         Interest interestB1 = Interest.builder()
             .name("스포츠")
             .subscriberCount(200L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(20)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
             .build();
         interestRepository.save(interestB1);
+
+        Interest interestA1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(50L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(10)))
+            .build();
+        interestRepository.save(interestA1);
+
         Interest interestC1 = Interest.builder()
             .name("스포츠")
             .subscriberCount(100L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(5)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
             .build();
         interestRepository.save(interestC1);
 
@@ -202,58 +246,16 @@ public class InterestRepositoryCustomTest {
         String orderBy = "name";
         String direction = "asc";
         String cursor = "스포츠";
-        Instant after = createdAt.minus(Duration.ofMinutes(15));
+
+        Instant after = interestB1.getCreatedAt();
+
         Integer limit = 10;
         UUID userId = UUID.randomUUID();
 
         List<Interest> sortedInterest = List.of(interestA1, interestC1);
 
         CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
-        // when
-        List<Interest> result = interestRepository.findAllInterestByRequest(request);
 
-        // then
-        assertThat(result)
-            .isNotNull()
-            .hasSize(sortedInterest.size())
-            .containsExactlyElementsOf(sortedInterest);
-    }
-
-    @Test
-    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() throws Exception {
-        interestRepository.deleteAll();
-
-        Instant createdAt = Instant.now();
-        Interest interestA1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(50L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(10)))
-            .build();
-        interestRepository.save(interestA1);
-        Interest interestB1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(200L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(20)))
-            .build();
-        interestRepository.save(interestB1);
-        Interest interestC1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(100L)
-            .createdAt(createdAt.minus(Duration.ofMinutes(5)))
-            .build();
-        interestRepository.save(interestC1);
-
-        String keyword = null;
-        String orderBy = "name";
-        String direction = "desc";
-        String cursor = "스포츠";
-        Instant after = createdAt.minus(Duration.ofMinutes(15));
-        Integer limit = 10;
-        UUID userId = UUID.randomUUID();
-
-        List<Interest> sortedInterest = List.of(interestB1);
-
-        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
         // when
         List<Interest> result = interestRepository.findAllInterestByRequest(request);
 

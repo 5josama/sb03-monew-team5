@@ -2,13 +2,13 @@
 DROP TABLE IF EXISTS tbl_keyword CASCADE ;
 DROP TABLE IF EXISTS tbl_user_interest CASCADE ;
 DROP TABLE IF EXISTS tbl_interest CASCADE ;
-DROP TABLE IF EXISTS tbl_user;
+DROP TABLE IF EXISTS tbl_user CASCADE;
 DROP TABLE IF EXISTS tbl_comment CASCADE;
 DROP TABLE IF EXISTS tbl_like CASCADE;
 DROP TABLE IF EXISTS tbl_notification CASCADE;
-DROP TABLE IF EXISTS tbl_article;
-DROP TABLE IF EXISTS tbl_article_count;
-DROP TABLE IF EXISTS tbl_article_keyword;
+DROP TABLE IF EXISTS tbl_article CASCADE;
+DROP TABLE IF EXISTS tbl_article_count CASCADE;
+DROP TABLE IF EXISTS tbl_article_keyword CASCADE;
 
 
 

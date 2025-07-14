@@ -36,10 +36,10 @@ public class CursorPageRequest {
     // 똑같은 커서일 때는 after을 기준으로 after = createdAt
     private Instant after;
 
-    @NotBlank
+    @NotNull
     private Integer limit;
 
-    @NotBlank
+    @NotNull
     private UUID userId;
 
     public Order getDirectionAsOrder() {
