@@ -20,7 +20,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,17 +38,15 @@ public class ArticleBackUpIntegrationTest {
     @MockitoBean private S3Uploader s3Uploader;
 
     @Test
-    void 주어진날짜의_뉴스기사를_조회하여_JSON으로_직렬화하여_S3에_업로드할_수_있다() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+    void 주어진_날짜_기준_모든_뉴스기사를_조회하여_JSON으로_직렬화하여_S3에_업로드할_수_있다() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         // given
         LocalDate date = LocalDate.now();
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        Instant now = yesterday.atTime(12, 0).atZone(ZoneId.of("UTC")).toInstant();
 
         List<Article> articles = Arrays.asList(
-                new Article("NAVER", "link1", "title1", "요약1", now),
-                new Article("NAVER", "link2", "title2", "요약2", now),
-                new Article("NAVER", "link3", "title3", "요약3", now),
-                new Article("NAVER", "link4", "title4", "요약4", now)
+                new Article("NAVER", "link1", "title1", "요약1", Instant.now()),
+                new Article("NAVER", "link2", "title2", "요약2", Instant.now()),
+                new Article("NAVER", "link3", "title3", "요약3", Instant.now()),
+                new Article("NAVER", "link4", "title4", "요약4", Instant.now())
         );
 
         articleRepository.saveAll(articles);
