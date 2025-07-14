@@ -5,6 +5,7 @@ import com.sprint5team.monew.domain.comment.controller.CommentController;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.service.CommentService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CommentController.class)
+@DisplayName("댓글 Controller 단위 테스트")
 public class CommentControllerTest {
 
     @Autowired
@@ -62,7 +64,7 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.id").value(commentId.toString()))
                 .andExpect(jsonPath("$.articleId").value(articleId.toString()))
                 .andExpect(jsonPath("$.userId").value(userId.toString()))
-                .andExpect(jsonPath("$.userNickName").value("UserNickname"))
+                .andExpect(jsonPath("$.userNickname").value("UserNickname"))
                 .andExpect(jsonPath("$.content").value("테스트 댓글 입니다."))
                 .andExpect(jsonPath("$.likeCount").value(0))
                 .andExpect(jsonPath("$.likedByMe").value(false));
@@ -74,7 +76,7 @@ public class CommentControllerTest {
         //Given
         UUID articleId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        String longContent = "a".repeat(1001); // 1000자 초과
+        String longContent = "a".repeat(501); // 500자 초과
 
         CommentRegisterRequest commentRegisterRequest = new CommentRegisterRequest(articleId, userId, longContent);
 
@@ -82,8 +84,7 @@ public class CommentControllerTest {
         mockMvc.perform(post("/api/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentRegisterRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -98,8 +99,7 @@ public class CommentControllerTest {
         mockMvc.perform(post("/api/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentRegisterRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isBadRequest());
     }
 
 

@@ -4,6 +4,7 @@ import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.user.entity.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @EnableJpaAuditing
 @ActiveProfiles("test")
+@DisplayName("댓글 Repository 단위 테스트")
 public class CommentRepositoryTest {
 
     @Autowired

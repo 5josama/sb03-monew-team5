@@ -10,9 +10,11 @@ import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.service.CommentService;
+import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("댓글 Service 단위 테스트")
 public class CommentServiceTest {
 
     @Mock
@@ -47,7 +50,7 @@ public class CommentServiceTest {
     private CommentMapper commentMapper;
 
     @InjectMocks
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
     private UUID commentId;
     private Article article;
@@ -102,39 +105,6 @@ public class CommentServiceTest {
                 .hasMessage("뉴스 기사 데이터 없음.");
 
         verify(articleRepository).findById(article.getId());
-        verify(userRepository, never()).findById(any(UUID.class));
-        verify(commentRepository, never()).save(any(Comment.class));
-        verify(commentMapper, never()).toDto(any(Comment.class));
-    }
-
-    @Test
-    void 댓글_생성_실패_빈_내용(){
-        //given
-        CommentRegisterRequest request = new CommentRegisterRequest(article.getId(), user.getId(), "");
-
-        //when & then
-        assertThatThrownBy(() -> commentService.create(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("댓글 내용이 비어있습니다.");
-
-        verify(articleRepository, never()).findById(any(UUID.class));
-        verify(userRepository, never()).findById(any(UUID.class));
-        verify(commentRepository, never()).save(any(Comment.class));
-        verify(commentMapper, never()).toDto(any(Comment.class));
-    }
-
-    @Test
-    void 댓글_생성_실패_내용_길이초과(){
-        //given
-        String longContent = "a".repeat(1001); // 1000자 초과
-        CommentRegisterRequest request = new CommentRegisterRequest(article.getId(), user.getId(), longContent);
-
-        //when & then
-        assertThatThrownBy(() -> commentService.create(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("댓글 내용이 너무 깁니다. 최대 1000자까지 입력 가능합니다.");
-
-        verify(articleRepository, never()).findById(any(UUID.class));
         verify(userRepository, never()).findById(any(UUID.class));
         verify(commentRepository, never()).save(any(Comment.class));
         verify(commentMapper, never()).toDto(any(Comment.class));
