@@ -100,7 +100,7 @@ public class CommentServiceTest {
         //when & then
         assertThatThrownBy(() -> commentService.create(request))
                 .isInstanceOf(ArticleNotFoundException.class)
-                .hasMessage("게시글을 찾을 수 없습니다.");
+                .hasMessage("뉴스 기사 데이터 없음.");
 
         verify(articleRepository).findById(article.getId());
         verify(userRepository, never()).findById(any(UUID.class));

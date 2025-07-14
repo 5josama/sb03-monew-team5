@@ -1,6 +1,5 @@
 package com.sprint5team.monew.domain.comment.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
@@ -15,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.awaitility.Awaitility.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
