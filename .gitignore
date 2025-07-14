@@ -28,7 +28,7 @@ out/
 .DS_Store
 /src/.DS_Store
 **/.DS_Store
-
+**/generated
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
