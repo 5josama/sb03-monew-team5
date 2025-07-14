@@ -1,8 +1,9 @@
 package com.sprint5team.monew.controller.article;
 
 import com.sprint5team.monew.domain.article.controller.ArticleController;
+import com.sprint5team.monew.domain.article.dto.ArticleDto;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,7 @@ public class ArticleControllerTest {
     @Test
     void 뉴스기사_목록_조회_API가_정상적으로_동작한다() throws Exception {
         // given
+        UUID userId = UUID.randomUUID();
         List<ArticleDto> articleDtos = Arrays.asList(
                 new ArticleDto(UUID.randomUUID(), "NAVER", "https://naver.com/news/123", "title1", "sum1", Instant.now(), 12L, 10L, false),
                 new ArticleDto(UUID.randomUUID(), "NAVER", "https://naver.com/news/123", "title2", "sum2", Instant.now(), 12L, 10L, false),
@@ -83,16 +85,17 @@ public class ArticleControllerTest {
                 false
         );
 
-        given(articleService.getArticles(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).willReturn(articles);
+        given(articleService.getArticles(any())).willReturn(articles);
 
         // when & then
         mockMvc.perform(get("/api/articles")
                 .param("orderBy", "publishDate")
                 .param("direction", "DESC")
-                .param("limit", "50"))
+                .param("limit", "50")
+                .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.articleDtos.length()").value(3))
-                .andExpect(jsonPath("$.articleDtos[0].title").value("title1"))
-                .andExpect(jsonPath("$.articleDtos[1].title").value("title2"));
+                .andExpect(jsonPath("$.content.length()").value(3))
+                .andExpect(jsonPath("$.content[0].title").value("title1"))
+                .andExpect(jsonPath("$.content[1].title").value("title2"));
     }
 }
