@@ -31,17 +31,16 @@ public class InterestController {
     private final InterestService interestService;
 
     @GetMapping
-    public ResponseEntity<?> InterestPaginationController(
+    public ResponseEntity<CursorPageResponseInterestDto> InterestPaginationController(
         @RequestParam(required = false) String keyword,
         @RequestParam String orderBy,
         @RequestParam String direction,
         @RequestParam(required = false) String cursor,
         @RequestParam(required = false) Instant after,
         @RequestParam Integer limit,
-        @RequestHeader(name = "monew-request-user-id") UUID userId
+        @RequestHeader(name = "Monew-Request-User-ID") UUID userId
     ) {
         CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
-        @Valid CursorPageResponseInterestDto response = interestService.generateCursorPage(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(interestService.generateCursorPage(request));
     }
 }
