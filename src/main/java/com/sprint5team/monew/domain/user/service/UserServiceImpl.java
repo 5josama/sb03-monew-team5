@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.user.service;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -34,6 +35,18 @@ public class UserServiceImpl implements UserService{
         .password(password)
         .build();
     userRepository.save(user);
+
+    return userMapper.toDto(user);
+  }
+
+  @Override
+  public UserDto login(String email, String password) {
+
+    User user = userRepository.findByEmailAndPassword(email, password);
+
+    if (user == null) {
+      throw new InvalidLoginException();
+    }
 
     return userMapper.toDto(user);
   }

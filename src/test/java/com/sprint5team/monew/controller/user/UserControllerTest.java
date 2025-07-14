@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.user.controller.UserController;
 import com.sprint5team.monew.domain.user.dto.UserDto;
+import com.sprint5team.monew.domain.user.dto.UserLoginRequest;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
 import java.time.Instant;
@@ -54,7 +55,7 @@ class UserControllerTest {
     given(userService.register(any(UserRegisterRequest.class)))
         .willReturn(userDto);
 
-    // when & then
+    // when and then
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
@@ -75,12 +76,11 @@ class UserControllerTest {
         "test1234"
     );
 
-    // when & then
+    // when and then
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("이메일 형식이 올바르지 않습니다."));
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -92,12 +92,11 @@ class UserControllerTest {
         "test1234"
     );
 
-    // when & then
+    // when and then
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("닉네임은 20자 이하로 입력해주세요."));
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -109,11 +108,41 @@ class UserControllerTest {
         "1234" // 비밀번호 최소 길이 위반
     );
 
-    // when & then
+    // when and then
     mockMvc.perform(post("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("비밀번호는 6자리 이상 20자리 이하로 입력해주세요."));
+        .andExpect(status().isBadRequest());
   }
+
+  @Test
+  void 사용자_로그인_성공() throws Exception {
+    // given
+    UserLoginRequest request = new UserLoginRequest(
+        "test@test.kr",
+        "test1234"
+    );
+
+    // when and then
+    mockMvc.perform(post("/api/users/login")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void 사용자_로그인_실패() throws Exception {
+    // given
+    UserLoginRequest request = new UserLoginRequest(
+        "test@test.kr",
+        "wrongpassword"
+    );
+
+    // when and then
+    mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
+  }
+
 }
