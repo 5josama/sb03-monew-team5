@@ -1,6 +1,7 @@
-package com.sprint5team.monew.domain.comment.controller;
+package com.sprint5team.monew.controller.comment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.domain.comment.controller.CommentController;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.service.CommentService;
