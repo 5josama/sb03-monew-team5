@@ -1,5 +1,6 @@
--- psql 라이브러리 추가
+-- postgrest 초기 설정(라이브러리 추가 + interest에 적용)
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 
 -- 테이블 생성
 DROP TABLE IF EXISTS tbl_keyword CASCADE ;
@@ -62,6 +63,7 @@ CREATE TABLE IF NOT EXISTS tbl_interest
     subscriber_count BIGINT      NOT NULL,
     name             VARCHAR(50) NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_interest_name_trgm ON tbl_interest USING gin (name gin_trgm_ops);
 
 -- 뉴스 관심사
 CREATE TABLE tbl_article_keyword

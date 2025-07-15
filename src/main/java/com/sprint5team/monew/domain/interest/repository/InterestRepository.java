@@ -15,16 +15,18 @@ import java.util.UUID;
  */
 public interface InterestRepository extends JpaRepository<Interest, UUID>, InterestRepositoryCustom {
 
-    boolean existsInterestByName(String name);
+//    boolean existsInterestByName(String name);
 
+    // 정확히 비교
     boolean existsByNameEqualsIgnoreCase(String name);
 
 
     @Query(value = """
-        SELECT EXISTS (
-            SELECT 1 FROM tbl_interest
-            WHERE similarity(name, :name) > :threshold
-        )
+    SELECT EXISTS (
+        SELECT 1
+        FROM tbl_interest
+        WHERE similarity(lower(name), lower(:name)) > :threshold
+    )
     """, nativeQuery = true)
     boolean existsSimilarName(@Param("name") String name, @Param("threshold") double threshold);
 }

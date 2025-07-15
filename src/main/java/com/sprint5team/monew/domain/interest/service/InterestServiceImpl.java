@@ -107,7 +107,7 @@ public class InterestServiceImpl implements InterestService{
     // TODO 관심사 추가 서비스 로직
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
-
+        String name = request.name().trim();
 
         log.info("분기 시작 test 환경에선 h2 로직 실행 prod 환경에서 postgresql 사용 로직 실행");
         if ("test" .equals(activeProfile)) {
@@ -116,11 +116,15 @@ public class InterestServiceImpl implements InterestService{
         } else {
             log.info("prod 또는 dev 환경 postgres 로직 실행");
             log.info("1. 동일한 관심사 이름 있는지 확인");
-            if(interestRepository.existsSimilarName(request.name(),SIMILARITY_RATE)) throw new SimilarInterestException();
+            if(name.length()<=3){
+                if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
+            }else {
+                if(interestRepository.existsSimilarName(name, SIMILARITY_RATE)) throw new SimilarInterestException();
+            }
         }
 
         log.info("2.유사 관심사 없음 생성 로직 실행");
-        Interest interest = new Interest(request.name());
+        Interest interest = new Interest(name);
 
         log.info("2-1. 관심사 저장");
         interestRepository.save(interest);
@@ -140,8 +144,9 @@ public class InterestServiceImpl implements InterestService{
     }
 
     private void validateSimilarityInTest(InterestRegisterRequest request) {
+        String name = request.name().trim();
         log.info("1. 동일한 관심사 이름 있는지 확인");
-        if(interestRepository.existsByNameEqualsIgnoreCase(request.name())) throw new SimilarInterestException();
+        if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
 
         log.info("1-1. 관심사 전체 조회");
         List<Interest> interests = interestRepository.findAll();
@@ -153,7 +158,7 @@ public class InterestServiceImpl implements InterestService{
 
         log.info("1-2. 80% 이상 관심사 이름 유사도 확인");
         for(Interest interest : interests) {
-            if(similarity.apply(interest.getName(),request.name())>=similarityRate){
+            if(similarity.apply(interest.getName(),name)>=similarityRate){
                 log.warn("유사도 높은 관심사 발견. 등록 불가");
                 throw new SimilarInterestException();
             }
