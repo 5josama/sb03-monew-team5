@@ -100,7 +100,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    void 뉴스_출처_목록_조회_API가_정상적으로_동작한다() {
+    void 뉴스_출처_목록_조회_API가_정상적으로_동작한다() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
 
