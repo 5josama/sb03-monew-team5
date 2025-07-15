@@ -161,7 +161,7 @@ public class ArticleServiceTest {
                 "연합뉴스"
         );
 
-        given(articleRepository.findDistinctSource()).willReturn(sources);
+        given(articleRepository.findDistinctSources()).willReturn(sources);
 
         // when
         List<String> result = articleService.getSources();

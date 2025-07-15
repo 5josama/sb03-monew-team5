@@ -113,6 +113,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<String> getSources() {
-        return List.of();
+        return articleRepository.findDistinctSources();
     }
 }
