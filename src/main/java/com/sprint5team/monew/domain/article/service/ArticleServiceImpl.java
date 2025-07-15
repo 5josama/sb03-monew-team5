@@ -1,5 +1,7 @@
 package com.sprint5team.monew.domain.article.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
@@ -31,6 +33,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final InterestRepository interestRepository;
     private final KeywordRepository keywordRepository;
     private final ArticleMapper articleMapper;
+    private final S3Storage s3Storage;
+    private final ObjectMapper objectMapper;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -115,6 +119,27 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleRestoreResultDto restoreArticle(Instant from, Instant to) {
-        return null;
+        List<String> articleJson = s3Storage.readArticlesFromBackup(from, to);
+
+        List<Article> restoredArticles = articleJson.stream()
+                .flatMap(json -> {
+                    try {
+                        return Arrays.stream(objectMapper.readValue(json, Article[].class));
+                    } catch (Exception e) {
+                        throw new RuntimeException("복구 실패", e);
+                    }
+                }).toList();
+
+        articleRepository.saveAll(restoredArticles);
+
+        List<String> restoredIds = restoredArticles.stream()
+                .map(article -> article.getId().toString())
+                .toList();
+
+        return new  ArticleRestoreResultDto(
+                Instant.now(),
+                restoredIds,
+                restoredIds.size()
+        );
     }
 }

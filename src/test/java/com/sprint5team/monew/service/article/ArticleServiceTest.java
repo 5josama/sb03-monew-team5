@@ -1,5 +1,9 @@
 package com.sprint5team.monew.service.article;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
@@ -22,7 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import software.amazon.awssdk.services.s3.S3Client;
 
 import java.time.Instant;
 import java.util.*;
@@ -45,7 +48,7 @@ public class ArticleServiceTest {
     @Mock InterestRepository interestRepository;
     @Mock KeywordRepository keywordRepository;
     @Mock ArticleMapper articleMapper;
-    @Mock S3Client s3Client;
+    @Mock S3Storage s3Storage;
 
     @InjectMocks private ArticleServiceImpl articleService;
 
@@ -56,6 +59,12 @@ public class ArticleServiceTest {
     void setUp() {
         user = new User("test@naver.com", "test", "0000");
         article = new Article();
+
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        ReflectionTestUtils.setField(articleService, "objectMapper", mapper);
     }
 
     @Test
@@ -181,12 +190,32 @@ public class ArticleServiceTest {
                 new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
                 new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
         );
+        List<String> backupJsons = List.of(
+                "[{" +
+                        "\"id\": \"3b98b117-369e-4c36-a44d-7eef0a341d67\"," +
+                        "\"source\": \"NAVER\"," +
+                        "\"sourceUrl\": \"https://naver.com/1\"," +
+                        "\"title\": \"AI\"," +
+                        "\"summary\": \"경제\"," +
+                        "\"originalDateTime\": \"2025-07-13T10:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T10:00:00Z\"" +
+                        "}]",
+                "[{" +
+                        "\"id\": \"ba4b516e-3ab3-44ae-aa9d-713d29911e50\"," +
+                        "\"source\": \"한국경제\"," +
+                        "\"sourceUrl\": \"https://hankyung.com/2\"," +
+                        "\"title\": \"AI2\"," +
+                        "\"summary\": \"경제2\"," +
+                        "\"originalDateTime\": \"2025-07-13T11:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T11:00:00Z\"" +
+                        "}]"
+        );
+        List<String> restoredIds = List.of(
+                "3b98b117-369e-4c36-a44d-7eef0a341d67",
+                "ba4b516e-3ab3-44ae-aa9d-713d29911e50"
+        );
 
-        List<String> restoredIds = backupArticles.stream()
-                .map(article -> UUID.randomUUID().toString())
-                .toList();
-
-        given(s3Client.readArticlesFromBackup(from, to)).willReturn(backupArticles);
+        given(s3Storage.readArticlesFromBackup(from, to)).willReturn(backupJsons);
         given(articleRepository.saveAll(anyList())).willReturn(backupArticles);
 
         // when
@@ -194,7 +223,8 @@ public class ArticleServiceTest {
 
         // then
         assertThat(result.restoredArticleIds().size()).isEqualTo(2);
-        verify(s3Client).readArticlesFromBackup(from, to);
+        assertThat(result.restoredArticleIds()).containsExactlyInAnyOrderElementsOf(restoredIds);
+        verify(s3Storage).readArticlesFromBackup(from, to);
         verify(articleRepository).saveAll(anyList());
     }
 }

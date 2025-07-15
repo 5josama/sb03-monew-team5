@@ -57,6 +57,9 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.31.7'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Jackson Instant, LocalDateTime 등 Java 8의 시간 API 직렬화
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile

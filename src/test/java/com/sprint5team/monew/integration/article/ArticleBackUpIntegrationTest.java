@@ -1,6 +1,6 @@
 package com.sprint5team.monew.integration.article;
 
-import com.sprint5team.monew.base.util.S3Uploader;
+import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +35,7 @@ public class ArticleBackUpIntegrationTest {
     @Autowired private JobLauncher jobLauncher;
     @Autowired private Job articleBackupJob;
     @Autowired private ArticleRepository articleRepository;
-    @MockitoBean private S3Uploader s3Uploader;
+    @MockitoBean private S3Storage s3Storage;
 
     @Test
     void 주어진_날짜_기준_모든_뉴스기사를_조회하여_JSON으로_직렬화하여_S3에_업로드할_수_있다() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
@@ -64,7 +64,7 @@ public class ArticleBackUpIntegrationTest {
         ArgumentCaptor<String> fileNameCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(s3Uploader, times(1)).upload(fileNameCaptor.capture(), jsonCaptor.capture());
+        Mockito.verify(s3Storage, times(1)).upload(fileNameCaptor.capture(), jsonCaptor.capture());
 
         String expectedFileName = "backup/news_" + date.minusDays(1) + ".json";
         assertThat(fileNameCaptor.getValue()).isEqualTo(expectedFileName);
