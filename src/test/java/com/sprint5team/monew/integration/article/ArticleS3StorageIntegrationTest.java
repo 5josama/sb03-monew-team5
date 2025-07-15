@@ -1,8 +1,11 @@
 package com.sprint5team.monew.integration.article;
 
 import com.sprint5team.monew.base.util.S3Storage;
+import com.sprint5team.monew.domain.article.dto.ArticleRestoreResultDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.article.service.ArticleService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,18 +27,31 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @SpringBatchTest
-@DisplayName("ArticleBackup 통합 테스트")
-public class ArticleBackUpIntegrationTest {
+@DisplayName("S3Storage 통합 테스트")
+public class ArticleS3StorageIntegrationTest {
 
     @Autowired private JobLauncher jobLauncher;
     @Autowired private Job articleBackupJob;
     @Autowired private ArticleRepository articleRepository;
+    @Autowired private ArticleService articleService;
     @MockitoBean private S3Storage s3Storage;
+
+    @BeforeEach
+    void setUp() {
+        articleRepository.deleteAll();
+
+        List<Article> articles = Arrays.asList(
+                new Article("NAVER", "https://naver.com/1", "AI1", "경제1", Instant.now()),
+                new Article("NAVER", "https://hankyung.com/2", "AI1", "경제1", Instant.now())
+        );
+        articleRepository.saveAll(articles);
+    }
 
     @Test
     void 주어진_날짜_기준_모든_뉴스기사를_조회하여_JSON으로_직렬화하여_S3에_업로드할_수_있다() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
@@ -43,8 +59,8 @@ public class ArticleBackUpIntegrationTest {
         LocalDate date = LocalDate.now();
 
         List<Article> articles = Arrays.asList(
-                new Article("NAVER", "link1", "title1", "요약1", Instant.now()),
-                new Article("NAVER", "link2", "title2", "요약2", Instant.now()),
+                new Article("NAVER", "https://naver.com/12", "title1", "요약1", Instant.now()),
+                new Article("NAVER", "https://naver.com/23", "title2", "요약2", Instant.now()),
                 new Article("NAVER", "link3", "title3", "요약3", Instant.now()),
                 new Article("NAVER", "link4", "title4", "요약4", Instant.now())
         );
@@ -69,5 +85,42 @@ public class ArticleBackUpIntegrationTest {
         String expectedFileName = "backup/news_" + date.minusDays(1) + ".json";
         assertThat(fileNameCaptor.getValue()).isEqualTo(expectedFileName);
         assertThat(jsonCaptor.getValue()).contains("title1", "title2");
+    }
+
+    @Test
+    void 주어진_날짜_범위_기준_유실된_뉴스기사를_복구할_수_있다() {
+        // given
+        Instant from = Instant.parse("2025-07-13T00:00:00Z");
+        Instant to = Instant.parse("2025-07-13T23:59:59Z");
+
+        List<String> backupJsons = List.of(
+                "[{" +
+                        "\"source\": \"NAVER\"," +
+                        "\"sourceUrl\": \"https://naver.com/1\"," +
+                        "\"title\": \"AI\"," +
+                        "\"summary\": \"경제\"," +
+                        "\"originalDateTime\": \"2025-07-13T10:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T10:00:00Z\"" +
+                        "}]",
+                "[{" +
+                        "\"source\": \"NAVER\"," +
+                        "\"sourceUrl\": \"https://hankyung.com/2\"," +
+                        "\"title\": \"AI2\"," +
+                        "\"summary\": \"경제2\"," +
+                        "\"originalDateTime\": \"2025-07-13T11:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T11:00:00Z\"" +
+                        "}]"
+        );
+
+        articleRepository.deleteById(articleRepository.findAll().get(0).getId());
+        given(s3Storage.readArticlesFromBackup(from, to)).willReturn(backupJsons);
+        System.out.println("size = " + articleRepository.findAll().size());
+
+        // when
+        ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
+
+        // then
+        assertThat(articleRestoreResultDto.restoredArticleIds()).size().isEqualTo(1);
+        assertThat(articleRepository.findAll()).hasSize(2);
     }
 }
