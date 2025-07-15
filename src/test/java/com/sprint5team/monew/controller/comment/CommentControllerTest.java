@@ -162,7 +162,7 @@ public class CommentControllerTest {
                 false
         );
 
-        given(commentService.find(eq(articleId), eq(cursor), any(Pageable.class))).willReturn(response);
+        given(commentService.find(eq(articleId), eq(cursor.toString()), cursor ,any(Pageable.class))).willReturn(response);
 
         //when && then
         mockMvc.perform(get("/api/comments")

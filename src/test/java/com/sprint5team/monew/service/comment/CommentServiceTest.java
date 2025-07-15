@@ -193,12 +193,12 @@ public class CommentServiceTest {
 
         given(commentRepository.countTotalElements(any()))
                 .willReturn(3L);
-        given(commentRepository.findCommentsWithCursor(eq(article.getId()),eq(createdAt),any(Pageable.class)))
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()),eq(createdAt.toString()),eq(createdAt),any(Pageable.class)))
                 .willReturn(firstPageComments);
         given(commentMapper.toDto(any(Comment.class))).willReturn(commentDto1, commentDto2);
 
         // when
-        CursorPageResponseCommentDto result = commentService.find(article.getId(),createdAt,pageable);
+        CursorPageResponseCommentDto result = commentService.find(article.getId(),createdAt.toString(),createdAt,pageable);
 
         // then
         assertThat(result).isEqualTo(firstPageResponse);
@@ -223,12 +223,12 @@ public class CommentServiceTest {
         // 두 번째 페이지 모의 객체 설정
         given(commentRepository.countTotalElements(any()))
                 .willReturn(3L);
-        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()), any(Pageable.class)))
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()),eq(firstPageResponse.nextAfter()), any(Pageable.class)))
                 .willReturn(secondPageMessages);
         given(commentMapper.toDto(eq(comment3))).willReturn(commentDto3);
 
         // when - 두 번째 페이지 요청 (첫 페이지의 커서 사용)
-        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message2CreatedAt, pageable);
+        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message2CreatedAt.toString(), message2CreatedAt, pageable);
 
         // then - 두 번째 페이지 검증
         assertThat(secondResult).isEqualTo(secondPageResponse);
