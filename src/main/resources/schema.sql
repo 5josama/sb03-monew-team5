@@ -1,3 +1,6 @@
+-- psql 라이브러리 추가
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- 테이블 생성
 DROP TABLE IF EXISTS tbl_keyword CASCADE ;
 DROP TABLE IF EXISTS tbl_user_interest CASCADE ;

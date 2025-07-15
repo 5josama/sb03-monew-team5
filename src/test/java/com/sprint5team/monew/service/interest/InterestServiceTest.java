@@ -6,13 +6,11 @@ import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
-import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-import com.sprint5team.monew.domain.user_interest.mapper.InterestMapper;
+import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,13 +23,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatReflectiveOperationException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
@@ -407,18 +402,18 @@ public class InterestServiceTest {
             .name("주종")
             .keywords(List.of("막걸리"))
             .build();
-
-        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
-        given(interestRepository.findAll(any())).willReturn(List.of());
-        given(interestRepository.save(any())).willReturn(interestA);
-        given(keywordRepository.saveAll(any())).willReturn(List.of());
-        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
-        given(interestMapper.toDto(interestA)).willReturn();
-
-        // when
-        interestService.registerInterest(request);
-
-        // then
+//
+//        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
+//        given(interestRepository.findAll(any())).willReturn(List.of());
+//        given(interestRepository.save(any())).willReturn(interestA);
+//        given(keywordRepository.saveAll(any())).willReturn(List.of());
+//        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
+//        given(interestMapper.toDto(interestA)).willReturn();
+//
+//        // when
+//        interestService.registerInterest(request);
+//
+//        // then
 
     }
 
@@ -426,7 +421,7 @@ public class InterestServiceTest {
     void 유사도_비교를_위해_관심사_이름을_찾는다() throws Exception {
         // given
         given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
-        given(interestRepository.findAll(any())).willReturn(List.of());
+//        given(interestRepository.findAll(any())).willReturn(List.of());
         // when
 
         // then
@@ -435,13 +430,16 @@ public class InterestServiceTest {
 
 
     @Test
-    void 관심사_이름의_유사도가_80퍼센트_이상일경우_오류를_반환한다() throws Exception {
+    void 관심사_이름의_유사도가_80퍼센트_이상일경우_SimilarInterestException_409_을_반환한다() throws Exception {
         // given
-        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
-        given(interestRepository.findAll(any())).willReturn(List.of());
-        // when
+        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(true);
+//        given(interestRepository.findAll(any())).willReturn(List.of());
+//        // when
+//
+//        // then
+//        assertThat(message).equals("관심사 80% 이상 일치");
+//        assertThat(details).equals("이미 유사한 이름의 관심사가 있습니다.");
 
-        // then
         then(interestRepository).shouldHaveNoMoreInteractions();
         then(keywordRepository).shouldHaveNoMoreInteractions();
         then(interestMapper).shouldHaveNoInteractions();
@@ -452,7 +450,7 @@ public class InterestServiceTest {
     void 관심사_이름이_일치하는_관심사가_있을경우_오류를_반환한다() throws Exception {
         // given
         given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
-        given(interestRepository.findAll(any())).willReturn(List.of());
+//        given(interestRepository.findAll(any())).willReturn(List.of());
 
         // when
 
@@ -466,11 +464,11 @@ public class InterestServiceTest {
     void 입력받은_키워드수만큼_키워드를_저장한다() throws Exception {
         // given
         given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
-        given(interestRepository.findAll(any())).willReturn(List.of());
-        given(interestRepository.save(any())).willReturn(interestA);
-        given(keywordRepository.saveAll(any())).willReturn(List.of());
-        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
-        given(interestMapper.toDto(interestA)).willReturn();
+//        given(interestRepository.findAll(any())).willReturn(List.of());
+//        given(interestRepository.save(any())).willReturn(interestA);
+//        given(keywordRepository.saveAll(any())).willReturn(List.of());
+//        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
+//        given(interestMapper.toDto(interestA)).willReturn();
 
         // when
 

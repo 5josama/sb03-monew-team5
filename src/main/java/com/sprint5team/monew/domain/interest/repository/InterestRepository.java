@@ -2,6 +2,8 @@ package com.sprint5team.monew.domain.interest.repository;
 
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.UUID;
 
@@ -16,4 +18,13 @@ public interface InterestRepository extends JpaRepository<Interest, UUID>, Inter
     boolean existsInterestByName(String name);
 
     boolean existsByNameEqualsIgnoreCase(String name);
+
+
+    @Query(value = """
+        SELECT EXISTS (
+            SELECT 1 FROM tbl_interest
+            WHERE similarity(name, :name) > :threshold
+        )
+    """, nativeQuery = true)
+    boolean existsSimilarName(@Param("name") String name, @Param("threshold") double threshold);
 }

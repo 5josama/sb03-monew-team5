@@ -33,4 +33,9 @@ public class Interest extends BaseUpdatableEntity {
 
     @Column(name = "subscriber_count", nullable = false)
     long subscriberCount;
+
+    public Interest(String name) {
+        this.name = name;
+        this.subscriberCount = 0;
+    }
 }

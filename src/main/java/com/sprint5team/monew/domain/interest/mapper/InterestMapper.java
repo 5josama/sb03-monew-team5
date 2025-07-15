@@ -1,13 +1,11 @@
-package com.sprint5team.monew.domain.user_interest.mapper;
+package com.sprint5team.monew.domain.interest.mapper;
 
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.entity.Interest;
-import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.user_interest.mapper
