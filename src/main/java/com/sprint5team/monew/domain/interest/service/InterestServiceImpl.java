@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
-    private static final double SIMILARITY_RATE = 0.8;
+    private static final double THRESHOLD = 0.75;
     @Value("${spring.profiles.active:prod}")
     private String activeProfile;
 
@@ -119,7 +119,7 @@ public class InterestServiceImpl implements InterestService{
             if(name.length()<=3){
                 if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
             }else {
-                if(interestRepository.existsSimilarName(name, SIMILARITY_RATE)) throw new SimilarInterestException();
+                if(interestRepository.existsSimilarName(name, THRESHOLD)) throw new SimilarInterestException();
             }
         }
 
