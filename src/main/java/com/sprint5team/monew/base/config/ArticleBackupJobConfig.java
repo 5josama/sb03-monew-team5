@@ -2,7 +2,7 @@ package com.sprint5team.monew.base.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.base.util.ArticleJsonBatchWriter;
-import com.sprint5team.monew.base.util.S3Uploader;
+import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ArticleBackupJobConfig {
 
     private final ArticleRepository articleRepository;
     private final ObjectMapper objectMapper;
-    private final S3Uploader s3Uploader;
+    private final S3Storage s3Storage;
     private final ArticleJsonBatchWriter articleJsonBatchWriter;
 
     @Bean
