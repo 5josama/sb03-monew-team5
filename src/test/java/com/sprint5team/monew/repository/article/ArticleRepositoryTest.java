@@ -108,7 +108,7 @@ public class ArticleRepositoryTest {
         Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
         Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now());
         Article article3 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now());
-        Article article4 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now());
+        Article article4 = new Article("연합뉴스", "https://...4", "AI4", "경제4", false, Instant.now(), Instant.now());
 
         em.persist(article1);
         em.persist(article2);
