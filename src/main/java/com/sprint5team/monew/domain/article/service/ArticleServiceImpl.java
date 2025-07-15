@@ -130,9 +130,24 @@ public class ArticleServiceImpl implements ArticleService {
                     }
                 }).toList();
 
-        articleRepository.saveAll(restoredArticles);
+        List<String> sourceUrls = restoredArticles.stream()
+                .map(Article::getSourceUrl)
+                .toList();
 
-        List<String> restoredIds = restoredArticles.stream()
+        Set<String> existingSourceUrls = new HashSet<>();
+        for (int i = 0; i < sourceUrls.size(); i += 500) {
+            List<String> chunk = sourceUrls.subList(i, Math.min(i + 500, sourceUrls.size()));
+            List<Article> existingArticles = articleRepository.findAllBySourceUrlIn(chunk);
+            existingSourceUrls.addAll(existingArticles.stream().map(Article::getSourceUrl).toList());
+        }
+
+        List<Article> lostArticles = restoredArticles.stream()
+                .filter(article -> !existingSourceUrls.contains(article.getSourceUrl()))
+                .toList();
+
+        articleRepository.saveAll(lostArticles);
+
+        List<String> restoredIds = lostArticles.stream()
                 .map(article -> article.getId().toString())
                 .toList();
 
