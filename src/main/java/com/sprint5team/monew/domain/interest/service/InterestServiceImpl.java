@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.interest.service;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
@@ -97,5 +98,11 @@ public class InterestServiceImpl implements InterestService{
             .build();
 
         return result;
+    }
+
+
+    @Override
+    public InterestDto registerInterest(InterestRegisterRequest request) {
+        return null;
     }
 }
