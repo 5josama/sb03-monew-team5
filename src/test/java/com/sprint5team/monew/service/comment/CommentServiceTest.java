@@ -6,10 +6,10 @@ import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
-import com.sprint5team.monew.domain.comment.service.CommentService;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -20,18 +20,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 Service 단위 테스트")
@@ -109,4 +113,130 @@ public class CommentServiceTest {
         verify(commentRepository, never()).save(any(Comment.class));
         verify(commentMapper, never()).toDto(any(Comment.class));
     }
+
+    @Test
+    void 댓글_페이지네이션을_사용한_생성일자순_조회_성공(){
+        // given
+        int pageSize = 2; // 페이지 크기를 2로 설정
+        Instant createdAt = Instant.now();
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        // 여러 댓글 생성 (페이지 사이즈보다 많게)
+        Comment comment1 = new Comment(article, user, content + "1");
+        Comment comment2 = new Comment(article, user, content + "2");
+        Comment comment3 = new Comment(article, user, content + "3");
+
+        comment1.update((long)1);
+        comment2.update((long)2);
+        comment3.update((long)3);
+
+        ReflectionTestUtils.setField(comment1, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(comment2, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(comment3, "id", UUID.randomUUID());
+
+        // 각 메시지에 해당하는 DTO 생성
+        Instant message1CreatedAt = Instant.now().minusSeconds(30);
+        Instant message2CreatedAt = Instant.now().minusSeconds(20);
+        Instant message3CreatedAt = Instant.now().minusSeconds(10);
+
+        ReflectionTestUtils.setField(comment1, "createdAt", message1CreatedAt);
+        ReflectionTestUtils.setField(comment2, "createdAt", message2CreatedAt);
+        ReflectionTestUtils.setField(comment3, "createdAt", message3CreatedAt);
+
+        CommentDto commentDto1 = new CommentDto(
+                comment1.getId(),
+                article.getId(),
+                user.getId(),
+                user.getNickname(),
+                comment1.getContent(),
+                comment1.getLikeCount(),
+                false,
+                message1CreatedAt
+        );
+
+        CommentDto commentDto2 = new CommentDto(
+                comment2.getId(),
+                article.getId(),
+                user.getId(),
+                user.getNickname(),
+                comment2.getContent(),
+                comment2.getLikeCount(),
+                false,
+                message2CreatedAt
+        );
+
+        CommentDto commentDto3 = new CommentDto(
+                comment3.getId(),
+                article.getId(),
+                user.getId(),
+                user.getNickname(),
+                comment3.getContent(),
+                comment3.getLikeCount(),
+                false,
+                message3CreatedAt
+        );
+
+
+        // 첫 페이지 결과 세팅 (2개 메시지)
+        List<Comment> firstPageComments = List.of(comment1, comment2);
+        List<CommentDto> firstPageDtos = List.of(commentDto1, commentDto2);
+
+        // 첫 페이지는 다음 페이지가 있고, 커서는 comment2의 생성 시간이어야 함
+        CursorPageResponseCommentDto firstPageResponse = new CursorPageResponseCommentDto(
+                firstPageDtos,
+                message2CreatedAt.toString(),
+                message2CreatedAt,
+                pageSize,
+                3L,
+                true
+        );
+
+        given(commentRepository.countTotalElements(any()))
+                .willReturn(3L);
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()),eq(createdAt),any(Pageable.class)))
+                .willReturn(firstPageComments);
+        given(commentMapper.toDto(any(Comment.class))).willReturn(commentDto1, commentDto2);
+
+        // when
+        CursorPageResponseCommentDto result = commentService.find(article.getId(),createdAt,pageable);
+
+        // then
+        assertThat(result).isEqualTo(firstPageResponse);
+        assertThat(result.content()).hasSize(pageSize);
+        assertThat(result.hasNext()).isTrue();
+        assertThat(result.nextCursor()).isEqualTo(message2CreatedAt);
+
+        // 두 번째 페이지 테스트
+        // given
+        List<Comment> secondPageMessages = List.of(comment3);
+        List<CommentDto> secondPageDtos = List.of(commentDto3);
+        CursorPageResponseCommentDto secondPageResponse = new CursorPageResponseCommentDto(
+                secondPageDtos,
+                message3CreatedAt.toString(),
+                message3CreatedAt,
+                pageSize,
+                3L,
+                false
+        );
+
+
+        // 두 번째 페이지 모의 객체 설정
+        given(commentRepository.countTotalElements(any()))
+                .willReturn(3L);
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()), any(Pageable.class)))
+                .willReturn(secondPageMessages);
+        given(commentMapper.toDto(eq(comment3))).willReturn(commentDto3);
+
+        // when - 두 번째 페이지 요청 (첫 페이지의 커서 사용)
+        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message2CreatedAt, pageable);
+
+        // then - 두 번째 페이지 검증
+        assertThat(secondResult).isEqualTo(secondPageResponse);
+        assertThat(secondResult.content()).hasSize(1); // 마지막 페이지는 항목 1개만 있음
+        assertThat(secondResult.hasNext()).isFalse(); // 더 이상 다음 페이지 없음
+
+    }
+
+
+
 }
