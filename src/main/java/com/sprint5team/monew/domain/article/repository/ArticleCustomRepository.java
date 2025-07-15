@@ -8,4 +8,6 @@ import java.util.List;
 public interface ArticleCustomRepository {
 
     List<Article> findByCursorFilter(CursorPageFilter filter, List<String> interestKeyword);
+
+    long countByCursorFilter(CursorPageFilter filter, List<String> interestKeyword);
 }

@@ -53,30 +53,44 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public CursorPageResponseArticleDto getArticles(CursorPageFilter filter, UUID userId) {
-        Interest interest = interestRepository.findById(filter.interestId()).orElseThrow(
-                () -> new IllegalArgumentException("Interest id " + filter.interestId() + " not found")
-        );
+        List<String> keywordList = new ArrayList<>();
+        if (filter.interestId() != null) {
+            Interest interest = interestRepository.findById(filter.interestId()).orElseThrow(
+                    () -> new IllegalArgumentException("Interest id " + filter.interestId() + " not found")
+            );
+            List<Keyword> keywords = keywordRepository.findAllByInterestIn(List.of(interest));
 
-        List<Keyword> keywords = keywordRepository.findAllByInterestIn(List.of(interest));
-
-        List<String> keywordList = keywords.stream().map(Keyword::getName).toList();
+            keywordList = keywords.stream().map(Keyword::getName).toList();
+        }
 
         List<Article> articles = articleRepository.findByCursorFilter(filter, keywordList);
 
         List<Article> content = articles.size() > filter.limit() ? articles.subList(0, filter.limit()) : articles;
 
-        String nextCursor = null;
-
         Instant nextAfter = content.isEmpty() ? null : content.get(content.size() -1).getCreatedAt();
 
         boolean hasNext = articles.size() > filter.limit();
 
-        long totalElements = articles.size();
+        long totalElements = articleRepository.countByCursorFilter(filter, keywordList);
 
         List<UUID> articleIds = articles.stream().map(Article::getId).toList();
 
         Map<UUID, Long> viewCountMap = articleCountRepository.countViewByArticleIds(articleIds);
         Set<UUID> viewedByMeSet = articleCountRepository.findViewedArticleIdsByUserId(userId, articleIds);
+
+        String nextCursor = null;
+
+        if (!content.isEmpty()) {
+            Article last = content.get(content.size() - 1);
+
+            switch (filter.orderBy()) {
+                case "publishDate" -> nextCursor = last.getCreatedAt().toString();
+                case "commentCount" -> nextCursor = String.valueOf(0L); // 추후 변경
+                case "viewCount" -> nextCursor = String.valueOf(
+                        viewCountMap.getOrDefault(last.getId(), 0L)
+                );
+            }
+        }
 
         List<ArticleDto> result = content.stream()
                 .map(article -> articleMapper.toDto(
