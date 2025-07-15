@@ -110,7 +110,7 @@ public class ArticleServiceImpl implements ArticleService {
                 hasNext
         );
     }
-
+  
     @Override
     public List<String> getSources() {
         return articleRepository.findDistinctSources();
