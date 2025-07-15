@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(ex.getHttpStatus(), ex.getDetails()));
     }
 
-
+    // @Validation
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
         String detailMessage = ex.getConstraintViolations().stream()
@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
             .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, detailMessage));
     }
 
+    // @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String detailMessage = ex.getBindingResult().getFieldErrors().stream()

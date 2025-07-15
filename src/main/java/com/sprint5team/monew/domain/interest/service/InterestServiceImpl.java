@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.interest.service;
 
+import com.sprint5team.monew.domain.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
@@ -105,7 +106,11 @@ public class InterestServiceImpl implements InterestService{
     // TODO 관심사 추가 서비스 로직
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
-        
+        if(interestRepository.existsByNameEqualsIgnoreCase(request.name())) throw new SimilarInterestException();
+
+        List<Interest> interests = interestRepository.findAll();
+
+
         return null;
     }
 }
