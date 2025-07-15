@@ -10,6 +10,7 @@ import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificat
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
+import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.notification.service.NotificationServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
@@ -53,6 +54,9 @@ class NotificationServiceTest {
 
     @InjectMocks
     private NotificationServiceImpl notificationService;
+
+    @Mock
+    private NotificationMapper notificationMapper;
 
     private UUID userId;
     private UUID commentId;
@@ -162,19 +166,34 @@ class NotificationServiceTest {
                 .build();
         ReflectionTestUtils.setField(notification, "id", UUID.randomUUID());
 
+        NotificationDto dto = NotificationDto.builder()
+                .id(notification.getId())
+                .createdAt(notification.getCreatedAt())
+                .updatedAt(notification.getCreatedAt())
+                .confirmed(notification.isConfirmed())
+                .userId(testUser.getId())
+                .content(notification.getContent())
+                .resourceType(ResourceType.INTEREST)
+                .resourceId(interestId)
+                .build();
+
+        given(notificationMapper.toDto(notification)).willReturn(dto);
+
         List<Notification> notificationList = List.of(notification);
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
-        given(notificationRepository.findAllByUserIdAndConfirmedIsFalseWithCursorPaging(
+        given(notificationRepository.findUnconfirmedNotificationsWithCursorPaging(
                 eq(userId), eq(cursor), eq(after), eq(limit))).willReturn(notificationList);
+        given(notificationRepository.countByUserIdAndConfirmedIsFalse(userId)).willReturn(1L);
 
         // when
         CursorPageResponseNotificationDto result = notificationService.getAllNotifications(userId, cursor, after, limit);
 
         // then
-        then(userRepository).should().findById(userId);
         then(notificationRepository).should()
-                .findAllByUserIdAndConfirmedIsFalseWithCursorPaging(userId, cursor, after, limit);
+                .findUnconfirmedNotificationsWithCursorPaging(userId, cursor, after, limit);
+        then(notificationRepository).should().countByUserIdAndConfirmedIsFalse(userId);
+
+        assertEquals(1, result.content().size());
         assertEquals(userId, result.content().get(0).userId());
         assertEquals(ResourceType.INTEREST, result.content().get(0).resourceType());
         assertEquals(interestId, result.content().get(0).resourceId());

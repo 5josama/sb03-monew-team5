@@ -13,20 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
 @Import({QuerydslConfig.class, JpaAuditingConfig.class})
-class NotificationRepositoryTest {
+class NotificationRepositoryCustomTest {
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -61,40 +59,6 @@ class NotificationRepositoryTest {
     }
 
     @Test
-    void 알림_저장시_DB에_정상_반영() {
-        // given
-        Notification notification = Notification.builder()
-                .user(testUser)
-                .content("새로운 알림입니다.")
-                .resourceType(ResourceType.INTEREST)
-                .confirmed(false)
-                .createdAt(Instant.now())
-                .build();
-
-        // when
-        notificationRepository.save(notification);
-        // then
-        assertNotNull(notification.getId());
-    }
-
-    @Test
-    void 알림_저장_실패() {
-        // given
-        Notification notification = Notification.builder()
-                .user(null)
-                .content("알림입니다.")
-                .resourceType(ResourceType.COMMENT)
-                .confirmed(false)
-                .createdAt(Instant.now())
-                .build();
-
-        // when & then
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            notificationRepository.saveAndFlush(notification);
-        });
-    }
-
-    @Test
     void 알림목록_커서_조회() {
         // when
         List<Notification> results = notificationRepository
@@ -104,6 +68,66 @@ class NotificationRepositoryTest {
         // then
         assertThat(results).isNotNull();
         assertThat(results.get(0).getContent()).contains("테스트 알림");
+    }
+
+    @Test
+    void 알림목록_커서_및_after_기준_조회() {
+        // given
+        List<Notification> all = notificationRepository
+                .findUnconfirmedNotificationsWithCursorPaging(testUser.getId(), null, null, 5);
+
+        Notification cursorBase = all.get(2);
+        String cursor = cursorBase.getId().toString();
+        Instant after = cursorBase.getCreatedAt();
+
+        // when
+        List<Notification> results = notificationRepository
+                .findUnconfirmedNotificationsWithCursorPaging(
+                        testUser.getId(), cursor, after, 3);
+
+        // then
+        assertThat(results).allSatisfy(n -> {
+            assertThat(n.getCreatedAt()).isBeforeOrEqualTo(after);
+            if (n.getCreatedAt().equals(after)) {
+                assertThat(n.getId()).isLessThan(cursorBase.getId());
+            }
+        });
+    }
+
+    @Test
+    void 모두_확인된_알림이면_커서조회_결과없음() {
+        // given
+        List<Notification> notifications = notificationRepository.findAll();
+        for (Notification n : notifications) {
+            ReflectionTestUtils.setField(n, "confirmed", true);
+        }
+
+        notificationRepository.saveAll(notifications);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<Notification> results = notificationRepository
+                .findUnconfirmedNotificationsWithCursorPaging(testUser.getId(), null, null, 5);
+
+        // then
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    void 알림이_없는_사용자는_빈_결과를_반환한다() {
+        // given
+        User nonNotification = userRepository.save(
+                new User("emptyuser", "empty@abc.com", "password")
+        );
+
+        // when
+        List<Notification> results = notificationRepository
+                .findUnconfirmedNotificationsWithCursorPaging(
+                        nonNotification.getId(), null, null, 10);
+
+        // then
+        assertThat(results).isEmpty();
     }
 
 }

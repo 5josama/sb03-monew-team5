@@ -87,9 +87,10 @@ CREATE TABLE IF NOT EXISTS tbl_like (
 -- 알림
 CREATE TABLE IF NOT EXISTS tbl_notification (
     id UUID PRIMARY KEY,
-    resource_type VARCHAR(8) NOT NULL CHECK (resource_type IN ('interest', 'comment')),
+    resource_type VARCHAR(8) NOT NULL CHECK (resource_type IN ('INTEREST', 'COMMENT')),
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed BOOLEAN NOT NULL DEFAULT FALSE,
     user_id UUID NOT NULL,
     comment_id UUID,
