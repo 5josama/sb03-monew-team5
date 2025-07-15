@@ -1,11 +1,8 @@
 package com.sprint5team.monew.domain.interest.repository;
 
-import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.repository
