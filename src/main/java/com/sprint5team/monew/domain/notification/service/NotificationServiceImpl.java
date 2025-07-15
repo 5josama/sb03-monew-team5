@@ -84,10 +84,10 @@ public class NotificationServiceImpl implements NotificationService {
 
         String nextCursor = null;
         Instant nextAfter = null;
-        if (hasNext) {
-            Notification last = results.get(limit - 1);
-            nextCursor = last.getId().toString();
+        if (!pageContent.isEmpty()) {
+            Notification last = pageContent.get(pageContent.size() - 1);
             nextAfter = last.getCreatedAt();
+            nextCursor = nextAfter.toString();
         }
 
         List<NotificationDto> dtoList = pageContent.stream()

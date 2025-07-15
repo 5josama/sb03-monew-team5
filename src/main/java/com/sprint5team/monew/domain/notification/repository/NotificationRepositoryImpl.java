@@ -25,18 +25,19 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                 .and(notification.user.id.eq(userId))
                 .and(notification.confirmed.isFalse());
 
-        if (after != null) {
-            UUID cursorUUID = UUID.fromString(cursor);
-
-            builder.and(
-                    notification.createdAt.lt(after)
-                            .or(notification.createdAt.eq(after).and(notification.id.lt(cursorUUID)))
-            );
+        if (cursor != null && after != null) {
+            Instant cursorTime = Instant.parse(cursor);
+            builder.and(notification.createdAt.gt(after).and(notification.createdAt.loe(cursorTime)));
+        } else if (after != null) {
+            builder.and(notification.createdAt.gt(after));
+        } else if (cursor != null) {
+            Instant cursorTime = Instant.parse(cursor);
+            builder.and(notification.createdAt.loe(cursorTime));
         }
 
         return query.selectFrom(notification)
                 .where(builder)
-                .orderBy(notification.createdAt.desc(), notification.id.desc())
+                .orderBy(notification.createdAt.asc(), notification.id.asc())
                 .limit(limit + 1)
                 .fetch();
     }
