@@ -1,9 +1,6 @@
 package com.sprint5team.monew.service.article;
 
-import com.sprint5team.monew.domain.article.dto.ArticleDto;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
-import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
@@ -25,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import java.time.Instant;
 import java.util.*;
@@ -34,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ArticleService 단위 테스트")
@@ -46,6 +45,7 @@ public class ArticleServiceTest {
     @Mock InterestRepository interestRepository;
     @Mock KeywordRepository keywordRepository;
     @Mock ArticleMapper articleMapper;
+    @Mock S3Client s3Client;
 
     @InjectMocks private ArticleServiceImpl articleService;
 
@@ -169,5 +169,32 @@ public class ArticleServiceTest {
         // then
         assertThat(result.size()).isEqualTo(3);
         assertThat(result.get(0)).isEqualTo("NAVER");
+    }
+
+    @Test
+    void 주어진_날짜_범위의_유실된_뉴스를_복구할_수_있다() {
+        // given
+        Instant from = Instant.parse("2025-07-13T00:00:00Z");
+        Instant to = Instant.parse("2025-07-13T23:59:59Z");
+
+        List<Article> backupArticles = List.of(
+                new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
+                new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
+        );
+
+        List<String> restoredIds = backupArticles.stream()
+                .map(article -> UUID.randomUUID().toString())
+                .toList();
+
+        given(s3Client.readArticlesFromBackup(from, to)).willReturn(backupArticles);
+        given(articleRepository.saveAll(anyList())).willReturn(backupArticles);
+
+        // when
+        ArticleRestoreResultDto result = articleService.restoreArticle(from, to);
+
+        // then
+        assertThat(result.restoredArticleIds().size()).isEqualTo(2);
+        verify(s3Client).readArticlesFromBackup(from, to);
+        verify(articleRepository).saveAll(anyList());
     }
 }
