@@ -1,13 +1,14 @@
 package com.sprint5team.monew.integration.notification;
 
 import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificationDto;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
-import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -18,31 +19,48 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class NotificationIntegrationTest {
 
-    @Autowired
-    private NotificationService notificationService;
+    @Autowired private NotificationService notificationService;
     @Autowired private UserRepository userRepository;
     @Autowired private CommentRepository commentRepository;
+    @Autowired private ArticleRepository articleRepository;
     @Autowired private InterestRepository interestRepository;
-    @Autowired private NotificationRepository notificationRepository;
 
     private User user;
     private Interest interest;
     private Comment comment;
+    private Article article;
 
     @BeforeEach
     void setup() {
         user = userRepository.save(new User("user1", "test@abc.com", "1234"));
         interest = interestRepository.save(Interest.builder().name("경제").subscriberCount(0).build());
-        comment = commentRepository.save(new Comment(mock(Article.class), user, "테스트 댓글"));
+        Interest interest2 = interestRepository.save(Interest.builder().name("IT").subscriberCount(0).build());
+        Interest interest3 = interestRepository.save(Interest.builder().name("스포츠").subscriberCount(0).build());
+
+        article = articleRepository.save(new Article(
+                "NAVER",
+                "https://naver.com/news/123331",
+                "title",
+                "요약",
+                Instant.now()
+        ));
+        comment = commentRepository.save(new Comment(article, user, "테스트 댓글"));
+
+        notificationService.notifyArticleForInterest(user.getId(), interest.getId(), interest.getName(), 5);
+        notificationService.notifyArticleForInterest(user.getId(), interest2.getId(), interest2.getName(), 2);
+        notificationService.notifyArticleForInterest(user.getId(), interest3.getId(), interest3.getName(), 9);
+
     }
 
     @Test
@@ -65,6 +83,32 @@ class NotificationIntegrationTest {
         assertNotNull(result);
         assertEquals(comment.getId(), result.resourceId());
         assertEquals(ResourceType.COMMENT, result.resourceType());
+    }
+
+    @Test
+    void 알림목록_커서기반_페이지네이션_조회_통합테스트() {
+        // when
+        CursorPageResponseNotificationDto response1 =
+                notificationService.getAllNotifications(user.getId(), null, null, 2);
+
+        // then
+        assertThat(response1.content()).hasSize(2);
+        assertThat(response1.hasNext()).isTrue();
+        assertThat(response1.nextCursor()).isNotNull();
+        assertThat(response1.nextAfter()).isNotNull();
+        assertThat(response1.totalElements()).isEqualTo(3);
+        assertThat(response1.size()).isEqualTo(2);
+
+        // when
+        CursorPageResponseNotificationDto response2 =
+                notificationService.getAllNotifications(
+                        user.getId(), response1.nextCursor(), response1.nextAfter(), 2);
+
+        // then
+        assertThat(response2.content()).hasSize(1);
+        assertThat(response2.hasNext()).isFalse();
+        assertThat(response2.totalElements()).isEqualTo(3);
+        assertThat(response2.size()).isEqualTo(1);
     }
 }
 

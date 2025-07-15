@@ -87,7 +87,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!pageContent.isEmpty()) {
             Notification last = pageContent.get(pageContent.size() - 1);
             nextAfter = last.getCreatedAt();
-            nextCursor = nextAfter.toString();
+            nextCursor = cursor != null ? cursor : Instant.now().toString();
         }
 
         List<NotificationDto> dtoList = pageContent.stream()
