@@ -15,7 +15,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,14 +46,15 @@ class NotificationControllerTest {
     @Test
     void 알림_목록_커서_기반_조회() throws Exception {
         // given
-        String cursor = UUID.randomUUID().toString();
-        Instant after = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant createdAt = Instant.now();
+        String cursor = createdAt.toString();
+        Instant after = createdAt;
         int limit = 10;
 
         NotificationDto dto = new NotificationDto(
                 UUID.randomUUID(),
-                Instant.now(),
-                Instant.now(),
+                createdAt,
+                createdAt,
                 false,
                 userId,
                 "테스트 알림 내용",
@@ -64,8 +64,8 @@ class NotificationControllerTest {
 
         CursorPageResponseNotificationDto response = new CursorPageResponseNotificationDto(
                 List.of(dto),
-                UUID.randomUUID().toString(),
-                Instant.now(),
+                cursor,
+                createdAt,
                 limit,
                 100L,
                 true

@@ -24,7 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -152,8 +151,9 @@ class NotificationServiceTest {
     @Test
     void 알림_목록_커서_기반_조회() {
         // given
-        String cursor = UUID.randomUUID().toString();
-        Instant after = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant createdAt = Instant.now();
+        String cursor = createdAt.toString();
+        Instant after = createdAt;
         int limit = 10;
 
         Notification notification = Notification.builder()
@@ -161,7 +161,7 @@ class NotificationServiceTest {
                 .content("알림 내용입니다")
                 .resourceType(ResourceType.INTEREST)
                 .interest(mock(Interest.class))
-                .createdAt(Instant.now())
+                .createdAt(createdAt)
                 .confirmed(false)
                 .build();
         ReflectionTestUtils.setField(notification, "id", UUID.randomUUID());

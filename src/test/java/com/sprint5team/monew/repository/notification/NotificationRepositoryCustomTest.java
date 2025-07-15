@@ -77,7 +77,7 @@ class NotificationRepositoryCustomTest {
                 .findUnconfirmedNotificationsWithCursorPaging(testUser.getId(), null, null, 5);
 
         Notification cursorBase = all.get(2);
-        String cursor = cursorBase.getId().toString();
+        String cursor = cursorBase.getCreatedAt().toString(); ;
         Instant after = cursorBase.getCreatedAt();
 
         // when
@@ -87,10 +87,7 @@ class NotificationRepositoryCustomTest {
 
         // then
         assertThat(results).allSatisfy(n -> {
-            assertThat(n.getCreatedAt()).isBeforeOrEqualTo(after);
-            if (n.getCreatedAt().equals(after)) {
-                assertThat(n.getId()).isLessThan(cursorBase.getId());
-            }
+            assertThat(n.getCreatedAt()).isAfterOrEqualTo(after);
         });
     }
 

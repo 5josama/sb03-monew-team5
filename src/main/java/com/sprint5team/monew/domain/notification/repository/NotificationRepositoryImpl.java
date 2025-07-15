@@ -27,9 +27,9 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
 
         if (cursor != null && after != null) {
             Instant cursorTime = Instant.parse(cursor);
-            builder.and(notification.createdAt.gt(after).and(notification.createdAt.loe(cursorTime)));
+            builder.and(notification.createdAt.goe(after).and(notification.createdAt.loe(cursorTime)));
         } else if (after != null) {
-            builder.and(notification.createdAt.gt(after));
+            builder.and(notification.createdAt.goe(after));
         } else if (cursor != null) {
             Instant cursorTime = Instant.parse(cursor);
             builder.and(notification.createdAt.loe(cursorTime));
