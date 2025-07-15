@@ -1,9 +1,6 @@
 package com.sprint5team.monew.domain.article.service;
 
-import com.sprint5team.monew.domain.article.dto.ArticleDto;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
-import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
@@ -114,5 +111,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<String> getSources() {
         return articleRepository.findDistinctSources();
+    }
+
+    @Override
+    public ArticleRestoreResultDto restoreArticle(Instant from, Instant to) {
+        return null;
     }
 }
