@@ -115,4 +115,22 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$[0]").value("NAVER"))
                 .andExpect(jsonPath("$.length()").value(3));
     }
+
+    @Test
+    void 뉴스_복구_API가_정상적으로_동작한다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        Instant from = Instant.parse("2025-07-01T20:00:00.0000000");
+        Instant to = Instant.parse("2025-07-12T20:00:00.0000000");
+
+        ArticleRestoreResultDto articleRestoreResultDto = new ArticleRestoreResultDto();
+
+        given(articleService.restoreArticle()).willReturn(articleRestoreResultDto);
+
+        mockMvc.perform(get("/api/articles/restore")
+                .param("from", from.toString())
+                .param("to", to.toString())
+                .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(jsonPath("$.restoreArticleIds[0]")).value(articleRestoreResultDto.restoreArticleIds.get(0));
+    }
 }
