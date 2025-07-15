@@ -105,6 +105,7 @@ public class InterestServiceImpl implements InterestService{
     // TODO 관심사 추가 서비스 로직
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
+        
         return null;
     }
 }

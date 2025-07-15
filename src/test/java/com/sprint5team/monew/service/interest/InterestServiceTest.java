@@ -448,16 +448,24 @@ public class InterestServiceTest {
     @Test
     void 관심사_이름이_일치하는_관심사가_있을경우_오류를_반환한다() throws Exception {
         // given
-        
+        given(interestRepository.findAll(any())).willReturn(List.of());
+
         // when
 
         // then
-
+        then(interestRepository).shouldHaveNoMoreInteractions();
+        then(keywordRepository).shouldHaveNoMoreInteractions();
+        then(interestMapper).shouldHaveNoInteractions();
     }
 
     @Test
     void 입력받은_키워드수만큼_키워드를_저장한다() throws Exception {
         // given
+        given(interestRepository.findAll(any())).willReturn(List.of());
+        given(interestRepository.save(any())).willReturn(interestA);
+        given(keywordRepository.saveAll(any())).willReturn(List.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
+        given(interestMapper.toDto(interestA)).willReturn();
 
         // when
 
