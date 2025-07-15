@@ -98,4 +98,21 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.content[0].title").value("title1"))
                 .andExpect(jsonPath("$.content[1].title").value("title2"));
     }
+
+    @Test
+    void 뉴스_출처_목록_조회_API가_정상적으로_동작한다() {
+        // given
+        UUID userId = UUID.randomUUID();
+
+        List<String> sources = List.of("NAVER", "한국경제", "연합뉴스");
+
+        given(articleService.getSources()).willReturn(sources);
+
+        // when & then
+        mockMvc.perform(get("/api/articles/sources")
+                .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("NAVER"))
+                .andExpect(jsonPath("$.length()").value(3));
+    }
 }
