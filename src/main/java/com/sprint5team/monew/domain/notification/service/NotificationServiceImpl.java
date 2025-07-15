@@ -8,6 +8,7 @@ import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificat
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
+import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final InterestRepository interestRepository;
     private final CommentRepository commentRepository;
+    private final NotificationMapper notificationMapper;
 
     @Override
     public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, int articleCount) {
@@ -72,6 +75,35 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public CursorPageResponseNotificationDto getAllNotifications(UUID userId, String cursor, Instant after, int limit) {
-        return null;
+        List<Notification> results = notificationRepository
+                .findUnconfirmedNotificationsWithCursorPaging(userId, cursor, after, limit);
+
+        boolean hasNext = results.size() > limit;
+
+        List<Notification> pageContent = hasNext ? results.subList(0, limit) : results;
+
+        String nextCursor = null;
+        Instant nextAfter = null;
+        if (hasNext) {
+            Notification last = results.get(limit - 1);
+            nextCursor = last.getId().toString();
+            nextAfter = last.getCreatedAt();
+        }
+
+        List<NotificationDto> dtoList = pageContent.stream()
+                .map(notificationMapper::toDto)
+                .toList();
+
+        long totalElements = notificationRepository.countByUserIdAndConfirmedIsFalse(userId);
+
+        return new CursorPageResponseNotificationDto(
+                dtoList,
+                nextCursor,
+                nextAfter,
+                dtoList.size(),
+                totalElements,
+                hasNext
+        );
     }
+
 }
