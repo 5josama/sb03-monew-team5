@@ -143,6 +143,13 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<Article> lostArticles = restoredArticles.stream()
                 .filter(article -> !existingSourceUrls.contains(article.getSourceUrl()))
+                .map(article -> new Article(
+                        article.getSource(),
+                        article.getSourceUrl(),
+                        article.getTitle(),
+                        article.getSummary(),
+                        article.getOriginalDateTime()
+                ))
                 .toList();
 
         articleRepository.saveAll(lostArticles);
