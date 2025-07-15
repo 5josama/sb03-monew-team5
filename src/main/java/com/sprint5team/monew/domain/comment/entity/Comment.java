@@ -53,5 +53,15 @@ public class Comment extends BaseUpdatableEntity {
         this.likeCount = likeCount;
     }
 
-
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "createdAt=" + createdAt +
+                ", article=" + article +
+                ", user=" + user +
+                ", content='" + content + '\'' +
+                ", isDeleted=" + isDeleted +
+                ", likeCount=" + likeCount +
+                "} " + super.toString();
+    }
 }
