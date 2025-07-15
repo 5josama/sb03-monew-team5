@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID> {
+public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID>, ArticleCountCustomRepository {
     Optional<ArticleCount> findByUserIdAndArticleId(UUID userId, UUID articleId);
 
     List<ArticleCount> findAllByUserIdAndArticleId(UUID id, UUID id1);

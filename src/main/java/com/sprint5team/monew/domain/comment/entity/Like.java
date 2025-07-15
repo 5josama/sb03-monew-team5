@@ -31,4 +31,13 @@ public class Like extends BaseEntity {
         this.comment = comment;
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "Like{" +
+                "comment=" + comment +
+                ", user=" + user +
+                ", createdAt=" + createdAt +
+                "} " + super.toString();
+    }
 }

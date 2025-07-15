@@ -5,6 +5,7 @@ import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
@@ -22,6 +23,7 @@ public class ArticleCount extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @CreatedDate
     @Column(name = "created_at", columnDefinition = "timestamp with time zone")
     private Instant createdAt;
 
