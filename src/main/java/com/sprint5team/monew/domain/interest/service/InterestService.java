@@ -19,4 +19,5 @@ public interface InterestService{
     CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request);
 
     InterestDto registerInterest(InterestRegisterRequest  request);
+
 }

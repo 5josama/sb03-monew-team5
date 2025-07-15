@@ -3,6 +3,7 @@ package com.sprint5team.monew.service.interest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
@@ -396,6 +397,73 @@ public class InterestServiceTest {
         assertThat(result.content().size()).isEqualTo(2);
     }
 
+
+    // TODO 관심사 추가 로직 관련 테스트 코드 작성
+
+    @Test
+    void 관심사를_추가한다() throws Exception {
+        // given
+        InterestRegisterRequest request = InterestRegisterRequest.builder()
+            .name("주종")
+            .keywords(List.of("막걸리"))
+            .build();
+
+        given(interestRepository.findAll(any())).willReturn(List.of());
+        given(interestRepository.save(any())).willReturn(interestA);
+        given(keywordRepository.saveAll(any())).willReturn(List.of());
+        given(keywordRepository.findAllByInterestIn(any())).willReturn(List.of());
+        given(interestMapper.toDto(interestA)).willReturn();
+
+        // when
+        interestService.registerInterest(request);
+
+        // then
+
+    }
+
+    @Test
+    void 유사도_비교를_위해_관심사_이름을_찾는다() throws Exception {
+        // given
+        given(interestRepository.findAll(any())).willReturn(List.of());
+        // when
+
+        // then
+
+    }
+
+
+    @Test
+    void 관심사_이름의_유사도가_80퍼센트_이상일경우_오류를_반환한다() throws Exception {
+        // given
+        given(interestRepository.findAll(any())).willReturn(List.of());
+        // when
+
+        // then
+        then(interestRepository).shouldHaveNoMoreInteractions();
+        then(keywordRepository).shouldHaveNoMoreInteractions();
+        then(interestMapper).shouldHaveNoInteractions();
+
+    }
+
+    @Test
+    void 관심사_이름이_일치하는_관심사가_있을경우_오류를_반환한다() throws Exception {
+        // given
+        
+        // when
+
+        // then
+
+    }
+
+    @Test
+    void 입력받은_키워드수만큼_키워드를_저장한다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
 
 
 

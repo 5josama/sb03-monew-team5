@@ -45,7 +45,7 @@ public class InterestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> insertInterest(@RequestBody @Valid InterestRegisterRequest request){
-        return null;
+    public ResponseEntity<InterestDto> insertInterest(@RequestBody @Valid InterestRegisterRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(interestService.registerInterest(request));
     }
 }

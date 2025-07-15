@@ -56,7 +56,11 @@ dependencies {
     // AWS SDK
     implementation 'software.amazon.awssdk:s3:2.31.7'
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    implementation 'org.apache.commons:commons-text:1.13.1'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile

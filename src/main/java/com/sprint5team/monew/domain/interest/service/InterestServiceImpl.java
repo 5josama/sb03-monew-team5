@@ -16,6 +16,7 @@ import com.sprint5team.monew.domain.user_interest.repository.UserInterestReposit
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Validated
 @Service
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
@@ -101,6 +102,7 @@ public class InterestServiceImpl implements InterestService{
     }
 
 
+    // TODO 관심사 추가 서비스 로직
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
         return null;
