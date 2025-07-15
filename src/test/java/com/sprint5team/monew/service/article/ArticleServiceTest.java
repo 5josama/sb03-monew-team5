@@ -151,4 +151,23 @@ public class ArticleServiceTest {
         assertThat(response.content().get(0).viewCount()).isEqualTo(5L);
         assertThat(response.content().get(0).viewedByMe()).isEqualTo(true);
     }
+
+    @Test
+    void 뉴스기사_출처_목록을_조회할_수_있다() {
+        // given
+        List<String> sources = List.of(
+                "NAVER",
+                "한국경제",
+                "연합뉴스"
+        );
+
+        given(articleRepository.findDistinctSource()).willReturn(sources);
+
+        // when
+        List<String> result = articleService.getSources();
+
+        // then
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.get(0)).isEqualTo("NAVER");
+    }
 }
