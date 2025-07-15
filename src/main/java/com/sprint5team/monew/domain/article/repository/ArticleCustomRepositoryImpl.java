@@ -57,12 +57,12 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         // 관심 키워드 (제목 또는 요약 포함)
         if (interestKeyword != null && !interestKeyword.isEmpty()) {
-            BooleanBuilder keywordOrBuilder = new BooleanBuilder();
+            BooleanBuilder keywordGroup = new BooleanBuilder();
             for (String keyword : interestKeyword) {
-                keywordOrBuilder.or(article.title.containsIgnoreCase(keyword));
-                keywordOrBuilder.or(article.summary.containsIgnoreCase(keyword));
+                keywordGroup.or(article.title.containsIgnoreCase(keyword));
+                keywordGroup.or(article.summary.containsIgnoreCase(keyword));
             }
-            builder.and(keywordOrBuilder);
+            builder.and(keywordGroup);
         }
 
         // 정렬 기준 설정
@@ -113,5 +113,53 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                 .orderBy(orderSpecifier)
                 .limit(filter.limit() + 1)
                 .fetch();
+    }
+
+    @Override
+    public long countByCursorFilter(CursorPageFilter filter, List<String> interestKeyword) {
+        QArticle article = QArticle.article;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 검색어 필터 (제목 또는 요약)
+        if (filter.keyword() != null) {
+            builder.andAnyOf(
+                    article.title.containsIgnoreCase(filter.keyword()),
+                    article.summary.containsIgnoreCase(filter.keyword())
+            );
+        }
+
+        // 출처 필터
+        if (filter.sourceIn() != null) {
+            builder.and(article.source.in(filter.sourceIn()));
+        }
+
+        // 날짜 필터
+        if (filter.publishDateFrom() != null && filter.publishDateTo() != null) {
+            builder.and(article.createdAt.between(filter.publishDateFrom(), filter.publishDateTo()));
+        } else {
+            if (filter.publishDateFrom() != null) {
+                builder.and(article.createdAt.after(filter.publishDateFrom()));
+            }
+            if (filter.publishDateTo() != null) {
+                builder.and(article.createdAt.before(filter.publishDateTo()));
+            }
+        }
+
+        // 관심 키워드 (제목 또는 요약 포함)
+        if (interestKeyword != null && !interestKeyword.isEmpty()) {
+            BooleanBuilder keywordGroup = new BooleanBuilder();
+            for (String keyword : interestKeyword) {
+                keywordGroup.or(article.title.containsIgnoreCase(keyword));
+                keywordGroup.or(article.summary.containsIgnoreCase(keyword));
+            }
+            builder.and(keywordGroup);
+        }
+
+        return queryFactory
+                .select(article.count())
+                .from(article)
+                .where(builder)
+                .fetchOne();
     }
 }
