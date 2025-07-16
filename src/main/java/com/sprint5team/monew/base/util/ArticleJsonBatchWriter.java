@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleJsonBatchWriter implements ItemWriter<String> {
 
-    private final S3Uploader s3Uploader;
+    private final S3Storage s3Storage;
     private final List<String> articles = new ArrayList<>();
 
     @Override
@@ -33,6 +33,6 @@ public class ArticleJsonBatchWriter implements ItemWriter<String> {
     public void afterStep(StepExecution stepExecution) {
         String json = "[" + String.join(",", articles) + "]";
         String fileName = "backup/news_" + LocalDate.now().minusDays(1) + ".json";
-        s3Uploader.upload(fileName, json);
+        s3Storage.upload(fileName, json);
     }
 }

@@ -18,4 +18,6 @@ public interface ArticleRepository extends JpaRepository<Article, UUID>, Article
 
     @Query("SELECT DISTINCT a.source FROM Article a")
     List<String> findDistinctSources();
+
+    List<Article> findAllBySourceUrlIn(List<String> sourceUrls);
 }

@@ -33,9 +33,9 @@ public class ArticleScraperTest {
             <rss>
               <channel>
                 <item>
-                  <title>테스트 제목</title>
+                  <title>AI 관련 기사 제목</title>
                   <link>http://example.com/article</link>
-                  <description>기사 설명</description>
+                  <description>경제 설명</description>
                   <pubDate>Wed, 10 Jul 2024 10:00:00 +0900</pubDate>
                   <source>네이버뉴스</source>
                 </item>
@@ -51,10 +51,6 @@ public class ArticleScraperTest {
                 any(HttpEntity.class),
                 eq(String.class)
         )).willReturn(responseEntity);
-
-        // RSS 피드 요청 mocking (3개 정도 필요)
-        given(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .willReturn(responseEntity);
 
         // when
         articleScraper.scrapeAll();
