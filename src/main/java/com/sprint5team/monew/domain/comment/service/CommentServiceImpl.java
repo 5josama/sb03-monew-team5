@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public CursorPageResponseCommentDto find(UUID articleId, String cursor, Instant after, Pageable pageable) {
         //커서페이지네이션 수행
-        List<Comment> commentList = commentRepository.findCommentsWithCursor(articleId, cursor, pageable);
+        List<Comment> commentList = commentRepository.findCommentsWithCursor(articleId, cursor, after, pageable);
 
         //totalElements 계산 로직
         Long totalElements = commentRepository.countTotalElements(articleId);
