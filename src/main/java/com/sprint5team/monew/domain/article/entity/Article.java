@@ -48,4 +48,8 @@ public class Article extends BaseEntity {
         this.originalDateTime = originalDateTime;
         this.isDeleted = false;
     }
+
+    public void softDelete() {
+        isDeleted = true;
+    }
 }
