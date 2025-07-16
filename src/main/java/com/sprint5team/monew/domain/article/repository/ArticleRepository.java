@@ -4,13 +4,18 @@ import com.sprint5team.monew.domain.article.entity.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, UUID> {
+public interface ArticleRepository extends JpaRepository<Article, UUID>, ArticleCustomRepository {
     boolean existsBySourceUrl(String link);
 
     Page<Article> findAllByOrderByIdAsc(Pageable pageable);
+
+    @Query("SELECT DISTINCT a.source FROM Article a")
+    List<String> findDistinctSources();
 }

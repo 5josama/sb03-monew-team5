@@ -1,7 +1,9 @@
 package com.sprint5team.monew.controller.article;
 
 import com.sprint5team.monew.domain.article.controller.ArticleController;
+import com.sprint5team.monew.domain.article.dto.ArticleDto;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
+import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,9 +15,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,5 +64,55 @@ public class ArticleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.articleId").value(articleId.toString()))
                 .andExpect(jsonPath("$.viewedBy").value(userId.toString()));
+    }
+
+    @Test
+    void 뉴스기사_목록_조회_API가_정상적으로_동작한다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        List<ArticleDto> articleDtos = Arrays.asList(
+                new ArticleDto(UUID.randomUUID(), "NAVER", "https://naver.com/news/123", "title1", "sum1", Instant.now(), 12L, 10L, false),
+                new ArticleDto(UUID.randomUUID(), "NAVER", "https://naver.com/news/123", "title2", "sum2", Instant.now(), 12L, 10L, false),
+                new ArticleDto(UUID.randomUUID(), "NAVER", "https://naver.com/news/123", "title3", "sum3", Instant.now(), 12L, 10L, false)
+        );
+
+        CursorPageResponseArticleDto articles = new CursorPageResponseArticleDto(
+                articleDtos,
+                null,
+                Instant.now(),
+                3,
+                3,
+                false
+        );
+
+        given(articleService.getArticles(any(), any())).willReturn(articles);
+
+        // when & then
+        mockMvc.perform(get("/api/articles")
+                .param("orderBy", "publishDate")
+                .param("direction", "DESC")
+                .param("limit", "50")
+                .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(3))
+                .andExpect(jsonPath("$.content[0].title").value("title1"))
+                .andExpect(jsonPath("$.content[1].title").value("title2"));
+    }
+
+    @Test
+    void 뉴스_출처_목록_조회_API가_정상적으로_동작한다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+
+        List<String> sources = List.of("NAVER", "한국경제", "연합뉴스");
+
+        given(articleService.getSources()).willReturn(sources);
+
+        // when & then
+        mockMvc.perform(get("/api/articles/sources")
+                .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("NAVER"))
+                .andExpect(jsonPath("$.length()").value(3));
     }
 }
