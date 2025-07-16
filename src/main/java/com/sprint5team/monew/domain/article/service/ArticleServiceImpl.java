@@ -132,6 +132,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<String> sourceUrls = restoredArticles.stream()
                 .map(Article::getSourceUrl)
+                .distinct()
                 .toList();
 
         Set<String> existingSourceUrls = new HashSet<>();
@@ -152,9 +153,9 @@ public class ArticleServiceImpl implements ArticleService {
                 ))
                 .toList();
 
-        articleRepository.saveAll(lostArticles);
+        List<Article> savedArticle = articleRepository.saveAll(lostArticles);
 
-        List<String> restoredIds = lostArticles.stream()
+        List<String> restoredIds = savedArticle.stream()
                 .map(article -> article.getId().toString())
                 .toList();
 
