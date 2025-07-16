@@ -112,6 +112,7 @@ CREATE TABLE tbl_notification
     resource_type VARCHAR(8)  NOT NULL,
     content       TEXT        NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed     BOOLEAN     NOT NULL DEFAULT FALSE,
 
     user_id       UUID        NOT NULL,
@@ -122,7 +123,7 @@ CREATE TABLE tbl_notification
     FOREIGN KEY (comment_id) REFERENCES tbl_comment (id) on delete cascade,
     FOREIGN KEY (interest_id) REFERENCES tbl_interest (id) on delete cascade,
 
-    CONSTRAINT chk_resource_type CHECK (resource_type IN ('interest', 'comment'))
+    CONSTRAINT chk_resource_type CHECK (resource_type IN ('INTEREST', 'COMMENT'))
 );
 -- 키워드
 CREATE TABLE IF NOT EXISTS tbl_keyword

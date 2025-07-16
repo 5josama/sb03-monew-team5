@@ -10,11 +10,11 @@ import java.util.UUID;
  * @param articleId 기사 ID
  * @param source 출처
  * @param sourceUrl 원본 기사 URL
- * @param title 제목
- * @param publishDate 기사 날짜
- * @param summary 요약
- * @param commentCount 댓글 수
- * @param viewCount 조회 수
+ * @param articleTitle 제목
+ * @param articlePublishDate 기사 날짜
+ * @param articleSummary 요약
+ * @param articleCommentCount 댓글 수
+ * @param articleViewCount 조회 수
  */
 public record ArticleViewDto(
         UUID id,
@@ -23,10 +23,10 @@ public record ArticleViewDto(
         UUID articleId,
         String source,
         String sourceUrl,
-        String title,
-        Instant publishDate,
-        String summary,
-        long commentCount,
-        long viewCount
+        String articleTitle,
+        Instant articlePublishDate,
+        String articleSummary,
+        long articleCommentCount,
+        long articleViewCount
 ) {
 }
