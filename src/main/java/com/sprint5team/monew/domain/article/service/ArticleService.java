@@ -19,4 +19,6 @@ public interface ArticleService {
     ArticleRestoreResultDto restoreArticle(Instant from, Instant to);
 
     void softDeleteArticle(UUID articleId);
+
+    void hardDeleteArticle(UUID articleId);
 }

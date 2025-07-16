@@ -93,4 +93,13 @@ public class ArticleController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{articleId}/hard")
+    public ResponseEntity<Void> hardDeleteArticle(
+            @PathVariable UUID articleId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        articleService.hardDeleteArticle(articleId);
+        return ResponseEntity.noContent().build();
+    }
 }
