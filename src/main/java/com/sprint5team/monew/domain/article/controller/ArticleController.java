@@ -62,4 +62,12 @@ public class ArticleController {
                 .status(HttpStatus.OK)
                 .body(articles);
     }
+
+    @GetMapping("/sources")
+    public ResponseEntity<List<String>> getSources() {
+        List<String> sources = articleService.getSources();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(sources);
+    }
 }

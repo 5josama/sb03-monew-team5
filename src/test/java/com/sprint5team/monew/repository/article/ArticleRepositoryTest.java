@@ -101,4 +101,25 @@ public class ArticleRepositoryTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTitle()).isEqualTo("AI3");
     }
+
+    @Test
+    void 뉴스기사_출처를_중복없이_조회할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
+        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now());
+        Article article3 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now());
+        Article article4 = new Article("연합뉴스", "https://...4", "AI4", "경제4", false, Instant.now(), Instant.now());
+
+        em.persist(article1);
+        em.persist(article2);
+        em.persist(article3);
+        em.persist(article4);
+        em.flush();
+
+        // when
+        List<String> result = articleRepository.findDistinctSources();
+
+        // then
+        assertThat(result).hasSize(3);
+    }
 }
