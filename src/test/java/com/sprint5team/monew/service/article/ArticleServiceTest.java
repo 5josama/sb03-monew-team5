@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -111,28 +112,30 @@ public class ArticleServiceTest {
         CursorPageFilter filter = new CursorPageFilter(
                 "AI",
                 interest.getId(),
-                Arrays.asList("AI", "경제"),
+                Arrays.asList("NAVER", "한국경제"),
                 Instant.now(),
                 Instant.now(),
                 "publishDate",
                 "ASC",
                 null,
                 null,
-                2
+                5
         );
 
         List<Article> articles = List.of(
-                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "test", "test", Instant.now())
+                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", false, Instant.now(), Instant.now()),
+                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", false, Instant.now(), Instant.now()),
+                new Article("NAVER", "https://naver.com/news/12333", "test", "test", false, Instant.now(), Instant.now())
         );
         ReflectionTestUtils.setField(articles.get(0), "id", UUID.randomUUID());
         ReflectionTestUtils.setField(articles.get(1), "id", UUID.randomUUID());
         ReflectionTestUtils.setField(articles.get(2), "id", UUID.randomUUID());
 
-        given(articleRepository.findByCursorFilter(any(CursorPageFilter.class), any())).willReturn(articles);
-        given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
-        given(keywordRepository.findAllByInterestIn(any())).willReturn(keywords);
+        List<Article> filteredArticles = articles.subList(0, 2); // keyword 포함된 두 개만
+        given(articleRepository.findByCursorFilter(any(CursorPageFilter.class), any()))
+                .willReturn(filteredArticles);
+        lenient().when(interestRepository.findById(interest.getId())).thenReturn(Optional.of(interest));
+        lenient().when(keywordRepository.findAllByInterestIn(any())).thenReturn(keywords);
 
         Map<UUID, Long> viewCountMap = articles.stream()
                 .collect(Collectors.toMap(Article::getId, a -> 5L)); // 전부 5로 가정
@@ -156,7 +159,7 @@ public class ArticleServiceTest {
 
         // then
         assertThat(response.content()).hasSize(2);
-        assertThat(response.hasNext()).isTrue();
+        assertThat(response.hasNext()).isFalse();
         assertThat(response.content().get(0).viewCount()).isEqualTo(5L);
         assertThat(response.content().get(0).viewedByMe()).isEqualTo(true);
     }
@@ -190,6 +193,11 @@ public class ArticleServiceTest {
                 new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
                 new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
         );
+        UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
+        UUID id2 = UUID.fromString("ba4b516e-3ab3-44ae-aa9d-713d29911e50");
+
+        ReflectionTestUtils.setField(backupArticles.get(0), "id", id1);
+        ReflectionTestUtils.setField(backupArticles.get(1), "id", id2);
         List<String> backupJsons = List.of(
                 "[{" +
                         "\"id\": \"3b98b117-369e-4c36-a44d-7eef0a341d67\"," +
