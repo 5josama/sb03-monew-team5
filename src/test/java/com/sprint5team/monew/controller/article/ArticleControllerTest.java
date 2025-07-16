@@ -158,4 +158,18 @@ public class ArticleControllerTest {
                 .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void 뉴스_기사_물리_삭제_API가_정상적으로_동작한다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+
+        doNothing().when(articleService).hardDeleteArticle(articleId);
+
+        // when & then
+        mockMvc.perform(delete("/api/articles/{articleId}/hard", articleId)
+                        .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isNoContent());
+    }
 }
