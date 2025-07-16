@@ -7,6 +7,8 @@ import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.UUID;
+
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service
  * FileName     : InterestService
@@ -19,5 +21,7 @@ public interface InterestService{
     CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request);
 
     InterestDto registerInterest(InterestRegisterRequest  request);
+
+    void deleteInterest(UUID interestId);
 
 }
