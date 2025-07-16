@@ -177,6 +177,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void softDeleteArticle(UUID articleId) {
+        Article article = articleRepository.findById(articleId).orElseThrow(
+                ArticleNotFoundException::new
+        );
 
+        if (!article.isDeleted()) {
+            article.softDelete();
+            articleRepository.save(article);
+        }
     }
 }
