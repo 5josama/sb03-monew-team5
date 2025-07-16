@@ -511,12 +511,11 @@ public class InterestServiceTest {
         UUID interestId = UUID.randomUUID();
         given(interestRepository.existsById(interestId)).willReturn(true);
 
-
         // when
-//        interestService.deleteInterest(interestId);
+        interestService.deleteInterest(interestId);
 
         // then
-
+        then(interestRepository).should(times(1)).deleteById(interestId);
     }
 
     @Test
@@ -526,13 +525,10 @@ public class InterestServiceTest {
         given(interestRepository.existsById(interestId)).willReturn(false);
 
 
-        // when
-//        assertThatThrownBy(() -> interestService.deleteInterest(interestId))
-//            .isInstanceOf(InterestNotExistException.class)
-//            .hasMessageContaining("일치하는 관심사 없음");
-
-        // then
-
+        // when n then
+        assertThatThrownBy(() -> interestService.deleteInterest(interestId))
+            .isInstanceOf(InterestNotExistException.class)
+            .hasMessageContaining("일치하는 관심사 없음");
     }
 
 

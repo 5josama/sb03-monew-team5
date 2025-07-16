@@ -1,11 +1,13 @@
 package com.sprint5team.monew.controller.interest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.BDDMockito.given;
 import com.sprint5team.monew.domain.interest.controller.InterestController;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -288,10 +290,14 @@ public class InterestControllerTest {
         // given
         UUID interestId = UUID.randomUUID();
 
+        doThrow(new InterestNotExistException())
+            .when(interestService)
+            .deleteInterest(interestId);
+
         // when n then
         mockMvc.perform(delete("/api/interests/{interestId}", interestId))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
-            .andExpect(jsonPath("$.details").value("이미 유사한 이름의 관심사가 있습니다."));
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
     }
 }

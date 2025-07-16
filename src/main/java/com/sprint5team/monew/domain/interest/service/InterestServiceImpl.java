@@ -102,7 +102,6 @@ public class InterestServiceImpl implements InterestService{
         return result;
     }
 
-
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
         String name = request.name().trim();
@@ -134,6 +133,14 @@ public class InterestServiceImpl implements InterestService{
         return response;
     }
 
+    @Override
+    public void deleteInterest(UUID interestId) {
+        log.info("관심사 삭제");
+        if(!interestRepository.existsById(interestId)) throw new InterestNotExistException();
+
+        interestRepository.deleteById(interestId);
+    }
+
     private void validateSimilarityInTest(InterestRegisterRequest request) {
         String name = request.name().trim();
         log.info("1. 동일한 관심사 이름 있는지 확인");
@@ -154,12 +161,5 @@ public class InterestServiceImpl implements InterestService{
                 throw new SimilarInterestException();
             }
         }
-    }
-
-    // TODO 관심사 삭제
-    public void deleteInterest(UUID interestId) {
-        if(!interestRepository.existsById(interestId)) throw new InterestNotExistException();
-
-        interestRepository.deleteById(interestId);
     }
 }
