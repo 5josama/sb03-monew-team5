@@ -85,7 +85,7 @@ class UserServiceTest {
   @Test
   void 사용자_로그인_성공() {
     // given
-    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(user);
+//    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(user);
     given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
     // when

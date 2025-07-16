@@ -1,5 +1,6 @@
 package com.sprint5team.monew.service.interest;
 
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
@@ -94,7 +95,6 @@ public class InterestServiceTest {
     @Test
     void 입력된_keyword를_포함한_관심사를_조회한다() throws Exception {
         // given
-
         CursorPageRequest validRequest = CursorPageRequest.builder()
             .keyword("게임")
             .orderBy("name")
@@ -503,6 +503,40 @@ public class InterestServiceTest {
             .extracting("name")
             .containsExactlyInAnyOrderElementsOf(keywords);
     }
+
+    // TODO 관심사 삭제 로직
+    @Test
+    void 관심사를_삭제할_수_있다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+        given(interestRepository.existsById(interestId)).willReturn(true);
+
+
+        // when
+        interestService.deleteInterest(interestId);
+
+        // then
+
+    }
+
+    @Test
+    void 관심사가_없으면_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+        given(interestRepository.existsById(interestId)).willReturn(false);
+
+
+        // when
+        assertThatThrownBy(() -> interestService.deleteInterest(interestId))
+            .isInstanceOf(InterestNotExistException.class)
+            .hasMessageContaining("일치하는 관심사 없음")
+            .returns();
+
+        // then
+
+    }
+
+
 
 
 

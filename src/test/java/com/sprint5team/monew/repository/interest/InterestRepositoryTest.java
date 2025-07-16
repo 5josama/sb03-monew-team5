@@ -4,7 +4,12 @@ import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
+import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
+import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.repository.UserRepository;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,8 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 
 /**
  * PackageName  : com.sprint5team.monew.repository.interest
@@ -39,11 +46,17 @@ public class InterestRepositoryTest {
     private Interest interestA, interestB, interestC;
     private final Instant baseTime = Instant.parse("2025-07-14T00:00:00Z");
     private double threshold = 0.8;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserInterestRepository userInterestRepository;
 
     @BeforeEach
     public void setup() {
         keywordRepository.deleteAll();
         interestRepository.deleteAll();
+        userRepository.deleteAll();
+        userInterestRepository.deleteAll();
 
         interestA = Interest.builder()
             .name("DEEP LEARNING")
@@ -94,4 +107,57 @@ public class InterestRepositoryTest {
         // then
         assertThat(result).isFalse();
     }
+
+    // TODO 관심사 삭제
+    @Test
+    void 관심사가_정상_삭제된다() throws Exception {
+        // when
+        interestRepository.delete(interestA);
+
+        // then
+        assertThat(interestRepository.count()).isEqualTo(0L);
+    }
+
+    @Test
+    void 관심사가_삭제되면_관련_키워드들도_삭제된다() throws Exception {
+        // given
+        Keyword keyword = Keyword.builder()
+            .createdAt(baseTime)
+            .name("키워드1")
+            .interest(interestA)
+            .build();
+        keywordRepository.save(keyword);
+
+        // when
+        interestRepository.delete(interestA);
+
+        // then
+        assertThat(interestRepository.count()).isEqualTo(0L);
+        assertThat(keywordRepository.count()).isEqualTo(0L);
+    }
+
+    @Test
+    void 관심사가_삭제되면_관련_구독도_삭제된다() throws Exception {
+        // given
+        User user = User.builder()
+            .createdAt(Instant.now())
+            .email("test@test.com")
+            .nickname("dk")
+            .password("testpassword")
+            .build();
+        userRepository.save(user);
+
+        UserInterest userInterest = UserInterest.builder()
+            .user(user)
+            .interest(interestA)
+            .build();
+        userInterestRepository.save(userInterest);
+
+        // when
+        interestRepository.delete(interestA);
+
+        // then
+        assertThat(userInterestRepository.count()).isEqualTo(0L);
+    }
 }
+

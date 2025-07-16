@@ -22,8 +22,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -273,6 +272,26 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.details").value("keywords: size must be between 1 and 10"));
     }
 
+    // TODO 관심사 삭제 기능 추가
+    @Test
+    void 관심사를_삭제_한다_204() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
 
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNoContent());
+    }
 
+    @Test
+    void 관심사_정보가_없을경우_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.details").value("이미 유사한 이름의 관심사가 있습니다."));
+    }
 }
