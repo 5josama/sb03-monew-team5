@@ -30,6 +30,8 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         BooleanBuilder builder = new BooleanBuilder();
 
+        builder.and(article.isDeleted.isFalse());
+
         // 검색어 필터 (제목 또는 요약)
         if (filter.keyword() != null) {
             builder.andAnyOf(
@@ -120,6 +122,8 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
         QArticle article = QArticle.article;
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(article.isDeleted.isFalse());
 
         // 검색어 필터 (제목 또는 요약)
         if (filter.keyword() != null) {
