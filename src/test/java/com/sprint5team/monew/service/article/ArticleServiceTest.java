@@ -90,7 +90,7 @@ public class ArticleServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
         given(articleCountRepository.findByUserIdAndArticleId(userId, articleId)).willReturn(Optional.empty());
-        given(articleViewMapper.toDto(any(), any(), any())).willReturn(articleViewDto);
+        given(articleViewMapper.toDto(any(), any(), any(), any(), any())).willReturn(articleViewDto);
 
         // when
         ArticleViewDto result = articleService.saveArticleView(articleId, userId);

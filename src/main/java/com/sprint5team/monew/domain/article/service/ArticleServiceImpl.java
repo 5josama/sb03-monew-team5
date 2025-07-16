@@ -51,8 +51,10 @@ public class ArticleServiceImpl implements ArticleService {
         if (articleCount.isEmpty()) {
             articleCountRepository.save(new ArticleCount(article,  user));
         }
-
-        return articleViewMapper.toDto(article, user, articleCount.orElse(null));
+        Map<UUID, Long> viewCount = articleCountRepository.countViewByArticleIds(List.of(articleId));
+        Map<UUID, Long> commentCount = commentRepository.countByArticleIds(List.of(articleId)).stream()
+                .collect(Collectors.toMap(ArticleCommentCount::getArticleId, ArticleCommentCount::getCount));
+        return articleViewMapper.toDto(article, user, articleCount.orElse(null), viewCount.getOrDefault(articleId, 0L), commentCount.getOrDefault(articleId, 0L));
     }
 
     @Override
