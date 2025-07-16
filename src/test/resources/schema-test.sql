@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS tbl_article_count (
      id         UUID PRIMARY KEY,
      article_id UUID NOT NULL,
      user_id    UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
      FOREIGN KEY (article_id) REFERENCES tbl_article (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES tbl_user (id) ON DELETE CASCADE
     );

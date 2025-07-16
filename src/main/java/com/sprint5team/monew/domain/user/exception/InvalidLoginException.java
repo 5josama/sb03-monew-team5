@@ -4,7 +4,7 @@ import com.sprint5team.monew.base.exception.BaseException;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 
-public class UserNotFoundException extends BaseException {
+public class InvalidLoginException extends BaseException {
 
   @Override
   public Instant getTimestamp() {
@@ -13,12 +13,12 @@ public class UserNotFoundException extends BaseException {
 
   @Override
   public HttpStatus getHttpStatus() {
-    return HttpStatus.NOT_FOUND;
+    return HttpStatus.UNAUTHORIZED;
   };
 
   @Override
   public String getMessage() {
-    return "존재하지 않는 사용자입니다.";
+    return "이메일 또는 비밀번호가 올바르지 않습니다.";
   };
 
   @Override

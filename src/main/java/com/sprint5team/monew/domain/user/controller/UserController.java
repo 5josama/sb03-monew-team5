@@ -1,6 +1,7 @@
 package com.sprint5team.monew.domain.user.controller;
 
 import com.sprint5team.monew.domain.user.dto.UserDto;
+import com.sprint5team.monew.domain.user.dto.UserLoginRequest;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -28,5 +29,16 @@ public class UserController {
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdUser);
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<UserDto> login(
+      @RequestBody @Valid UserLoginRequest request){
+
+    UserDto user = userService.login(request.email(), request.password());
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(user);
   }
 }
