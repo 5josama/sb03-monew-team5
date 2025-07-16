@@ -14,13 +14,10 @@ import java.util.UUID;
  * Date         : 2025. 7. 11.
  */
 public interface InterestRepository extends JpaRepository<Interest, UUID>, InterestRepositoryCustom {
-
-//    boolean existsInterestByName(String name);
-
     // 정확히 비교
     boolean existsByNameEqualsIgnoreCase(String name);
 
-
+    // 유사 비교
     @Query(value = """
     SELECT EXISTS (
         SELECT 1

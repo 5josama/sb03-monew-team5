@@ -1,4 +1,4 @@
-package com.sprint5team.monew.domain.exception;
+package com.sprint5team.monew.domain.interest.exception;
 
 import com.sprint5team.monew.base.exception.BaseException;
 import org.springframework.http.HttpStatus;

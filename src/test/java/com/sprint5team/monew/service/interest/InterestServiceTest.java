@@ -1,6 +1,6 @@
 package com.sprint5team.monew.service.interest;
 
-import com.sprint5team.monew.domain.exception.SimilarInterestException;
+import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;

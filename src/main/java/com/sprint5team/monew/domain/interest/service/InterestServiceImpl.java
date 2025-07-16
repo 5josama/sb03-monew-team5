@@ -1,6 +1,6 @@
 package com.sprint5team.monew.domain.interest.service;
 
-import com.sprint5team.monew.domain.exception.SimilarInterestException;
+import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
@@ -110,7 +110,7 @@ public class InterestServiceImpl implements InterestService{
         String name = request.name().trim();
 
         log.info("분기 시작 test 환경에선 h2 로직 실행 prod 환경에서 postgresql 사용 로직 실행");
-        if ("test" .equals(activeProfile)) {
+        if ("test".equals(activeProfile)) {
             log.info("test 환경 h2 로직 실행");
             validateSimilarityInTest(request);
         } else {
