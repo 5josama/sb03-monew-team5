@@ -132,7 +132,6 @@ public class InterestRepositoryTest {
         assertThat(interestRepository.count()).isEqualTo(1);
     }
 
-    // TODO 관심사 삭제
     @Test
     void 관심사가_정상_삭제된다() throws Exception {
         // when

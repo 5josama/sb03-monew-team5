@@ -274,7 +274,6 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.details").value("keywords: size must be between 1 and 10"));
     }
 
-    // TODO 관심사 삭제 기능 추가
     @Test
     void 관심사를_삭제_한다_204() throws Exception {
         // given
