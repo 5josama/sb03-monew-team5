@@ -12,13 +12,14 @@ public interface ArticleViewMapper {
 
     @Mapping(source = "user.id", target = "viewedBy")
     @Mapping(source = "article.id", target = "articleId")
-    @Mapping(source = "article.title", target = "title")
-    @Mapping(source = "article.summary", target = "summary")
+    @Mapping(source = "article.title", target = "articleTitle")
+    @Mapping(source = "article.summary", target = "articleSummary")
     @Mapping(source = "article.source", target = "source")
     @Mapping(source = "article.sourceUrl", target = "sourceUrl")
-    @Mapping(source = "article.originalDateTime", target = "publishDate")
+    @Mapping(source = "article.originalDateTime", target = "articlePublishDate")
     @Mapping(source = "articleCount.createdAt", target = "createdAt")
     @Mapping(source = "articleCount.id", target = "id")
-    // commentCount, viewCount는 수동 계산 필요
-    ArticleViewDto toDto(Article article, User user, ArticleCount articleCount);
+    @Mapping(source = "viewedCount", target = "articleViewCount")
+    @Mapping(source = "commentCount", target = "articleCommentCount")
+    ArticleViewDto toDto(Article article, User user, ArticleCount articleCount, Long viewedCount, Long commentCount);
 }
