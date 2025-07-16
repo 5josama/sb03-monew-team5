@@ -83,4 +83,14 @@ public class ArticleController {
                 .status(HttpStatus.OK)
                 .body(articleRestoreResultDto);
     }
+
+    @DeleteMapping("/{articleId}")
+    public ResponseEntity<Void> softDeleteArticle(
+            @PathVariable UUID articleId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        articleService.softDeleteArticle(articleId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

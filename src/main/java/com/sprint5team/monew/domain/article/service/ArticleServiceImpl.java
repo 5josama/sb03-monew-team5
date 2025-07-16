@@ -174,4 +174,9 @@ public class ArticleServiceImpl implements ArticleService {
                 restoredIds.size()
         );
     }
+
+    @Override
+    public void softDeleteArticle(UUID articleId) {
+
+    }
 }
