@@ -43,7 +43,9 @@ public class UserServiceImpl implements UserService{
   @Override
   public UserDto login(String email, String password) {
 
-    User user = userRepository.findByEmailAndPassword(email, password);
+    User user = userRepository
+        .findByEmailAndPassword(email, password)
+        .orElseThrow(InvalidLoginException::new);
 
     if (user == null) {
       throw new InvalidLoginException();
