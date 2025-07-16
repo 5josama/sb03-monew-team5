@@ -1,9 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
-import com.sprint5team.monew.domain.article.dto.ArticleDto;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
-import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.S3Storage;
+import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
@@ -11,6 +10,7 @@ import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
 import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,9 @@ public class ArticleServiceImpl implements ArticleService {
     private final InterestRepository interestRepository;
     private final KeywordRepository keywordRepository;
     private final ArticleMapper articleMapper;
+    private final S3Storage s3Storage;
+    private final ObjectMapper objectMapper;
+    private final CommentRepository commentRepository;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -77,6 +81,8 @@ public class ArticleServiceImpl implements ArticleService {
 
         Map<UUID, Long> viewCountMap = articleCountRepository.countViewByArticleIds(articleIds);
         Set<UUID> viewedByMeSet = articleCountRepository.findViewedArticleIdsByUserId(userId, articleIds);
+        Map<UUID, Long> commentCount = commentRepository.countByArticleIds(articleIds).stream()
+                .collect(Collectors.toMap(ArticleCommentCount::getArticleId, ArticleCommentCount::getCount));
 
         String nextCursor = null;
 
@@ -85,7 +91,9 @@ public class ArticleServiceImpl implements ArticleService {
 
             switch (filter.orderBy()) {
                 case "publishDate" -> nextCursor = last.getCreatedAt().toString();
-                case "commentCount" -> nextCursor = String.valueOf(0L); // 추후 변경
+                case "commentCount" -> nextCursor = String.valueOf(
+                        commentCount.getOrDefault(last.getId(), 0L)
+                );
                 case "viewCount" -> nextCursor = String.valueOf(
                         viewCountMap.getOrDefault(last.getId(), 0L)
                 );
@@ -95,7 +103,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDto> result = content.stream()
                 .map(article -> articleMapper.toDto(
                         article,
-                        0L, // commentCount - 추후 구현
+                        commentCount.getOrDefault(article.getId(), 0L),
                         viewCountMap.getOrDefault(article.getId(), 0L),
                         viewedByMeSet.contains(article.getId())
                 ))
@@ -114,5 +122,54 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<String> getSources() {
         return articleRepository.findDistinctSources();
+    }
+
+    @Override
+    public ArticleRestoreResultDto restoreArticle(Instant from, Instant to) {
+        List<String> articleJson = s3Storage.readArticlesFromBackup(from, to);
+
+        List<Article> restoredArticles = articleJson.stream()
+                .flatMap(json -> {
+                    try {
+                        return Arrays.stream(objectMapper.readValue(json, Article[].class));
+                    } catch (Exception e) {
+                        throw new RuntimeException("복구 실패", e);
+                    }
+                }).toList();
+
+        List<String> sourceUrls = restoredArticles.stream()
+                .map(Article::getSourceUrl)
+                .distinct()
+                .toList();
+
+        Set<String> existingSourceUrls = new HashSet<>();
+        for (int i = 0; i < sourceUrls.size(); i += 500) {
+            List<String> chunk = sourceUrls.subList(i, Math.min(i + 500, sourceUrls.size()));
+            List<Article> existingArticles = articleRepository.findAllBySourceUrlIn(chunk);
+            existingSourceUrls.addAll(existingArticles.stream().map(Article::getSourceUrl).toList());
+        }
+
+        List<Article> lostArticles = restoredArticles.stream()
+                .filter(article -> !existingSourceUrls.contains(article.getSourceUrl()))
+                .map(article -> new Article(
+                        article.getSource(),
+                        article.getSourceUrl(),
+                        article.getTitle(),
+                        article.getSummary(),
+                        article.getOriginalDateTime()
+                ))
+                .toList();
+
+        List<Article> savedArticle = articleRepository.saveAll(lostArticles);
+
+        List<String> restoredIds = savedArticle.stream()
+                .map(article -> article.getId().toString())
+                .toList();
+
+        return new  ArticleRestoreResultDto(
+                Instant.now(),
+                restoredIds,
+                restoredIds.size()
+        );
     }
 }
