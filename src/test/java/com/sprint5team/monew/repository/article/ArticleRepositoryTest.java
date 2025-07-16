@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,8 +84,8 @@ public class ArticleRepositoryTest {
                 "AI",
                 interest.getId(),
                 Arrays.asList("NAVER"),
-                Instant.parse("2025-07-12T00:00:00Z"),
-                Instant.parse("2025-07-13T00:00:00Z"),
+                LocalDateTime.parse("2025-07-12T00:00:00"),
+                LocalDateTime.parse("2025-07-13T00:00:00"),
                 "publishDate",
                 "ASC",
                 null,
