@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
     private static final double THRESHOLD = 0.75;
-    @Value("${spring.profiles.active:prod}")
-    private String activeProfile;
 
     private final InterestRepository interestRepository;
 
@@ -104,29 +102,21 @@ public class InterestServiceImpl implements InterestService{
     }
 
 
-    // TODO 관심사 추가 서비스 로직
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
         String name = request.name().trim();
 
         log.info("분기 시작 test 환경에선 h2 로직 실행 prod 환경에서 postgresql 사용 로직 실행");
-        if ("test".equals(activeProfile)) {
-            log.info("test 환경 h2 로직 실행");
-            validateSimilarityInTest(request);
-        } else {
-            log.info("prod 또는 dev 환경 postgres 로직 실행");
-            log.info("1. 동일한 관심사 이름 있는지 확인");
-            if(name.length()<=3){
-                if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
-            }else {
-                if(interestRepository.existsSimilarName(name, THRESHOLD)) throw new SimilarInterestException();
-            }
+        log.info("1. 동일한 관심사 이름 있는지 확인");
+        if(name.length()<=3){
+            if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
+        }else {
+            if(interestRepository.existsSimilarName(name, THRESHOLD)) throw new SimilarInterestException();
         }
 
         log.info("2.유사 관심사 없음 생성 로직 실행");
-        Interest interest = new Interest(name);
-
         log.info("2-1. 관심사 저장");
+        Interest interest = new Interest(name);
         interestRepository.save(interest);
 
         log.info("2-2.키워드 저장");
