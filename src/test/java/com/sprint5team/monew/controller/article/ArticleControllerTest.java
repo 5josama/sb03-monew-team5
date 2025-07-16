@@ -151,7 +151,7 @@ public class ArticleControllerTest {
         UUID userId = UUID.randomUUID();
         UUID articleId = UUID.randomUUID();
 
-        doNothing().when(articleService).softDeleteArticle(articleId, userId);
+        doNothing().when(articleService).softDeleteArticle(articleId);
 
         // when & then
         mockMvc.perform(delete("/api/articles/{articleId}", articleId)
