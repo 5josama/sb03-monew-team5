@@ -235,4 +235,26 @@ public class ArticleServiceTest {
         verify(s3Storage).readArticlesFromBackup(from, to);
         verify(articleRepository).saveAll(anyList());
     }
+
+    @Test
+    void 주어진_뉴스기사_ID로_뉴스기사를_논리삭제_할_수_있다() {
+        // given
+        List<Article> articles = List.of(
+                new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
+                new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
+        );
+        UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
+        UUID id2 = UUID.fromString("ba4b516e-3ab3-44ae-aa9d-713d29911e50");
+        ReflectionTestUtils.setField(articles.get(0), "id", id1);
+        ReflectionTestUtils.setField(articles.get(1), "id", id2);
+
+        given(articleRepository.findById(id2)).willReturn(Optional.of(articles.get(1)));
+
+        // when
+        articleService.softDeleteArticle(id2);
+
+        // then
+        assertThat(article2.isDeleted()).isTrue();
+        verify(articleRepository).save(articles.get(1));
+    }
 }
