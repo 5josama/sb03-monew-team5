@@ -10,6 +10,7 @@ import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
 import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleMapper articleMapper;
     private final S3Storage s3Storage;
     private final ObjectMapper objectMapper;
+    private final CommentRepository commentRepository;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -78,6 +81,8 @@ public class ArticleServiceImpl implements ArticleService {
 
         Map<UUID, Long> viewCountMap = articleCountRepository.countViewByArticleIds(articleIds);
         Set<UUID> viewedByMeSet = articleCountRepository.findViewedArticleIdsByUserId(userId, articleIds);
+        Map<UUID, Long> commentCount = commentRepository.countByArticleIds(articleIds).stream()
+                .collect(Collectors.toMap(ArticleCommentCount::getArticleId, ArticleCommentCount::getCount));
 
         String nextCursor = null;
 
@@ -86,7 +91,9 @@ public class ArticleServiceImpl implements ArticleService {
 
             switch (filter.orderBy()) {
                 case "publishDate" -> nextCursor = last.getCreatedAt().toString();
-                case "commentCount" -> nextCursor = String.valueOf(0L); // 추후 변경
+                case "commentCount" -> nextCursor = String.valueOf(
+                        commentCount.getOrDefault(last.getId(), 0L)
+                );
                 case "viewCount" -> nextCursor = String.valueOf(
                         viewCountMap.getOrDefault(last.getId(), 0L)
                 );
@@ -96,7 +103,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDto> result = content.stream()
                 .map(article -> articleMapper.toDto(
                         article,
-                        0L, // commentCount - 추후 구현
+                        commentCount.getOrDefault(article.getId(), 0L),
                         viewCountMap.getOrDefault(article.getId(), 0L),
                         viewedByMeSet.contains(article.getId())
                 ))
