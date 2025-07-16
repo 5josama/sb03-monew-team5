@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Testcontainers
 @DataJpaTest
+@DisplayName("InterestRepository existSimilarName() 테스트")
 @Import({InterestRepositoryImpl.class, QuerydslConfig.class})
 public class InterestRepositoryExistSimilarNameTest {
 
