@@ -106,4 +106,14 @@ public class NotificationServiceImpl implements NotificationService {
         );
     }
 
+    @Override
+    public void confirmNotification(UUID notificationId, UUID userId) {
+
+    }
+
+    @Override
+    public void confirmAllNotifications(UUID userId) {
+
+    }
+
 }

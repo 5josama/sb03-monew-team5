@@ -28,13 +28,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -197,5 +198,61 @@ class NotificationServiceTest {
         assertEquals(userId, result.content().get(0).userId());
         assertEquals(ResourceType.INTEREST, result.content().get(0).resourceType());
         assertEquals(interestId, result.content().get(0).resourceId());
+    }
+
+    @Test
+    void 단일_알림_확인_요청시_알림이_확인된다() {
+        // given
+        UUID notificationId = UUID.randomUUID();
+        Notification notification = Notification.builder()
+                .user(testUser)
+                .confirmed(false)
+                .content("테스트 알림")
+                .resourceType(ResourceType.COMMENT)
+                .build();
+        ReflectionTestUtils.setField(notification, "id", UUID.randomUUID());
+
+        given(notificationRepository.findById(notificationId)).willReturn(Optional.of(notification));
+
+        // when
+        notificationService.confirmNotification(notificationId, userId);
+
+        // then
+        assertThat(notification.isConfirmed()).isTrue();
+        verify(notificationRepository).findById(notificationId);
+    }
+
+    @Test
+    void 전체_알림_확인_요청시_모든_알림이_확인된다() {
+        // given
+        Notification noti1 = Notification.builder()
+                .user(testUser)
+                .confirmed(false)
+                .content("알림1")
+                .resourceType(ResourceType.INTEREST)
+                .build();
+        ReflectionTestUtils.setField(noti1, "id", UUID.randomUUID());
+
+        Notification noti2 = Notification.builder()
+                .user(testUser)
+                .confirmed(false)
+                .content("알림2")
+                .resourceType(ResourceType.COMMENT)
+                .build();
+        ReflectionTestUtils.setField(noti2, "id", UUID.randomUUID());
+
+        List<Notification> notifications = List.of(noti1, noti2);
+
+        given(notificationRepository.findByUserIdAndConfirmedIsFalse(userId)).willReturn(notifications);
+
+        // when
+        notificationService.confirmAllNotifications(userId);
+
+        // then
+        for (Notification notification : notifications) {
+            assertThat(notification.isConfirmed()).isTrue();
+        }
+
+        verify(notificationRepository).findByUserIdAndConfirmedIsFalse(userId);
     }
 }
