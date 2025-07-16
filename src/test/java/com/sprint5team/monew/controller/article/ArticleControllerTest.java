@@ -22,8 +22,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -143,5 +143,19 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.restoredArticleIds.length()").value(4))
                 .andExpect(jsonPath("$.restoredArticleIds[0]").value("ba4b516e-3ab3-44ae-aa9d-713d29911e50"))
                 .andExpect(jsonPath("$.restoredArticleCount").value(4));
+    }
+
+    @Test
+    void 뉴스_기사_논리_삭제_API가_정상적으로_동작한다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+
+        doNothing().when(articleService).softDeleteArticle(articleId, userId);
+
+        // when & then
+        mockMvc.perform(delete("/api/articles/{articleId}", articleId)
+                .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isNoContent());
     }
 }
