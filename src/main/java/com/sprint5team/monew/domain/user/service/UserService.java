@@ -6,4 +6,6 @@ import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 public interface UserService {
 
   UserDto register(UserRegisterRequest request);
+
+  UserDto login(String email, String password);
 }

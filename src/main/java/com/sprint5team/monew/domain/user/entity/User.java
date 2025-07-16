@@ -30,7 +30,7 @@ public class User extends BaseEntity {
     @Column(name = "created_at", columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
     private Instant createdAt;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
     public User(String email, String nickname, String password) {

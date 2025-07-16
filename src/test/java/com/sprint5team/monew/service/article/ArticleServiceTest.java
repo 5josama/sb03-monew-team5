@@ -1,9 +1,10 @@
 package com.sprint5team.monew.service.article;
 
-import com.sprint5team.monew.domain.article.dto.ArticleDto;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
-import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sprint5team.monew.base.util.S3Storage;
+import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
@@ -34,6 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ArticleService 단위 테스트")
@@ -46,6 +49,7 @@ public class ArticleServiceTest {
     @Mock InterestRepository interestRepository;
     @Mock KeywordRepository keywordRepository;
     @Mock ArticleMapper articleMapper;
+    @Mock S3Storage s3Storage;
 
     @InjectMocks private ArticleServiceImpl articleService;
 
@@ -56,6 +60,12 @@ public class ArticleServiceTest {
     void setUp() {
         user = new User("test@naver.com", "test", "0000");
         article = new Article();
+
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        ReflectionTestUtils.setField(articleService, "objectMapper", mapper);
     }
 
     @Test
@@ -102,28 +112,30 @@ public class ArticleServiceTest {
         CursorPageFilter filter = new CursorPageFilter(
                 "AI",
                 interest.getId(),
-                Arrays.asList("AI", "경제"),
+                Arrays.asList("NAVER", "한국경제"),
                 Instant.now(),
                 Instant.now(),
                 "publishDate",
                 "ASC",
                 null,
                 null,
-                2
+                5
         );
 
         List<Article> articles = List.of(
-                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "test", "test", Instant.now())
+                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", false, Instant.now(), Instant.now()),
+                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", false, Instant.now(), Instant.now()),
+                new Article("NAVER", "https://naver.com/news/12333", "test", "test", false, Instant.now(), Instant.now())
         );
         ReflectionTestUtils.setField(articles.get(0), "id", UUID.randomUUID());
         ReflectionTestUtils.setField(articles.get(1), "id", UUID.randomUUID());
         ReflectionTestUtils.setField(articles.get(2), "id", UUID.randomUUID());
 
-        given(articleRepository.findByCursorFilter(any(CursorPageFilter.class), any())).willReturn(articles);
-        given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
-        given(keywordRepository.findAllByInterestIn(any())).willReturn(keywords);
+        List<Article> filteredArticles = articles.subList(0, 2); // keyword 포함된 두 개만
+        given(articleRepository.findByCursorFilter(any(CursorPageFilter.class), any()))
+                .willReturn(filteredArticles);
+        lenient().when(interestRepository.findById(interest.getId())).thenReturn(Optional.of(interest));
+        lenient().when(keywordRepository.findAllByInterestIn(any())).thenReturn(keywords);
 
         Map<UUID, Long> viewCountMap = articles.stream()
                 .collect(Collectors.toMap(Article::getId, a -> 5L)); // 전부 5로 가정
@@ -147,8 +159,80 @@ public class ArticleServiceTest {
 
         // then
         assertThat(response.content()).hasSize(2);
-        assertThat(response.hasNext()).isTrue();
+        assertThat(response.hasNext()).isFalse();
         assertThat(response.content().get(0).viewCount()).isEqualTo(5L);
         assertThat(response.content().get(0).viewedByMe()).isEqualTo(true);
+    }
+
+    @Test
+    void 뉴스기사_출처_목록을_조회할_수_있다() {
+        // given
+        List<String> sources = List.of(
+                "NAVER",
+                "한국경제",
+                "연합뉴스"
+        );
+
+        given(articleRepository.findDistinctSources()).willReturn(sources);
+
+        // when
+        List<String> result = articleService.getSources();
+
+        // then
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.get(0)).isEqualTo("NAVER");
+    }
+
+    @Test
+    void 주어진_날짜_범위의_유실된_뉴스를_복구할_수_있다() {
+        // given
+        Instant from = Instant.parse("2025-07-13T00:00:00Z");
+        Instant to = Instant.parse("2025-07-13T23:59:59Z");
+
+        List<Article> backupArticles = List.of(
+                new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
+                new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
+        );
+        UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
+        UUID id2 = UUID.fromString("ba4b516e-3ab3-44ae-aa9d-713d29911e50");
+
+        ReflectionTestUtils.setField(backupArticles.get(0), "id", id1);
+        ReflectionTestUtils.setField(backupArticles.get(1), "id", id2);
+        List<String> backupJsons = List.of(
+                "[{" +
+                        "\"id\": \"3b98b117-369e-4c36-a44d-7eef0a341d67\"," +
+                        "\"source\": \"NAVER\"," +
+                        "\"sourceUrl\": \"https://naver.com/1\"," +
+                        "\"title\": \"AI\"," +
+                        "\"summary\": \"경제\"," +
+                        "\"originalDateTime\": \"2025-07-13T10:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T10:00:00Z\"" +
+                        "}]",
+                "[{" +
+                        "\"id\": \"ba4b516e-3ab3-44ae-aa9d-713d29911e50\"," +
+                        "\"source\": \"한국경제\"," +
+                        "\"sourceUrl\": \"https://hankyung.com/2\"," +
+                        "\"title\": \"AI2\"," +
+                        "\"summary\": \"경제2\"," +
+                        "\"originalDateTime\": \"2025-07-13T11:00:00Z\"," +
+                        "\"createdAt\": \"2025-07-13T11:00:00Z\"" +
+                        "}]"
+        );
+        List<String> restoredIds = List.of(
+                "3b98b117-369e-4c36-a44d-7eef0a341d67",
+                "ba4b516e-3ab3-44ae-aa9d-713d29911e50"
+        );
+
+        given(s3Storage.readArticlesFromBackup(from, to)).willReturn(backupJsons);
+        given(articleRepository.saveAll(anyList())).willReturn(backupArticles);
+
+        // when
+        ArticleRestoreResultDto result = articleService.restoreArticle(from, to);
+
+        // then
+        assertThat(result.restoredArticleIds().size()).isEqualTo(2);
+        assertThat(result.restoredArticleIds()).containsExactlyInAnyOrderElementsOf(restoredIds);
+        verify(s3Storage).readArticlesFromBackup(from, to);
+        verify(articleRepository).saveAll(anyList());
     }
 }

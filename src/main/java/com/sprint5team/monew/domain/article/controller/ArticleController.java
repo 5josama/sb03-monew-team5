@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.article.controller;
 
+import com.sprint5team.monew.domain.article.dto.ArticleRestoreResultDto;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
 import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
@@ -61,5 +62,25 @@ public class ArticleController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(articles);
+    }
+
+    @GetMapping("/sources")
+    public ResponseEntity<List<String>> getSources() {
+        List<String> sources = articleService.getSources();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(sources);
+    }
+
+    @GetMapping("/restore")
+    public ResponseEntity<ArticleRestoreResultDto>  restoreArticle(
+            @RequestParam Instant from,
+            @RequestParam Instant to,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(articleRestoreResultDto);
     }
 }

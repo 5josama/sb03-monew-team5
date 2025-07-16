@@ -1,9 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
-import com.sprint5team.monew.domain.article.dto.ArticleDto;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
-import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.S3Storage;
+import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
@@ -34,6 +33,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final InterestRepository interestRepository;
     private final KeywordRepository keywordRepository;
     private final ArticleMapper articleMapper;
+    private final S3Storage s3Storage;
+    private final ObjectMapper objectMapper;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -108,6 +109,60 @@ public class ArticleServiceImpl implements ArticleService {
                 filter.limit(),
                 totalElements,
                 hasNext
+        );
+    }
+  
+    @Override
+    public List<String> getSources() {
+        return articleRepository.findDistinctSources();
+    }
+
+    @Override
+    public ArticleRestoreResultDto restoreArticle(Instant from, Instant to) {
+        List<String> articleJson = s3Storage.readArticlesFromBackup(from, to);
+
+        List<Article> restoredArticles = articleJson.stream()
+                .flatMap(json -> {
+                    try {
+                        return Arrays.stream(objectMapper.readValue(json, Article[].class));
+                    } catch (Exception e) {
+                        throw new RuntimeException("복구 실패", e);
+                    }
+                }).toList();
+
+        List<String> sourceUrls = restoredArticles.stream()
+                .map(Article::getSourceUrl)
+                .distinct()
+                .toList();
+
+        Set<String> existingSourceUrls = new HashSet<>();
+        for (int i = 0; i < sourceUrls.size(); i += 500) {
+            List<String> chunk = sourceUrls.subList(i, Math.min(i + 500, sourceUrls.size()));
+            List<Article> existingArticles = articleRepository.findAllBySourceUrlIn(chunk);
+            existingSourceUrls.addAll(existingArticles.stream().map(Article::getSourceUrl).toList());
+        }
+
+        List<Article> lostArticles = restoredArticles.stream()
+                .filter(article -> !existingSourceUrls.contains(article.getSourceUrl()))
+                .map(article -> new Article(
+                        article.getSource(),
+                        article.getSourceUrl(),
+                        article.getTitle(),
+                        article.getSummary(),
+                        article.getOriginalDateTime()
+                ))
+                .toList();
+
+        List<Article> savedArticle = articleRepository.saveAll(lostArticles);
+
+        List<String> restoredIds = savedArticle.stream()
+                .map(article -> article.getId().toString())
+                .toList();
+
+        return new  ArticleRestoreResultDto(
+                Instant.now(),
+                restoredIds,
+                restoredIds.size()
         );
     }
 }
