@@ -10,4 +10,6 @@ public interface NotificationService {
     NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, int articleCount);
     NotificationDto  notifyCommentLiked(UUID userId, UUID commentId, String likerName);
     CursorPageResponseNotificationDto getAllNotifications(UUID userId, String cursor, Instant after, int limit);
+    void confirmNotification(UUID notificationId, UUID userId);
+    void confirmAllNotifications(UUID userId);
 }

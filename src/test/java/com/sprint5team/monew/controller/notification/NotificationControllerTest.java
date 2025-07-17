@@ -21,7 +21,9 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,4 +88,28 @@ class NotificationControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(100))
                 .andExpect(jsonPath("$.hasNext").value(true));
     }
+
+    @Test
+    void 단일_알림_확인_성공() throws Exception {
+        // given
+        UUID notificationId = UUID.randomUUID();
+
+        // when & then
+        mockMvc.perform(patch("/api/notifications/{notificationId}", notificationId)
+                        .header("Monew-Request-User-ID", userId.toString()))
+                .andExpect(status().isNoContent());
+
+        verify(notificationService).confirmNotification(notificationId, userId);
+    }
+
+    @Test
+    void 전체_알림_확인_성공() throws Exception {
+        // when & then
+        mockMvc.perform(patch("/api/notifications")
+                        .header("Monew-Request-User-ID", userId.toString()))
+                .andExpect(status().isNoContent());
+
+        verify(notificationService).confirmAllNotifications(userId);
+    }
+
 }
