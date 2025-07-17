@@ -53,4 +53,15 @@ public interface CommentApi {
             @Parameter(description = "요청자 ID") UUID userId
             );
 
+
+    @Operation(summary = "댓글 논리 삭제")
+    @ApiResponses(value ={
+            @ApiResponse(responseCode = "204",description = "삭제 성공"),
+            @ApiResponse(responseCode = "404",description = "댓글 정보 없음"),
+            @ApiResponse(responseCode = "500",description = "서버 내부 오류")
+    })
+    ResponseEntity<Void> delete(
+            @Parameter(required = true,description = "댓글 ID") UUID commentId
+    );
+
 }

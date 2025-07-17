@@ -54,4 +54,14 @@ public class CommentController implements CommentApi{
                 .body(response);
     }
 
+    @Override
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID commentId) {
+        log.info("댓글 논리 삭제 요청: 댓글 ID = {}", commentId);
+        commentService.softDelete(commentId);
+        log.debug("댓글 논리 삭제 완료");
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build() ;
+    }
 }

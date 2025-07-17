@@ -8,6 +8,7 @@ import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
@@ -239,6 +240,29 @@ public class CommentServiceTest {
 
     }
 
+    @Test
+    void 댓글_논리_삭제_성공(){
+        //given
+        comment.update(true);
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
+        //when
+        commentService.softDelete(commentId);
 
+        //then
+        verify(commentRepository).findById(eq(commentId));
+        verify(commentRepository).save(any(Comment.class));
+
+    }
+
+    @Test
+    void 댓글_논리_삭제_실패_존재하지않는_댓글() {
+        //given
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
+
+        //when && then
+        assertThatThrownBy(() -> commentService.softDelete(commentId))
+                .isInstanceOf(CommentNotFoundException.class);
+    }
 }
