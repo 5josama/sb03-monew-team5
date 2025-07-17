@@ -10,8 +10,10 @@ import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.keyword.exception.NoKeywordsToUpdateException;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service
@@ -147,8 +150,45 @@ public class InterestServiceImpl implements InterestService{
 
     // TODO 관심사 수정
     @Override
-    public InterestDto udpateInterest(UUID interestId, InterestUpdateRequest request) {
-        return null;
+    public InterestDto updateInterest(UUID interestId, InterestUpdateRequest request, UUID userId) {
+        log.info("1. 관심사 탐색");
+        Interest interest = interestRepository.findById(interestId)
+            .orElseThrow(InterestNotExistException::new);
+
+        log.info("2. 추가할 키워드 있는지 조회 및 비교");
+        List<String> newKeywordNames = request.keywords();
+        List<Keyword> oldKeyword = keywordRepository.findAllByInterestId(interestId);
+
+        Set<String> oldKeywordNames = new HashSet<>(oldKeyword.stream()
+            .map(Keyword::getName)
+            .collect(Collectors.toSet()));
+
+        Set<String> newKeywordNameSet = new HashSet<>(newKeywordNames);
+
+        if (!newKeywordNames.containsAll(oldKeywordNames)) {
+            throw new NoKeywordsToUpdateException();
+        }
+
+        if (newKeywordNameSet.equals(oldKeywordNames)) {
+            log.info("변경 없음, 그대로 응답");
+            boolean subscribedByMe = userInterestRepository.existsByUserIdAndInterestId(userId, interestId);
+            return interestMapper.toDto(interest, newKeywordNames, subscribedByMe);
+        }
+
+        log.info("3. 키워드 추가");
+        List<Keyword> keywordsToSave = newKeywordNames.stream()
+            .filter(name -> !oldKeywordNames.contains(name))
+            .map(name -> new Keyword(name, interest))
+            .collect(Collectors.toList());
+
+        if (!keywordsToSave.isEmpty()) {
+            keywordRepository.saveAll(keywordsToSave);
+        }
+
+        log.info("4. 구독 여부 확인");
+        boolean subscribedByMe = userInterestRepository.existsByUserIdAndInterestId(userId, interestId);
+
+        return interestMapper.toDto(interest, request.keywords(), subscribedByMe);
     }
 
 
@@ -167,7 +207,7 @@ public class InterestServiceImpl implements InterestService{
 //
 //        log.info("1-2. 80% 이상 관심사 이름 유사도 확인");
 //        for(Interest interest : interests) {
-//            if(similarity.apply(interest.getName(),name)>=similarityRate){
+//            if(similarity.apply(interest.getName(),name)>=THRESHOLD){
 //                log.warn("유사도 높은 관심사 발견. 등록 불가");
 //                throw new SimilarInterestException();
 //            }

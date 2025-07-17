@@ -9,6 +9,7 @@ import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -217,8 +219,10 @@ public class InterestServiceTest {
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(any(), any(), eq(false))).willReturn(dto);
 
+        // when
         CursorPageResponseInterestDto result = interestService.generateCursorPage(request);
 
+        // then
         assertThat(result.content()).containsExactly(dto);
         assertThat(result.totalElements()).isEqualTo(1L);
     }
@@ -529,42 +533,64 @@ public class InterestServiceTest {
     @Test
     void 키워드_변경사항이_없으면_키워드가_수정되지_않는다() throws Exception {
         // given
-        given(interestRepository.findById(interestA.getId()))
-            .willReturn(interestA);
-        given(interestMapper.toDto(any(Interest.class), any(), eq(false)));
+        UUID userId = UUID.randomUUID();
+        Keyword keywordA = new Keyword("cup",interestA);
+        Keyword keywordB = new Keyword("glass",interestA);
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
+
+        InterestDto interestDto = InterestDto.builder()
+            .id(userId)
+            .name(interestA.getName())
+            .keywords(List.of(keywordA.getName(), keywordB.getName()))
+            .subscriberCount(0L)
+            .subscribedByMe(false)
+            .build();
+
+        given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
+        given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
+        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false))).willReturn(interestDto);
 
         // when
-        interestService.udpateInterest(interestA.getId(), any());
+        InterestDto result = interestService.updateInterest(interestA.getId(), request, userId);
 
         // then
-        then(keywordRepository).should(times(0)).save(any(Keyword.class));
+        then(keywordRepository).should(times(0)).saveAll(anyList());
+        assertThat(result.name()).isEqualTo(interestDto.name());
+        assertThat(result.keywords()).isEqualTo(interestDto.keywords());
+        assertThat(result.subscribedByMe()).isEqualTo(interestDto.subscribedByMe());
     }
 
     @Test
     void 키워드_수정시_키워드가_추가될_수_있다() throws Exception {
-        // given
+        UUID userId = UUID.randomUUID();
+        Keyword keywordA = new Keyword("cup",interestA);
+        Keyword keywordB = new Keyword("glass",interestA);
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass", "bowl"));
+
+        InterestDto interestDto = InterestDto.builder()
+            .id(userId)
+            .name(interestA.getName())
+            .keywords(List.of(keywordA.getName(), keywordB.getName(),"bowl"))
+            .subscriberCount(0L)
+            .subscribedByMe(false)
+            .build();
+
+        given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
+        given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
+        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false))).willReturn(interestDto);
 
         // when
-        InterestDto result = interestService.udpateInterest(interestA.getId(), any());
+        InterestDto result = interestService.updateInterest(interestA.getId(), request, userId);
 
         // then
-        assertThat(result.name()).isEqualTo(result.name());
-        assertThat(result.keywords().size()).isEqualTo(3L);
-
-    }
-
-    @Test
-    void 키워드_수정시_키워드가_삭제될_수_있다() throws Exception {
-        // given
-
-
-        // when
-        InterestDto result = interestService.udpateInterest(interestA.getId(), any());
-
-        // then
-        assertThat(result.name()).isEqualTo(result.name());
-        assertThat(result.keywords().size()).isEqualTo(2L);
-
+        then(keywordRepository).should(times(1)).saveAll(anyList());
+        assertThat(result.name()).isEqualTo(interestDto.name());
+        assertThat(result.keywords()).isEqualTo(interestDto.keywords());
+        assertThat(result.subscribedByMe()).isEqualTo(interestDto.subscribedByMe());
     }
 
     @Test
@@ -574,7 +600,7 @@ public class InterestServiceTest {
             .willThrow(InterestNotExistException.class);
 
         // when
-        assertThatThrownBy(() -> interestService.udpateInterest(interestA.getId(), any()))
+        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), any(), any()))
             .isInstanceOf(InterestNotExistException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }

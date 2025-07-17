@@ -57,7 +57,11 @@ public class InterestController {
     }
 
     @PatchMapping("/{interestId}")
-    public ResponseEntity<InterestDto> updateInterest(@PathVariable UUID interestId, @RequestBody InterestUpdateRequest request){
-        return ResponseEntity.ok(interestService.udpateInterest(interestId, request));
+    public ResponseEntity<InterestDto> updateInterest(
+        @PathVariable UUID interestId,
+        @RequestBody InterestUpdateRequest request,
+        @RequestHeader(name = "Monew-Request-User-ID") UUID userId
+    ){
+        return ResponseEntity.ok(interestService.updateInterest(interestId, request, userId));
     }
 }

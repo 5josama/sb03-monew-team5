@@ -9,18 +9,13 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
-import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
-import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
-import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -320,7 +315,7 @@ public class InterestControllerTest {
             .keywords(List.of("a", "b", "c"))
             .build();
 
-        given(interestService.udpateInterest(eq(interestId), any()))
+        given(interestService.updateInterest(eq(interestId), any(), any()))
             .willReturn(response);
 
         // when & then
@@ -342,7 +337,7 @@ public class InterestControllerTest {
             .keywords(List.of("a"))
             .build();
 
-        given(interestService.udpateInterest(eq(interestId), any()))
+        given(interestService.updateInterest(eq(interestId), any(), any()))
             .willReturn(response);
 
 
@@ -374,7 +369,7 @@ public class InterestControllerTest {
         UUID interestId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
 
-        given(interestService.udpateInterest(eq(interestId), any()))
+        given(interestService.updateInterest(eq(interestId), any(), any()))
             .willThrow(new InterestNotExistException());
 
         // when n then

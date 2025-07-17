@@ -25,6 +25,5 @@ public interface InterestService{
 
     void deleteInterest(UUID interestId);
 
-    InterestDto udpateInterest(UUID interestId, InterestUpdateRequest request);
-
+    InterestDto updateInterest(UUID interestId, InterestUpdateRequest request, UUID userId);
 }
