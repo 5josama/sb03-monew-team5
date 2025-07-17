@@ -37,11 +37,11 @@ public class CommentController implements CommentApi{
 
     @GetMapping
     public ResponseEntity<CursorPageResponseCommentDto> find(
-            @RequestParam UUID articleId,
+            @RequestParam(required = false) UUID articleId,
             @RequestParam String orderBy,
             @RequestParam String direction,
             @RequestParam(required = false) String cursor,
-            @RequestParam(required = false) Integer limit,
+            @RequestParam Integer limit,
             @RequestParam(required = false) Instant after,
             @RequestParam UUID userId
     ) {

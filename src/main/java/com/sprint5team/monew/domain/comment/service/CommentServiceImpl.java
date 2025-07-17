@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,10 +56,18 @@ public class CommentServiceImpl implements CommentService{
         return commentMapper.toDto(createdComment);
     }
 
+    /**
+     * 댓글을 커서에 따라 조회하는 메서드
+     * @param articleId 조회하고자 하는 기사 ID
+     * @param cursor 참고할 커서 (createdAt or likeCount)
+     * @param after 보조로 참고할 커서 (createdAt)
+     * @param pageable 페이지 정렬 관련 내용
+     * @return 조회결과 CursorPageResponseCommentDto
+     */
     @Override
     public CursorPageResponseCommentDto find(UUID articleId, String cursor, Instant after, Pageable pageable) {
         //커서페이지네이션 수행
-        List<Comment> commentList = commentRepository.findCommentsWithCursor(articleId, cursor, after, pageable);
+        List<Comment> commentList = new ArrayList<>(commentRepository.findCommentsWithCursor(articleId, cursor, after, pageable));      //굳이 이렇게 하는이유는 불변 List를 가변 List로 바꾸기위함 (밑에서 remove 써야함.)
 
         //totalElements 계산 로직
         Long totalElements = commentRepository.countTotalElements(articleId);
@@ -66,13 +75,13 @@ public class CommentServiceImpl implements CommentService{
         //커서게산을 위한 lastIndex 검색 로직 (페이징할때 원하는 사이즈보다 1 더 큰 사이즈를 가져와서 마지막인덱스를 커서로 사용하기 위함)
         Comment lastIndex = commentList.get(commentList.size() - 1);
         String nextCursor = null;
-
+        Instant afterCursor = null;
 
         //hasNext 판단 로직
         boolean hasNext = false;
         if(commentList.size() == pageable.getPageSize()) {
             hasNext = true;
-
+            afterCursor = lastIndex.getCreatedAt();
             //lastIndex의 커서를 확인하는 로직(hasNext가 존재할경우만 판단)
             if(isInstantCursor(cursor)){
                 nextCursor = lastIndex.getCreatedAt().toString();
@@ -82,22 +91,22 @@ public class CommentServiceImpl implements CommentService{
         }
 
         //마지막 인덱스를 제외한 comments를 반환하는 로직
-        commentList.remove(commentList.size()-1); //마지막 인덱스 제거
+        if(hasNext && commentList.size() == pageable.getPageSize()) {           // 다음페이지가 없을경우에만
+            commentList.remove(commentList.size() - 1);                  // 마지막 인덱스 제거
+        }
 
         List<CommentDto> list = commentList.stream()
                 .map(commentMapper::toDto)
                 .toList();
 
-        CursorPageResponseCommentDto response = new CursorPageResponseCommentDto(
+        return new CursorPageResponseCommentDto(
                 list,
                 nextCursor,
-                lastIndex.getCreatedAt(),
+                afterCursor,
                 pageable.getPageSize()-1,
                 totalElements,
                 hasNext
         );
-
-        return response;
     }
 
     /**
