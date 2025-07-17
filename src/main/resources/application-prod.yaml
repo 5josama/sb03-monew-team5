@@ -12,17 +12,21 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
   sql:
     init:
-      mode: always
-      schema-locations:
-        - classpath:schema.sql
-        - classpath:interest-dummy.sql
+      mode: never
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
 
 naver:
   client_id: ${X_Naver_Client_Id}

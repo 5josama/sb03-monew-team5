@@ -17,7 +17,8 @@ naver:
   client_secret: ${X_Naver_Client_Secret}
 logging:
   level:
-    root: debug
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
 
 aws:
   s3:
