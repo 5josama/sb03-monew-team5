@@ -162,7 +162,7 @@ public class CommentControllerTest {
                 false
         );
 
-        given(commentService.find(eq(articleId), eq(cursor.toString()), cursor ,any(Pageable.class))).willReturn(response);
+        given(commentService.find(eq(articleId), any(), any() ,any(Pageable.class))).willReturn(response);
 
         //when && then
         mockMvc.perform(get("/api/comments")
@@ -171,7 +171,7 @@ public class CommentControllerTest {
                         .param("limit","10")
                         .param("articleId",articleId.toString())
                         .param("cursor",cursor.toString())
-                        .param("after",null))
+                        .param("userId",userId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.nextCursor").isEmpty())

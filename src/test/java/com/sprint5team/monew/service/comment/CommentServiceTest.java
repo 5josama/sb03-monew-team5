@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
@@ -117,9 +118,9 @@ public class CommentServiceTest {
     @Test
     void 댓글_페이지네이션을_사용한_생성일자순_조회_성공(){
         // given
-        int pageSize = 2; // 페이지 크기를 2로 설정
+        int pageSize = 3; // 페이지 크기를 3으로 설정, 실제로는 2개의 검색만 보이게 할 것임.
         Instant createdAt = Instant.now();
-        Pageable pageable = PageRequest.of(0, pageSize);
+        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 여러 댓글 생성 (페이지 사이즈보다 많게)
         Comment comment1 = new Comment(article, user, content + "1");
@@ -178,15 +179,15 @@ public class CommentServiceTest {
 
 
         // 첫 페이지 결과 세팅 (2개 메시지)
-        List<Comment> firstPageComments = List.of(comment1, comment2);
+        List<Comment> firstPageComments = List.of(comment1, comment2,comment3);
         List<CommentDto> firstPageDtos = List.of(commentDto1, commentDto2);
 
         // 첫 페이지는 다음 페이지가 있고, 커서는 comment2의 생성 시간이어야 함
         CursorPageResponseCommentDto firstPageResponse = new CursorPageResponseCommentDto(
                 firstPageDtos,
-                message2CreatedAt.toString(),
-                message2CreatedAt,
-                pageSize,
+                message3CreatedAt.toString(),
+                message3CreatedAt,
+                pageSize-1,
                 3L,
                 true
         );
@@ -195,16 +196,17 @@ public class CommentServiceTest {
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()),eq(createdAt.toString()),eq(createdAt),any(Pageable.class)))
                 .willReturn(firstPageComments);
-        given(commentMapper.toDto(any(Comment.class))).willReturn(commentDto1, commentDto2);
+        given(commentMapper.toDto(eq(comment1))).willReturn(commentDto1);
+        given(commentMapper.toDto(eq(comment2))).willReturn(commentDto2);
 
         // when
         CursorPageResponseCommentDto result = commentService.find(article.getId(),createdAt.toString(),createdAt,pageable);
 
         // then
         assertThat(result).isEqualTo(firstPageResponse);
-        assertThat(result.content()).hasSize(pageSize);
+        assertThat(result.content()).hasSize(2);
         assertThat(result.hasNext()).isTrue();
-        assertThat(result.nextCursor()).isEqualTo(message2CreatedAt);
+        assertThat(result.nextCursor()).isEqualTo(message3CreatedAt.toString());
 
         // 두 번째 페이지 테스트
         // given
@@ -212,23 +214,23 @@ public class CommentServiceTest {
         List<CommentDto> secondPageDtos = List.of(commentDto3);
         CursorPageResponseCommentDto secondPageResponse = new CursorPageResponseCommentDto(
                 secondPageDtos,
-                message3CreatedAt.toString(),
-                message3CreatedAt,
-                pageSize,
+                null,
+                null,
+                pageSize-1,
                 3L,
                 false
         );
 
 
         // 두 번째 페이지 모의 객체 설정
-        given(commentRepository.countTotalElements(any()))
+        given(commentRepository.countTotalElements(eq(article.getId())))
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()),eq(firstPageResponse.nextAfter()), any(Pageable.class)))
                 .willReturn(secondPageMessages);
         given(commentMapper.toDto(eq(comment3))).willReturn(commentDto3);
 
         // when - 두 번째 페이지 요청 (첫 페이지의 커서 사용)
-        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message2CreatedAt.toString(), message2CreatedAt, pageable);
+        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message3CreatedAt.toString(), message3CreatedAt, pageable);
 
         // then - 두 번째 페이지 검증
         assertThat(secondResult).isEqualTo(secondPageResponse);
