@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.interest.service;
 
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
@@ -101,7 +102,6 @@ public class InterestServiceImpl implements InterestService{
         return result;
     }
 
-
     @Override
     public InterestDto registerInterest(InterestRegisterRequest request) {
         String name = request.name().trim();
@@ -131,6 +131,14 @@ public class InterestServiceImpl implements InterestService{
         InterestDto response = interestMapper.toDto(interest, request.keywords(), false);
 
         return response;
+    }
+
+    @Override
+    public void deleteInterest(UUID interestId) {
+        log.info("관심사 삭제");
+        if(!interestRepository.existsById(interestId)) throw new InterestNotExistException();
+
+        interestRepository.deleteById(interestId);
     }
 
     private void validateSimilarityInTest(InterestRegisterRequest request) {

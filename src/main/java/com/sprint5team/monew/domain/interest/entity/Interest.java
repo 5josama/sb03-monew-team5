@@ -1,13 +1,15 @@
 package com.sprint5team.monew.domain.interest.entity;
 
 import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.entity
@@ -33,6 +35,12 @@ public class Interest extends BaseUpdatableEntity {
 
     @Column(name = "subscriber_count", nullable = false)
     long subscriberCount;
+
+    @OneToMany(mappedBy = "interest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Keyword> keywords = new ArrayList<>();
+
+    @OneToMany(mappedBy = "interest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInterest> userInterests = new ArrayList<>();
 
     public Interest(String name) {
         this.name = name;

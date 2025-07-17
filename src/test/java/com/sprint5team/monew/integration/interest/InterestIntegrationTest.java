@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestService;
@@ -36,8 +37,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,13 +84,12 @@ public class InterestIntegrationTest {
     @Autowired
     private InterestService interestService;
 
-
     @Autowired
     ObjectMapper objectMapper;
 
-
     Interest interestA, interestB;
     Keyword keywordA, keywordB;
+
     @BeforeEach
     void setUp() {
         keywordRepository.deleteAll();
@@ -123,7 +123,6 @@ public class InterestIntegrationTest {
             .build();
         keywordRepository.save(keywordB);
     }
-
 
     @Test
     void 관심사_목록을_정상적으로_가져온다() throws Exception {
@@ -237,8 +236,35 @@ public class InterestIntegrationTest {
             .andReturn();
 
         Exception exception = result.getResolvedException();
-
         assertThat(exception).isInstanceOf(MethodArgumentNotValidException.class);
+    }
 
+    @Test
+    void 관심사ID로_관심사를_찾아_삭제할_수_있다() throws Exception {
+        // given
+
+        // when
+        interestService.deleteInterest(interestA.getId());
+
+        // then
+        assertThat(interestRepository.count()).isEqualTo(1);
+        assertThat(interestRepository.findById(interestA.getId())).isNotPresent();
+    }
+
+    @Test
+    void 관심사를_찾지_못하면_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        // when n then
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.message").value("Not Found"))
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+        assertThat(exception).isInstanceOf(InterestNotExistException.class);
     }
 }

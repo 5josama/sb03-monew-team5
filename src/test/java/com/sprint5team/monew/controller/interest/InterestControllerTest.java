@@ -1,11 +1,13 @@
 package com.sprint5team.monew.controller.interest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.BDDMockito.given;
 import com.sprint5team.monew.domain.interest.controller.InterestController;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +24,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -273,6 +274,29 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.details").value("keywords: size must be between 1 and 10"));
     }
 
+    @Test
+    void 관심사를_삭제_한다_204() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
 
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNoContent());
+    }
 
+    @Test
+    void 관심사_정보가_없을경우_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        doThrow(new InterestNotExistException())
+            .when(interestService)
+            .deleteInterest(interestId);
+
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
+    }
 }

@@ -48,4 +48,10 @@ public class InterestController {
     public ResponseEntity<InterestDto> insertInterest(@RequestBody @Valid InterestRegisterRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(interestService.registerInterest(request));
     }
+
+    @DeleteMapping("/{interestId}")
+    public ResponseEntity<Void> deleteInterest(@PathVariable UUID interestId) {
+        interestService.deleteInterest(interestId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
