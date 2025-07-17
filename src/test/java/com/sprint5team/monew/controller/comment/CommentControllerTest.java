@@ -190,8 +190,7 @@ public class CommentControllerTest {
         willDoNothing().given(commentService).softDelete(eq(commentId));
 
         //when && then
-        mockMvc.perform(delete("/api/comments/{commentId}")
-                .param("commentId", commentId.toString()))
+        mockMvc.perform(delete("/api/comments/{commentId}", commentId))
                 .andExpect(status().isNoContent());
     }
 

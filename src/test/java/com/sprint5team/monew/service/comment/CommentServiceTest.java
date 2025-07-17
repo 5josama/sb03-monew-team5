@@ -243,20 +243,23 @@ public class CommentServiceTest {
     @Test
     void 댓글_논리_삭제_성공(){
         //given
-        given(commentRepository.existsById(eq(commentId))).willReturn(true);
+        comment.update(true);
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
         //when
         commentService.softDelete(commentId);
 
         //then
-        verify(commentRepository).deleteById(eq(commentId));
+        verify(commentRepository).findById(eq(commentId));
+        verify(commentRepository).save(any(Comment.class));
 
     }
 
     @Test
     void 댓글_논리_삭제_실패_존재하지않는_댓글() {
         //given
-        given(commentRepository.existsById(eq(commentId))).willReturn(false);
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
 
         //when && then
         assertThatThrownBy(() -> commentService.softDelete(commentId))
