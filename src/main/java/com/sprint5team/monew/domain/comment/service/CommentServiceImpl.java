@@ -8,6 +8,7 @@ import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.user.entity.User;
@@ -107,6 +108,17 @@ public class CommentServiceImpl implements CommentService{
                 totalElements,
                 hasNext
         );
+    }
+
+    /**
+     * 댓글 논리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void softDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        comment.update(true);                                                                               // 논리 삭제됨
+        commentRepository.save(comment);                                                                              // 변경사항 저장
     }
 
     /**
