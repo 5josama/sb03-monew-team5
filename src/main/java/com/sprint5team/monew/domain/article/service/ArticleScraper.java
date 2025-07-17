@@ -65,9 +65,6 @@ public class ArticleScraper {
                 .distinct()
                 .toList();
         this.keywords = keywords;
-        for (String keyword : keywords) {
-            System.out.println(keyword);
-        }
         scrapeNaverApi(); // 기존 OpenAPI 수집
         scrapeRssFeeds(); // RSS 기반 수집
     }
