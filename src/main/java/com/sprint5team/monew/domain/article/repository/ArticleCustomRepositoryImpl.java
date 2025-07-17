@@ -105,16 +105,18 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                 orderSpecifier = direction == Order.ASC
                         ? article.createdAt.asc()
                         : article.createdAt.desc();
-                break;
+                return queryFactory
+                        .select(article)
+                        .from(article)
+                        .leftJoin(articleCount).on(articleCount.article.eq(article))
+                        .leftJoin(comment).on(comment.article.eq(article))
+                        .where(builder)
+                        .groupBy(article.id)
+                        .orderBy(orderSpecifier)
+                        .limit(filter.limit() + 1)
+                        .fetch();
 
         }
-
-        return queryFactory
-                .selectFrom(article)
-                .where(builder)
-                .orderBy(orderSpecifier)
-                .limit(filter.limit() + 1)
-                .fetch();
     }
 
     @Override
