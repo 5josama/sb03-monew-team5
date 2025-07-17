@@ -56,7 +56,18 @@ dependencies {
     // AWS SDK
     implementation 'software.amazon.awssdk:s3:2.31.7'
 
+    // text 유사성 검증
+    implementation 'org.apache.commons:commons-text:1.13.1'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // test 환경에서 postgresql이미지를 띄워 테스트
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
+    testImplementation 'org.testcontainers:postgresql:1.19.7'
+
+
+    // Jackson Instant, LocalDateTime 등 Java 8의 시간 API 직렬화
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile

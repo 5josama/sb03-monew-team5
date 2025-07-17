@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,11 +66,11 @@ public class ArticleRepositoryTest {
     }
 
     @Test
-    void 커서_기반으로_이전_뉴스기사를_조회할_수_있다() {
+    void 커서_기반으로_이후_뉴스기사를_조회할_수_있다() {
         // given
-        Instant article1Time = Instant.parse("2025-07-12T20:00:03.849544Z");
-        Instant article2Time = Instant.parse("2025-07-12T22:01:00.000000Z");
-        Instant article3Time = Instant.parse("2025-07-12T23:00:00.000000Z");
+        Instant article1Time = Instant.parse("2025-07-12T20:00:00Z");
+        Instant article2Time = Instant.parse("2025-07-12T21:00:00Z");
+        Instant article3Time = Instant.parse("2025-07-12T22:00:00Z");
 
         Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, article1Time, article1Time);
         Article article2 = new Article("NAVER", "https://...2", "AI2", "경제2", false, article2Time, article2Time);
@@ -83,11 +84,11 @@ public class ArticleRepositoryTest {
                 "AI",
                 interest.getId(),
                 Arrays.asList("NAVER"),
-                Instant.parse("2025-07-12T00:00:00Z"),
-                Instant.parse("2025-07-13T00:00:00Z"),
+                LocalDateTime.parse("2025-07-12T00:00:00"),
+                LocalDateTime.parse("2025-07-13T00:00:00"),
                 "publishDate",
                 "ASC",
-                "2025-07-12T22:01",
+                null,
                 article2Time,
                 10
         );
@@ -100,5 +101,26 @@ public class ArticleRepositoryTest {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTitle()).isEqualTo("AI3");
+    }
+
+    @Test
+    void 뉴스기사_출처를_중복없이_조회할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
+        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now());
+        Article article3 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now());
+        Article article4 = new Article("연합뉴스", "https://...4", "AI4", "경제4", false, Instant.now(), Instant.now());
+
+        em.persist(article1);
+        em.persist(article2);
+        em.persist(article3);
+        em.persist(article4);
+        em.flush();
+
+        // when
+        List<String> result = articleRepository.findDistinctSources();
+
+        // then
+        assertThat(result).hasSize(3);
     }
 }

@@ -13,4 +13,6 @@ public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID
     Optional<ArticleCount> findByUserIdAndArticleId(UUID userId, UUID articleId);
 
     List<ArticleCount> findAllByUserIdAndArticleId(UUID id, UUID id1);
+
+    List<ArticleCount> findByArticleId(UUID articleId);
 }

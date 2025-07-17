@@ -1,15 +1,18 @@
 package com.sprint5team.monew.domain.article.controller;
 
+import com.sprint5team.monew.domain.article.dto.ArticleRestoreResultDto;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
 import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +39,8 @@ public class ArticleController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) UUID interestId,
             @RequestParam(required = false) List<String> sourceIn,
-            @RequestParam(required = false) Instant publishDateFrom,
-            @RequestParam(required = false) Instant publishDateTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime publishDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime publishDateTo,
             @RequestParam String orderBy,
             @RequestParam String direction,
             @RequestParam(required = false) String cursor,
@@ -62,4 +65,44 @@ public class ArticleController {
                 .status(HttpStatus.OK)
                 .body(articles);
     }
+
+    @GetMapping("/sources")
+    public ResponseEntity<List<String>> getSources() {
+        List<String> sources = articleService.getSources();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(sources);
+    }
+
+    @GetMapping("/restore")
+    public ResponseEntity<ArticleRestoreResultDto>  restoreArticle(
+            @RequestParam Instant from,
+            @RequestParam Instant to,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(articleRestoreResultDto);
+    }
+
+    @DeleteMapping("/{articleId}")
+    public ResponseEntity<Void> softDeleteArticle(
+            @PathVariable UUID articleId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        articleService.softDeleteArticle(articleId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{articleId}/hard")
+    public ResponseEntity<Void> hardDeleteArticle(
+            @PathVariable UUID articleId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        articleService.hardDeleteArticle(articleId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
