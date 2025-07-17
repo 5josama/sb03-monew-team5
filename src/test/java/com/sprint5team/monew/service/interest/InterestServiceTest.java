@@ -1,22 +1,23 @@
 package com.sprint5team.monew.service.interest;
 
+import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
-import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-import com.sprint5team.monew.domain.user_interest.mapper.InterestMapper;
+import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,13 +25,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatReflectiveOperationException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
@@ -61,7 +60,9 @@ public class InterestServiceTest {
     @Mock
     private InterestMapper interestMapper;
 
+    private static final double THRESHOLD = 0.75;
     Interest interestA, interestB, interestC;
+
 
     @BeforeEach
     public void setup() {
@@ -396,6 +397,112 @@ public class InterestServiceTest {
         assertThat(result.content().size()).isEqualTo(2);
     }
 
+
+    // TODO 관심사 추가 로직 관련 테스트 코드 작성
+
+    @Test
+    void 관심사를_추가한다_() throws Exception {
+        // given
+        InterestRegisterRequest request = InterestRegisterRequest.builder()
+            .name("주종")
+            .keywords(List.of("막걸리"))
+            .build();
+        InterestDto response = InterestDto.builder()
+            .name("주종")
+            .keywords(List.of("막걸리"))
+            .build();
+
+        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false)))
+            .willReturn(response);
+
+        // when
+        InterestDto result = interestService.registerInterest(request);
+
+        // then
+        assertThat(result.name()).isEqualTo(response.name());
+        assertThat(result.keywords()).isEqualTo(response.keywords());
+        then(interestMapper).should(times(1)).toDto(any(Interest.class), any(), eq(false));
+        then(interestRepository).should(times(1)).save(any(Interest.class));
+        then(keywordRepository).should(times(1)).saveAll(anyList());
+    }
+
+
+    @Test
+    void 관심사_이름의_유사도가_80퍼센트_이상일경우_SimilarInterestException_409_을_반환한다() throws Exception {
+        // given
+        InterestRegisterRequest request = InterestRegisterRequest.builder()
+            .name("위스키 브랜드")
+            .keywords(List.of("보모어"))
+            .build();
+        given(interestRepository.existsSimilarName(anyString(),anyDouble())).willReturn(true);
+
+        // when n then
+        assertThatThrownBy(() -> interestService.registerInterest(request))
+            .isInstanceOf(SimilarInterestException.class)
+            .hasMessageContaining("관심사 80% 이상 일치");
+
+        then(keywordRepository).shouldHaveNoMoreInteractions();
+        then(interestMapper).shouldHaveNoInteractions();
+
+    }
+
+    @Test
+    void 관심사_이름이_일치하는_관심사가_있을경우_오류를_반환한다() throws Exception {
+        // given
+        InterestRegisterRequest request = InterestRegisterRequest.builder()
+            .name("주종")
+            .keywords(List.of("막걸리"))
+            .build();
+        given(interestRepository.existsByNameEqualsIgnoreCase(any())).willReturn(true);
+
+
+        // when n then
+        assertThatThrownBy(() -> interestService.registerInterest(request))
+            .isInstanceOf(SimilarInterestException.class)
+            .hasMessageContaining("관심사 80% 이상 일치");
+
+        then(keywordRepository).shouldHaveNoMoreInteractions();
+        then(interestMapper).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void 입력받은_키워드수만큼_키워드를_저장한다() throws Exception {
+        // given
+        List<String> keywords = List.of("보모어", "글랜피딕", "토버모리", "발베니", "블라드녹");
+        InterestRegisterRequest request = InterestRegisterRequest.builder()
+            .name("위스키 브랜드")
+            .keywords(List.of("보모어","글랜피딕","토버모리","발베니","블라드녹"))
+            .build();
+
+        InterestDto response = InterestDto.builder()
+            .name("위스키 브랜드")
+            .keywords(List.of("보모어","글랜피딕","토버모리","발베니","블라드녹"))
+            .build();
+
+        given(interestRepository.existsSimilarName(anyString(),anyDouble())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false)))
+            .willReturn(response);
+
+
+        // when
+        InterestDto result = interestService.registerInterest(request);
+
+        // then
+        assertThat(result.name()).isEqualTo(response.name());
+        assertThat(result.keywords()).isEqualTo(response.keywords());
+        then(interestMapper).should(times(1)).toDto(any(Interest.class), any(), eq(false));
+        then(interestRepository).should(times(1)).save(any(Interest.class));
+
+        ArgumentCaptor<List<Keyword>> captor = ArgumentCaptor.forClass(List.class);
+        then(keywordRepository).should(times(1)).saveAll(captor.capture());
+
+        List<Keyword> savedKeywords = captor.getValue();
+        assertThat(savedKeywords).hasSize(5);
+        assertThat(savedKeywords)
+            .extracting("name")
+            .containsExactlyInAnyOrderElementsOf(keywords);
+    }
 
 
 

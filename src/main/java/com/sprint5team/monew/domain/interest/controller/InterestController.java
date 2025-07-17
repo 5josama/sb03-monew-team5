@@ -2,16 +2,16 @@ package com.sprint5team.monew.domain.interest.controller;
 
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,17 +31,21 @@ public class InterestController {
     private final InterestService interestService;
 
     @GetMapping
-    public ResponseEntity<?> InterestPaginationController(
+    public ResponseEntity<CursorPageResponseInterestDto> interestPaginationController(
         @RequestParam(required = false) String keyword,
         @RequestParam String orderBy,
         @RequestParam String direction,
         @RequestParam(required = false) String cursor,
         @RequestParam(required = false) Instant after,
         @RequestParam Integer limit,
-        @RequestHeader(name = "monew-request-user-id") UUID userId
+        @RequestHeader(name = "Monew-Request-User-ID") UUID userId
     ) {
         CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
-        @Valid CursorPageResponseInterestDto response = interestService.generateCursorPage(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(interestService.generateCursorPage(request));
+    }
+
+    @PostMapping
+    public ResponseEntity<InterestDto> insertInterest(@RequestBody @Valid InterestRegisterRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(interestService.registerInterest(request));
     }
 }
