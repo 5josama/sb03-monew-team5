@@ -530,9 +530,4 @@ public class InterestServiceTest {
             .isInstanceOf(InterestNotExistException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }
-
-
-
-
-
 }
