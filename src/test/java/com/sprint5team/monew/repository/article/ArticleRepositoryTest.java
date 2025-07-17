@@ -39,7 +39,7 @@ public class ArticleRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        interest = new Interest(Instant.now(), "사회", 0);
+        interest = new Interest(Instant.now(), "사회", 0, new ArrayList<>(), new ArrayList<>());
         em.persist(interest);
         em.flush();
 
