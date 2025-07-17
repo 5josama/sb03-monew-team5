@@ -44,4 +44,7 @@ public class Notification extends BaseUpdatableEntity {
     @JoinColumn(name = "interest_id")
     private Interest interest;
 
+    public void confirm() {
+        this.confirmed = true;
+    }
 }

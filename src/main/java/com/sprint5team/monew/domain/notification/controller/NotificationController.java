@@ -36,13 +36,19 @@ public class NotificationController {
             @PathVariable UUID notificationId,
             @RequestHeader("Monew-Request-User-ID") UUID userId) {
 
-       return null;
+        notificationService.confirmNotification(notificationId, userId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     @PatchMapping()
     public ResponseEntity<Void> confirmAllNotifications(
             @RequestHeader("Monew-Request-User-ID") UUID userId) {
 
-        return null;
+        notificationService.confirmAllNotifications(userId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }
