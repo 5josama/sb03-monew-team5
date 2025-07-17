@@ -65,9 +65,10 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
     testImplementation 'org.testcontainers:postgresql:1.19.7'
 
-
     // Jackson Instant, LocalDateTime 등 Java 8의 시간 API 직렬화
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
