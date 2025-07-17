@@ -267,4 +267,6 @@ public class InterestIntegrationTest {
         Exception exception = result.getResolvedException();
         assertThat(exception).isInstanceOf(InterestNotExistException.class);
     }
+
+    // TODO 관심사 수정 기능
 }

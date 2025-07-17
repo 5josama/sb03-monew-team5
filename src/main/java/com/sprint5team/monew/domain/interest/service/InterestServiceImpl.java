@@ -141,25 +141,25 @@ public class InterestServiceImpl implements InterestService{
         interestRepository.deleteById(interestId);
     }
 
-    private void validateSimilarityInTest(InterestRegisterRequest request) {
-        String name = request.name().trim();
-        log.info("1. 동일한 관심사 이름 있는지 확인");
-        if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
-
-        log.info("1-1. 관심사 전체 조회");
-        List<Interest> interests = interestRepository.findAll();
-
-        JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
-
-        // 관심도
-        double similarityRate = 0.8;
-
-        log.info("1-2. 80% 이상 관심사 이름 유사도 확인");
-        for(Interest interest : interests) {
-            if(similarity.apply(interest.getName(),name)>=similarityRate){
-                log.warn("유사도 높은 관심사 발견. 등록 불가");
-                throw new SimilarInterestException();
-            }
-        }
-    }
+//    private void validateSimilarityInTest(InterestRegisterRequest request) {
+//        String name = request.name().trim();
+//        log.info("1. 동일한 관심사 이름 있는지 확인");
+//        if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
+//
+//        log.info("1-1. 관심사 전체 조회");
+//        List<Interest> interests = interestRepository.findAll();
+//
+//        JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+//
+//        // 관심도
+//        double similarityRate = 0.8;
+//
+//        log.info("1-2. 80% 이상 관심사 이름 유사도 확인");
+//        for(Interest interest : interests) {
+//            if(similarity.apply(interest.getName(),name)>=similarityRate){
+//                log.warn("유사도 높은 관심사 발견. 등록 불가");
+//                throw new SimilarInterestException();
+//            }
+//        }
+//    }
 }

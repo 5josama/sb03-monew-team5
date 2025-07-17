@@ -7,8 +7,11 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
+import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
+import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -298,5 +301,98 @@ public class InterestControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
             .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
+    }
+
+    // TODO 관심사 수정 기능
+    @Test
+    void 관심사의_키워드를_추가할_수_있다() throws Exception {
+        // given
+        Interest interest = Interest.builder()
+            .name("interest")
+            .build();
+
+        Keyword keywordA = Keyword.builder()
+            .interest(interest)
+            .name("a")
+            .build();
+
+        Keyword keywordB = Keyword.builder()
+            .interest(interest)
+            .name("b")
+            .build();
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a","b","c"));
+
+
+        // when n then
+        mockMvc.perform(patch("/api/interests/{interestId}", interest.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.keywords.size").value(3));
+
+    }
+
+    @Test
+    void 관심사의_키워드를_삭제할_수_있다() throws Exception {
+        // given
+        Interest interest = Interest.builder()
+            .name("interest")
+            .build();
+
+        Keyword keywordA = Keyword.builder()
+            .interest(interest)
+            .name("a")
+            .build();
+
+        Keyword keywordB = Keyword.builder()
+            .interest(interest)
+            .name("b")
+            .build();
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
+
+
+        // when n then
+        mockMvc.perform(patch("/api/interests/{interestId}", interest.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(interest)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.keywords.size").value(1));
+
+    }
+
+    @Test
+    void 관심사_수정시_입력값이_잘못되었을때_400_을_반환한다() throws Exception {
+        // given
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
+
+        // when n then
+        mockMvc.perform(patch("/api/interests/{interestId}", "invalid input")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Bad Request"));
+
+    }
+
+    @Test
+    void 관심사_정보가_없을때_404_를_반환한다() throws Exception {
+        // given
+        UUID invalidId = UUID.randomUUID();
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
+
+        // when n then
+        mockMvc.perform(patch("/api/interests/{interestId}", invalidId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.message").value("Not Found"));
+
     }
 }
