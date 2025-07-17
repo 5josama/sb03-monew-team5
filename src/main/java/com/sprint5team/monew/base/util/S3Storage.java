@@ -1,6 +1,8 @@
 package com.sprint5team.monew.base.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -14,15 +16,21 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
+@Slf4j
 public class S3Storage {
 
     private S3Client s3Client;
@@ -30,6 +38,7 @@ public class S3Storage {
     private final String region;
     private final String accessKey;
     private final String secretKey;
+    private final Path logDir = Paths.get(".logs");
 
     public S3Storage(
             @Value("${aws.s3.access-key}") String accessKey,
@@ -83,5 +92,44 @@ public class S3Storage {
             }
         }
         return jsonFiles;
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    public void uploadLogs() {
+        try (Stream<Path> files = Files.walk(logDir)) {
+            files
+                    .filter(Files::isRegularFile)
+                    .filter(this::isDatePatternLogFile)
+                    .forEach(this::upload);
+        } catch (IOException e) {
+            log.error("로그 파일 탐색 실패", e);
+        }
+    }
+
+    private void upload(Path path) {
+        String key = "logs/" + path.getFileName();
+
+        try {
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType("text/plain")
+                    .build();
+
+            s3Client.putObject(request, path);
+
+            log.info("S3 업로드 완료: {}", key);
+
+            // 업로드 후 삭제
+            Files.deleteIfExists(path);
+
+        } catch (Exception e) {
+            log.error("S3 업로드 실패 - {}", path, e);
+        }
+    }
+
+    private boolean isDatePatternLogFile(Path path) {
+        String fileName = path.getFileName().toString();
+        return fileName.matches("application\\.\\d{4}-\\d{2}-\\d{2}\\.log");
     }
 }

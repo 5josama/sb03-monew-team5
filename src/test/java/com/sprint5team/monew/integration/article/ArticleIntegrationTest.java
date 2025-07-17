@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -96,7 +97,7 @@ public class ArticleIntegrationTest {
     @Test
     void 주어진_관심사를_포함한_뉴스기사를_게시일을_기준으로_내림차순_정렬후_조회할_수_있다() {
         // given
-        Interest interest = new Interest(Instant.now(), "IT", 0);
+        Interest interest = new Interest(Instant.now(), "IT", 0, new ArrayList<>(), new ArrayList<>());
         interestRepository.save(interest);
 
         Keyword keyword1 = new Keyword(Instant.now(), "AI", interest);

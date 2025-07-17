@@ -107,7 +107,7 @@ public class ArticleServiceTest {
     @Test
     void 뉴스기사_목록을_커서_페이지네이션을_통해_조회할_수_있다() {
         // given
-        Interest interest = new Interest(Instant.now(), "사회", 0);
+        Interest interest = new Interest(Instant.now(), "사회", 0,  new ArrayList<>(), new ArrayList<>());
         List<Keyword> keywords = List.of(
             new Keyword(Instant.now(), "AI", interest),
             new Keyword(Instant.now(), "경제", interest)

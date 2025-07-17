@@ -12,8 +12,10 @@ import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -104,6 +107,20 @@ public class NotificationServiceImpl implements NotificationService {
                 totalElements,
                 hasNext
         );
+    }
+
+    @Override
+    public void confirmNotification(UUID notificationId, UUID userId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("알림을 찾을 수 없습니다."));
+
+        notification.confirm();
+    }
+
+    @Override
+    public void confirmAllNotifications(UUID userId) {
+        List<Notification> notifications = notificationRepository.findByUserIdAndConfirmedIsFalse(userId);
+        notifications.forEach(Notification::confirm);
     }
 
 }

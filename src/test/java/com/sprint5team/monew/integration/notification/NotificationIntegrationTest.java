@@ -8,7 +8,9 @@ import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificationDto;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
+import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
+import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -20,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +39,7 @@ class NotificationIntegrationTest {
     @Autowired private CommentRepository commentRepository;
     @Autowired private ArticleRepository articleRepository;
     @Autowired private InterestRepository interestRepository;
+    @Autowired private NotificationRepository notificationRepository;
 
     private User user;
     private Interest interest;
@@ -110,5 +115,39 @@ class NotificationIntegrationTest {
         assertThat(response2.totalElements()).isEqualTo(3);
         assertThat(response2.size()).isEqualTo(1);
     }
-}
 
+    @Test
+    void 단일_알림_수정_통합테스트() {
+        // given
+        List<NotificationDto> notifications = notificationService
+                .getAllNotifications(user.getId(), null, null, 10)
+                .content();
+
+        UUID notificationId = notifications.get(0).id();
+
+        // when
+        notificationService.confirmNotification(notificationId, user.getId());
+
+        // then
+        Notification updated = notificationRepository.findById(notificationId).orElseThrow();
+        assertThat(updated.isConfirmed()).isTrue();
+
+        List<Notification> remaining = notificationRepository.findByUserIdAndConfirmedIsFalse(user.getId());
+        assertThat(remaining).hasSize(2);
+        assertThat(remaining).noneMatch(n -> n.getId().equals(notificationId));
+    }
+
+    @Test
+    void 전체_알림_수정_통합테스트() {
+        // when
+        notificationService.confirmAllNotifications(user.getId());
+
+        // then
+        List<Notification> afterConfirm = notificationRepository.findByUserIdAndConfirmedIsFalse(user.getId());
+        assertThat(afterConfirm).isEmpty();
+
+        List<Notification> all = notificationRepository.findAll();
+        assertThat(all).allMatch(Notification::isConfirmed);
+    }
+
+}
