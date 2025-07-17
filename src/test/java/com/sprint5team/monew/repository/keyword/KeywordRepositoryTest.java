@@ -112,4 +112,21 @@ class KeywordRepositoryTest {
         // then
         assertThat(keywordRepository.count()).isEqualTo(3L);
     }
+
+    @Test
+    void 관심사ID로_모든_관련_키워드를_찾는다() throws Exception {
+        // given
+        Keyword keyword = Keyword.builder()
+            .name("위스키")
+            .interest(globalInterest)
+            .createdAt(Instant.now())
+            .build();
+        keywordRepository.save(keyword);
+        // when
+        List<Keyword> result = keywordRepository.findAllByInterestId(globalInterest.getId());
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getName()).isEqualTo(keyword.getName());
+    }
 }

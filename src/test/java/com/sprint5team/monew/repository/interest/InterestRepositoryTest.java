@@ -229,6 +229,4 @@ public class InterestRepositoryTest {
         // then
         assertThat(interestRepository.count()).isEqualTo(2L);
     }
-
-    // TODO 관심사 수정 기능
 }

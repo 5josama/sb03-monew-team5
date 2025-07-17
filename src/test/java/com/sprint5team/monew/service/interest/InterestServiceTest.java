@@ -596,11 +596,13 @@ public class InterestServiceTest {
     @Test
     void 변경할_관심사가_없으면_InterestNotExistException_404_를_반환한다() throws Exception {
         // given
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
+
         given(interestRepository.findById(interestA.getId()))
             .willThrow(InterestNotExistException.class);
 
         // when
-        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), any(), any()))
+        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request, any(UUID.class)))
             .isInstanceOf(InterestNotExistException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }
