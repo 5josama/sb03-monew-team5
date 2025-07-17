@@ -6,11 +6,13 @@ import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
 import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,8 +39,8 @@ public class ArticleController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) UUID interestId,
             @RequestParam(required = false) List<String> sourceIn,
-            @RequestParam(required = false) Instant publishDateFrom,
-            @RequestParam(required = false) Instant publishDateTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime publishDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime publishDateTo,
             @RequestParam String orderBy,
             @RequestParam String direction,
             @RequestParam(required = false) String cursor,
@@ -93,4 +95,14 @@ public class ArticleController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{articleId}/hard")
+    public ResponseEntity<Void> hardDeleteArticle(
+            @PathVariable UUID articleId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
+    ) {
+        articleService.hardDeleteArticle(articleId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

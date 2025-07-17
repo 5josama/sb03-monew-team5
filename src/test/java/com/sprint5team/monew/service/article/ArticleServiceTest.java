@@ -12,6 +12,8 @@ import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
+import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
@@ -28,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +53,7 @@ public class ArticleServiceTest {
     @Mock KeywordRepository keywordRepository;
     @Mock ArticleMapper articleMapper;
     @Mock S3Storage s3Storage;
+    @Mock CommentRepository commentRepository;
 
     @InjectMocks private ArticleServiceImpl articleService;
 
@@ -113,8 +117,8 @@ public class ArticleServiceTest {
                 "AI",
                 interest.getId(),
                 Arrays.asList("NAVER", "한국경제"),
-                Instant.now(),
-                Instant.now(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
                 "publishDate",
                 "ASC",
                 null,
@@ -254,5 +258,28 @@ public class ArticleServiceTest {
         // then
         assertThat(article2.isDeleted()).isTrue();
         verify(articleRepository).save(article2);
+    }
+
+    @Test
+    void 주어진_뉴스기사_ID로_뉴스기사를_물리삭제_할_수_있다() {
+        // given
+        Article article = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
+        UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
+        ReflectionTestUtils.setField(article, "id", id1);
+
+        Comment comment = new Comment(article, user, "test 댓글");
+        ArticleCount viewCount = new ArticleCount(article, user);
+
+        given(commentRepository.findByArticleId(article.getId())).willReturn(List.of(comment));
+        given(articleCountRepository.findByArticleId(article.getId())).willReturn(List.of(viewCount));
+        given(articleRepository.findById(article.getId())).willReturn(Optional.of(article));
+
+        // when
+        articleService.hardDeleteArticle(article.getId());
+
+        // then
+        verify(commentRepository).deleteAll(List.of(comment));
+        verify(articleCountRepository).deleteAll(List.of(viewCount));
+        verify(articleRepository).deleteById(article.getId());
     }
 }

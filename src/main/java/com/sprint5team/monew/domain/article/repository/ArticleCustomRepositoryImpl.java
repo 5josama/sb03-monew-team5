@@ -12,6 +12,7 @@ import com.sprint5team.monew.domain.comment.entity.QComment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @Repository
@@ -47,13 +48,13 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         // 날짜 필터
         if (filter.publishDateFrom() != null && filter.publishDateTo() != null) {
-            builder.and(article.createdAt.between(filter.publishDateFrom(), filter.publishDateTo()));
+            builder.and(article.createdAt.between(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant(), filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
         } else {
             if (filter.publishDateFrom() != null) {
-                builder.and(article.createdAt.after(filter.publishDateFrom()));
+                builder.and(article.createdAt.after(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
             if (filter.publishDateTo() != null) {
-                builder.and(article.createdAt.before(filter.publishDateTo()));
+                builder.and(article.createdAt.before(filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
         }
 
@@ -142,13 +143,13 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         // 날짜 필터
         if (filter.publishDateFrom() != null && filter.publishDateTo() != null) {
-            builder.and(article.createdAt.between(filter.publishDateFrom(), filter.publishDateTo()));
+            builder.and(article.createdAt.between(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant(), filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
         } else {
             if (filter.publishDateFrom() != null) {
-                builder.and(article.createdAt.after(filter.publishDateFrom()));
+                builder.and(article.createdAt.after(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
             if (filter.publishDateTo() != null) {
-                builder.and(article.createdAt.before(filter.publishDateTo()));
+                builder.and(article.createdAt.before(filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
         }
 
