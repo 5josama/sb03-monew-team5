@@ -58,13 +58,6 @@ public class InterestControllerTest {
     @MockitoBean
     private InterestService interestService;
 
-//    @Autowired
-//    private InterestRepository interestRepository;
-//
-//    @Autowired
-//    private KeywordRepository keywordRepository;
-
-
     @Test
     void 모든_파라미터를_포함한_커서_패이지_응답이_정상적으로_동작한다() throws Exception {
         // given

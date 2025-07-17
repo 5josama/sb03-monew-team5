@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
     private static final double THRESHOLD = 0.75;
@@ -46,6 +48,7 @@ public class InterestServiceImpl implements InterestService{
 
     private final InterestMapper interestMapper;
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPageResponseInterestDto generateCursorPage(CursorPageRequest request) {
 
@@ -143,7 +146,6 @@ public class InterestServiceImpl implements InterestService{
     }
 
     // TODO 관심사 수정
-
     @Override
     public InterestDto udpateInterest(UUID interestId, InterestUpdateRequest request) {
         return null;

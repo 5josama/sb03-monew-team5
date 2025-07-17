@@ -29,8 +29,7 @@ import java.time.Instant;
 import java.util.*;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
@@ -397,9 +396,6 @@ public class InterestServiceTest {
         assertThat(result.content().size()).isEqualTo(2);
     }
 
-
-    // TODO 관심사 추가 로직 관련 테스트 코드 작성
-
     @Test
     void 관심사를_추가한다_() throws Exception {
         // given
@@ -426,7 +422,6 @@ public class InterestServiceTest {
         then(interestRepository).should(times(1)).save(any(Interest.class));
         then(keywordRepository).should(times(1)).saveAll(anyList());
     }
-
 
     @Test
     void 관심사_이름의_유사도가_80퍼센트_이상일경우_SimilarInterestException_409_을_반환한다() throws Exception {
@@ -504,7 +499,6 @@ public class InterestServiceTest {
             .containsExactlyInAnyOrderElementsOf(keywords);
     }
 
-    // TODO 관심사 삭제 로직
     @Test
     void 관심사를_삭제할_수_있다() throws Exception {
         // given
@@ -532,4 +526,56 @@ public class InterestServiceTest {
     }
 
     // TODO 관심사 수정 기능
+    @Test
+    void 키워드_변경사항이_없으면_키워드가_수정되지_않는다() throws Exception {
+        // given
+        given(interestRepository.findById(interestA.getId()))
+            .willReturn(interestA);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false)));
+
+        // when
+        interestService.udpateInterest(interestA.getId(), any());
+
+        // then
+        then(keywordRepository).should(times(0)).save(any(Keyword.class));
+    }
+
+    @Test
+    void 키워드_수정시_키워드가_추가될_수_있다() throws Exception {
+        // given
+
+        // when
+        InterestDto result = interestService.udpateInterest(interestA.getId(), any());
+
+        // then
+        assertThat(result.name()).isEqualTo(result.name());
+        assertThat(result.keywords().size()).isEqualTo(3L);
+
+    }
+
+    @Test
+    void 키워드_수정시_키워드가_삭제될_수_있다() throws Exception {
+        // given
+
+
+        // when
+        InterestDto result = interestService.udpateInterest(interestA.getId(), any());
+
+        // then
+        assertThat(result.name()).isEqualTo(result.name());
+        assertThat(result.keywords().size()).isEqualTo(2L);
+
+    }
+
+    @Test
+    void 변경할_관심사가_없으면_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        given(interestRepository.findById(interestA.getId()))
+            .willThrow(InterestNotExistException.class);
+
+        // when
+        assertThatThrownBy(() -> interestService.udpateInterest(interestA.getId(), any()))
+            .isInstanceOf(InterestNotExistException.class)
+            .hasMessageContaining("일치하는 관심사 없음");
+    }
 }
