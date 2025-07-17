@@ -243,7 +243,7 @@ public class CommentServiceTest {
     @Test
     void 댓글_논리_삭제_성공() {
         //given
-        comment.update(true);
+        comment.softDelete(true);
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
