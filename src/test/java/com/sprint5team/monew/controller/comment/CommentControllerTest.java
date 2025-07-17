@@ -195,7 +195,7 @@ public class CommentControllerTest {
     }
 
     @Test
-    void 댓글_물리_삭제_성공(){
+    void 댓글_물리_삭제_성공() throws Exception {
         //given
         UUID commentId = UUID.randomUUID();
         willDoNothing().given(commentService).hardDelete(eq(commentId));
