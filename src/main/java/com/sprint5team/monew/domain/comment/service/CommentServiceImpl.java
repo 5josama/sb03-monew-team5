@@ -122,6 +122,16 @@ public class CommentServiceImpl implements CommentService{
     }
 
     /**
+     * 댓글 물리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void hardDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        commentRepository.deleteById(commentId);
+    }
+
+    /**
      * Cursor가 CreatedAt(Instant)인지 판단하는 로직
      * @param cursor 커서
      * @return true: Instant, false: Long
