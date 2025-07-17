@@ -157,4 +157,24 @@ public class ArticleIntegrationTest {
         assertThat(sources).hasSize(2);
         assertThat(sources.get(1)).isEqualTo("한국경제");
     }
+
+    @Test
+    void 주어진_ID로_뉴스기사를_논리_삭제_할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+
+        articleRepository.save(article1);
+        articleRepository.save(article2);
+        articleRepository.save(article3);
+        articleRepository.flush();
+
+        // when
+        articleService.softDeleteArticle(article2.getId());
+
+        // then
+        Article updated = articleRepository.findById(article2.getId()).orElseThrow();
+        assertThat(updated.isDeleted()).isTrue();
+    }
 }
