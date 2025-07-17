@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,6 +141,31 @@ class NotificationRepositoryTest {
 
         List<Notification> all = notificationRepository.findAll();
         assertThat(all).allMatch(Notification::isConfirmed);
+    }
+
+    @Test
+    void 확인된_알림이_1주일_경과시_삭제_성공() {
+        // given
+        User user = userRepository.save(new User("testuser", "test@abc.com", "1234"));
+
+        Notification notification = Notification.builder()
+                .user(user)
+                .content("알림 입니다.")
+                .confirmed(true)
+                .resourceType(ResourceType.COMMENT)
+                .createdAt(Instant.now().minus(12, ChronoUnit.DAYS))
+                .build();
+
+        notificationRepository.save(notification);
+
+        // when
+        notificationRepository.deleteByConfirmedIsTrueAndCreatedAtBefore(
+                Instant.now().minus(7, ChronoUnit.DAYS)
+        );
+
+        // then
+        List<Notification> all = notificationRepository.findAll();
+        assertThat(all).isEmpty();
     }
 
 }
