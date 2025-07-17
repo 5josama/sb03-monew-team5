@@ -106,4 +106,40 @@ class NotificationRepositoryTest {
         assertThat(results.get(0).getContent()).contains("테스트 알림");
     }
 
+    @Test
+    void 단일_알림_확인하면_confirmed_상태_true로_변경_성공() {
+        // given
+        Notification notification = notificationRepository.findAll().get(0);
+        assertThat(notification.isConfirmed()).isFalse();
+
+        // when
+        notification.confirm();
+        notificationRepository.save(notification);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        Notification updated = notificationRepository.findById(notification.getId()).orElseThrow();
+        assertThat(updated.isConfirmed()).isTrue();
+    }
+
+    @Test
+    void 전체_알림_확인하면_confirmed_상태_true로_변경_성공() {
+        // given
+        List<Notification> unconfirmed = notificationRepository.findByUserIdAndConfirmedIsFalse(testUser.getId());
+
+        // when
+        unconfirmed.forEach(Notification::confirm);
+        notificationRepository.saveAll(unconfirmed);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        List<Notification> remaining = notificationRepository.findByUserIdAndConfirmedIsFalse(testUser.getId());
+        assertThat(remaining).isEmpty();
+
+        List<Notification> all = notificationRepository.findAll();
+        assertThat(all).allMatch(Notification::isConfirmed);
+    }
+
 }
