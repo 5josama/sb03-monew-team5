@@ -187,7 +187,7 @@ public class CommentControllerTest {
     void 댓글_논리_삭제_성공() throws Exception {
         //given
         UUID commentId = UUID.randomUUID();
-        willDoNothing().given(commentService.softDelete(commentId));
+        willDoNothing().given(commentService).softDelete(eq(commentId));
 
         //when && then
         mockMvc.perform(delete("/api/comments/{commentId}")
