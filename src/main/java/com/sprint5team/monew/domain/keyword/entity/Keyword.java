@@ -40,4 +40,9 @@ public class Keyword extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interest_id", nullable = false)
     private Interest interest;
+
+    public Keyword(String name, Interest interest) {
+        this.name = name;
+        this.interest = interest;
+    }
 }

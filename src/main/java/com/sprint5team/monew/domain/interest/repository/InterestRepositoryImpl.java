@@ -22,6 +22,7 @@ import java.util.List;
  * Author       : dounguk
  * Date         : 2025. 7. 11.
  */
+
 @RequiredArgsConstructor
 public class InterestRepositoryImpl implements InterestRepositoryCustom{
 
