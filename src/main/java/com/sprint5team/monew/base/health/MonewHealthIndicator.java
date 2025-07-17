@@ -4,16 +4,12 @@ import com.sprint5team.monew.base.service.BatchStatusService;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component("monew")
 public class MonewHealthIndicator implements HealthIndicator {
-
-    private final Logger logger = LoggerFactory.getLogger(MonewHealthIndicator.class);
 
     private final BatchStatusService  batchStatusService;
     private final ArticleRepository articleRepository;
