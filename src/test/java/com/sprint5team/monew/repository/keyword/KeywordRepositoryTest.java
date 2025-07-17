@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.K;
 
 import java.time.Instant;
 import java.util.List;
@@ -82,5 +83,33 @@ class KeywordRepositoryTest {
         // then
         assertThat(keywords).hasSize(2);
         assertThat(keywordNames).contains("Bladnoch", "Kilkerran");
+    }
+
+    @Test
+    void 여러개의_키워드를_한꺼번에_저장한다() throws Exception {
+        // given
+        Keyword keywordA = Keyword.builder()
+            .name("키워드1")
+            .interest(globalInterest)
+            .createdAt(Instant.now())
+            .build();
+        Keyword keywordB = Keyword.builder()
+            .name("키워드2")
+            .interest(globalInterest)
+            .createdAt(Instant.now())
+            .build();
+        Keyword keywordC = Keyword.builder()
+            .name("키워드3")
+            .interest(globalInterest)
+            .createdAt(Instant.now())
+            .build();
+
+        List<Keyword> keywords = List.of(keywordA, keywordB, keywordC);
+
+        // when
+        keywordRepository.saveAll(keywords);
+
+        // then
+        assertThat(keywordRepository.count()).isEqualTo(3L);
     }
 }

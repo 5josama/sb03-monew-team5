@@ -20,5 +20,5 @@ public record InterestRegisterRequest(
     String name,
 
     @NotNull @Size(min = 1, max = 10)
-    List<@NotBlank @Size(max = 20) String> keywords
+    List<@NotBlank @Size(min = 1, max = 20) String> keywords
 ) { }

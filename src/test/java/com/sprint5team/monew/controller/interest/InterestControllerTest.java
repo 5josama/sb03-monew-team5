@@ -1,15 +1,19 @@
 package com.sprint5team.monew.controller.interest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.BDDMockito.given;
 import com.sprint5team.monew.domain.interest.controller.InterestController;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,9 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.BDDMockito.*;
@@ -163,5 +168,135 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.size").value(3))
             .andExpect(jsonPath("$.totalElements").value(3L))
             .andExpect(jsonPath("$.hasNext").value(false));
+    }
+
+
+    @Test
+    void 파라미터가_정상입력_되어있을경우_새로운_관심사를_등록한다() throws Exception {
+        // given
+        InterestRegisterRequest validRequest = InterestRegisterRequest.builder()
+            .name("재즈 아티스트")
+            .keywords(List.of("존콜 트레인","아트 블래키", "찰리 파커"))
+            .build();
+
+        InterestDto response = InterestDto.builder()
+            .id(UUID.randomUUID())
+            .name("재즈 아티스트")
+            .keywords(List.of("존콜 트레인", "아트 블래키", "찰리 파커"))
+            .subscriberCount(0L)
+            .subscribedByMe(false)
+            .build();
+
+
+        given(interestService.registerInterest(validRequest))
+            .willReturn(response);
+
+        // when n then
+        mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validRequest)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.name").value("재즈 아티스트"))
+            .andExpect(jsonPath("$.subscriberCount").value(0L))
+            .andExpect(jsonPath("$.subscribedByMe").value(false))
+            .andExpect(jsonPath("$.keywords").isArray())
+            .andExpect(jsonPath("$.keywords.size()").value(3));
+    }
+
+    @Test
+    void 키워드_이름이_없을경우_관심사를_등록할_수_없다() throws Exception {
+        // given
+        InterestRegisterRequest invalidRequest = InterestRegisterRequest.builder()
+            .name(null)
+            .keywords(List.of("존콜 트레인","아트 블래키", "찰리 파커"))
+            .build();
+
+        // when n then
+        mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Bad Request"))
+            .andExpect(jsonPath("$.details").value("name: must not be null"));
+    }
+
+    @Test
+    void 관심사_단어_길이가_50을_넘을수_없다() throws Exception {
+        // given
+        InterestRegisterRequest invalidRequest = InterestRegisterRequest.builder()
+            .name("Invalid-Keyword-pneumonoultramicroscopicsilicovolcanoconiosis")
+            .keywords(List.of("존콜 트레인","아트 블래키", "찰리 파커"))
+            .build();
+
+        // when n then
+        mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Bad Request"))
+            .andExpect(jsonPath("$.details").value("name: size must be between 1 and 50"));
+    }
+
+    @Test
+    void 키워드_단어_길이가_20을_넘을수_없다() throws Exception {
+        // given
+        InterestRegisterRequest invalidRequest = InterestRegisterRequest.builder()
+            .name("재즈 아티스트")
+            .keywords(List.of("존콜 트레인","아트 블래키", "찰리 파커","pneumonoultramicroscopicsilicovolcanoconiosis"))
+            .build();
+
+        // when n then
+        mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Bad Request"))
+            .andExpect(jsonPath("$.details", containsString("keywords")))
+            .andExpect(jsonPath("$.details", containsString("size must be between 1 and 20")));
+    }
+
+    @Test
+    void 키워드_수가_10개를_초과할수_없다() throws Exception {
+        // given
+        InterestRegisterRequest invalidRequest = InterestRegisterRequest.builder()
+            .name("재즈 아티스트")
+            .keywords(List.of("존콜 트레인","아트 블래키", "찰리 파커","조 빔"," 테네리오 주니오르", "스탄 게츠","리사 심슨", "오스카 피터슨", "챗 베이커","빌 에반스","마일스 데이비스"))
+            .build();
+        // when n then
+        mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Bad Request"))
+            .andExpect(jsonPath("$.details").value("keywords: size must be between 1 and 10"));
+    }
+
+    @Test
+    void 관심사를_삭제_한다_204() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 관심사_정보가_없을경우_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        doThrow(new InterestNotExistException())
+            .when(interestService)
+            .deleteInterest(interestId);
+
+        // when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
     }
 }

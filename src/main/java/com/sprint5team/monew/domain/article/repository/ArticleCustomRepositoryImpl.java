@@ -12,6 +12,7 @@ import com.sprint5team.monew.domain.comment.entity.QComment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @Repository
@@ -30,6 +31,8 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         BooleanBuilder builder = new BooleanBuilder();
 
+        builder.and(article.isDeleted.isFalse());
+
         // 검색어 필터 (제목 또는 요약)
         if (filter.keyword() != null) {
             builder.andAnyOf(
@@ -45,13 +48,13 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         // 날짜 필터
         if (filter.publishDateFrom() != null && filter.publishDateTo() != null) {
-            builder.and(article.createdAt.between(filter.publishDateFrom(), filter.publishDateTo()));
+            builder.and(article.createdAt.between(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant(), filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
         } else {
             if (filter.publishDateFrom() != null) {
-                builder.and(article.createdAt.after(filter.publishDateFrom()));
+                builder.and(article.createdAt.after(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
             if (filter.publishDateTo() != null) {
-                builder.and(article.createdAt.before(filter.publishDateTo()));
+                builder.and(article.createdAt.before(filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
         }
 
@@ -103,16 +106,18 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                 orderSpecifier = direction == Order.ASC
                         ? article.createdAt.asc()
                         : article.createdAt.desc();
-                break;
+                return queryFactory
+                        .select(article)
+                        .from(article)
+                        .leftJoin(articleCount).on(articleCount.article.eq(article))
+                        .leftJoin(comment).on(comment.article.eq(article))
+                        .where(builder)
+                        .groupBy(article.id)
+                        .orderBy(orderSpecifier)
+                        .limit(filter.limit() + 1)
+                        .fetch();
 
         }
-
-        return queryFactory
-                .selectFrom(article)
-                .where(builder)
-                .orderBy(orderSpecifier)
-                .limit(filter.limit() + 1)
-                .fetch();
     }
 
     @Override
@@ -120,6 +125,8 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
         QArticle article = QArticle.article;
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(article.isDeleted.isFalse());
 
         // 검색어 필터 (제목 또는 요약)
         if (filter.keyword() != null) {
@@ -136,13 +143,13 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
         // 날짜 필터
         if (filter.publishDateFrom() != null && filter.publishDateTo() != null) {
-            builder.and(article.createdAt.between(filter.publishDateFrom(), filter.publishDateTo()));
+            builder.and(article.createdAt.between(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant(), filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
         } else {
             if (filter.publishDateFrom() != null) {
-                builder.and(article.createdAt.after(filter.publishDateFrom()));
+                builder.and(article.createdAt.after(filter.publishDateFrom().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
             if (filter.publishDateTo() != null) {
-                builder.and(article.createdAt.before(filter.publishDateTo()));
+                builder.and(article.createdAt.before(filter.publishDateTo().atZone(ZoneId.of("Asia/Seoul")).toInstant()));
             }
         }
 

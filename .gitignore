@@ -42,3 +42,4 @@ src/main/generated
 .vscode/
 .env
 src/main/java/com/sprint5team/monew/domain/keyword/entity/.DS_Store
+local.env

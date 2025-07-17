@@ -10,6 +10,7 @@ import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
 import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
@@ -173,5 +174,30 @@ public class ArticleServiceImpl implements ArticleService {
                 restoredIds,
                 restoredIds.size()
         );
+    }
+
+    @Override
+    public void softDeleteArticle(UUID articleId) {
+        Article article = articleRepository.findById(articleId).orElseThrow(
+                ArticleNotFoundException::new
+        );
+
+        if (!article.isDeleted()) {
+            article.softDelete();
+            articleRepository.save(article);
+        }
+    }
+
+    @Override
+    public void hardDeleteArticle(UUID articleId) {
+        articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+
+        List<Comment> comments = commentRepository.findByArticleId(articleId);
+
+        List<ArticleCount> articleViews = articleCountRepository.findByArticleId(articleId);
+
+        commentRepository.deleteAll(comments);
+        articleCountRepository.deleteAll(articleViews);
+        articleRepository.deleteById(articleId);
     }
 }

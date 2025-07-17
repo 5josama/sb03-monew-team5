@@ -17,4 +17,8 @@ public interface ArticleService {
     List<String> getSources();
 
     ArticleRestoreResultDto restoreArticle(Instant from, Instant to);
+
+    void softDeleteArticle(UUID articleId);
+
+    void hardDeleteArticle(UUID articleId);
 }

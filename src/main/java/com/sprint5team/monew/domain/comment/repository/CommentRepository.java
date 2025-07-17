@@ -18,4 +18,6 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, Comment
         GROUP BY c.article.id
     """)
     List<ArticleCommentCount> countByArticleIds(@Param("articleIds") List<UUID> articleIds);
+
+    List<Comment> findByArticleId(UUID articleId);
 }
