@@ -2,6 +2,8 @@ package com.sprint5team.monew.domain.article.service;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +37,7 @@ public class ArticleScraper {
 
     private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate;
-//    private final KeywordRepository keywordRepository;
+    private final KeywordRepository keywordRepository;
 
     @Value("${naver.client_id}")
     private String clientId;
@@ -43,13 +45,12 @@ public class ArticleScraper {
     @Value("${naver.client_secret}")
     private String clientSecret;
 
-    // TODO: keywordRepository 개발 완료되면 키워드 중복 없이 get
-    private final List<String> keywords = List.of("AI", "경제", "개발");
+    private List<String> keywords = new ArrayList<>();
 
     private static final List<String> RSS_FEEDS = List.of(
             "https://www.hankyung.com/feed/all-news",            // 한국경제
             "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml", // 조선일보
-            "http://www.yonhapnewstv.co.kr/browse/feed/"                          // 연합뉴스
+            "https://www.yonhapnewstv.co.kr/browse/feed/"                     // 연합뉴스
     );
 
     private static final List<String> SOURCES = List.of(
@@ -59,6 +60,11 @@ public class ArticleScraper {
     );
 
     public void scrapeAll() {
+        List<String> keywords = keywordRepository.findAll().stream()
+                .map(Keyword::getName)
+                .distinct()
+                .toList();
+        this.keywords = keywords;
         scrapeNaverApi(); // 기존 OpenAPI 수집
         scrapeRssFeeds(); // RSS 기반 수집
     }

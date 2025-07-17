@@ -34,8 +34,8 @@ CREATE TABLE tbl_article
 (
     id                  UUID PRIMARY KEY,
     source              VARCHAR(5)            NOT NULL,
-    source_url          VARCHAR(500) UNIQUE   NOT NULL,
-    title               VARCHAR(100)          NOT NULL,
+    source_url          TEXT UNIQUE           NOT NULL,
+    title               TEXT                  NOT NULL,
     summary             TEXT                  NOT NULL,
     is_deleted          BOOLEAN DEFAULT FALSE NOT NULL,
     original_created_at TIMESTAMPTZ           NOT NULL,
