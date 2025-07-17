@@ -8,6 +8,7 @@ import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
@@ -140,6 +141,14 @@ public class InterestServiceImpl implements InterestService{
 
         interestRepository.deleteById(interestId);
     }
+
+    // TODO 관심사 수정
+
+    @Override
+    public InterestDto udpateInterest(UUID interestId, InterestUpdateRequest request) {
+        return null;
+    }
+
 
 //    private void validateSimilarityInTest(InterestRegisterRequest request) {
 //        String name = request.name().trim();

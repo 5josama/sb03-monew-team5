@@ -4,6 +4,7 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 
@@ -23,5 +24,7 @@ public interface InterestService{
     InterestDto registerInterest(InterestRegisterRequest  request);
 
     void deleteInterest(UUID interestId);
+
+    InterestDto udpateInterest(UUID interestId, InterestUpdateRequest request);
 
 }

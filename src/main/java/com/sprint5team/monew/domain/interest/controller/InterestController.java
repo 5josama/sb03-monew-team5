@@ -5,6 +5,7 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.service.InterestService;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,10 @@ public class InterestController {
     public ResponseEntity<Void> deleteInterest(@PathVariable UUID interestId) {
         interestService.deleteInterest(interestId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/{interestId}")
+    public ResponseEntity<InterestDto> updateInterest(@PathVariable UUID interestId, @RequestBody InterestUpdateRequest request){
+        return ResponseEntity.ok(interestService.udpateInterest(interestId, request));
     }
 }

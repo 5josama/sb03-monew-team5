@@ -1,6 +1,8 @@
 package com.sprint5team.monew.controller.interest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import com.sprint5team.monew.domain.interest.controller.InterestController;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
@@ -9,16 +11,20 @@ import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -51,6 +57,12 @@ public class InterestControllerTest {
 
     @MockitoBean
     private InterestService interestService;
+
+//    @Autowired
+//    private InterestRepository interestRepository;
+//
+//    @Autowired
+//    private KeywordRepository keywordRepository;
 
 
     @Test
@@ -307,61 +319,46 @@ public class InterestControllerTest {
     @Test
     void 관심사의_키워드를_추가할_수_있다() throws Exception {
         // given
-        Interest interest = Interest.builder()
+        UUID interestId = UUID.randomUUID();
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a", "b", "c"));
+
+        InterestDto response = InterestDto.builder()
             .name("interest")
+            .keywords(List.of("a", "b", "c"))
             .build();
 
-        Keyword keywordA = Keyword.builder()
-            .interest(interest)
-            .name("a")
-            .build();
+        given(interestService.udpateInterest(eq(interestId), any()))
+            .willReturn(response);
 
-        Keyword keywordB = Keyword.builder()
-            .interest(interest)
-            .name("b")
-            .build();
-
-        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a","b","c"));
-
-
-        // when n then
-        mockMvc.perform(patch("/api/interests/{interestId}", interest.getId())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+        // when & then
+        mockMvc.perform(patch("/api/interests/{interestId}", interestId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value(200))
-            .andExpect(jsonPath("$.keywords.size").value(3));
-
+            .andExpect(jsonPath("$.keywords.length()").value(3));
     }
 
     @Test
     void 관심사의_키워드를_삭제할_수_있다() throws Exception {
         // given
-        Interest interest = Interest.builder()
+        UUID interestId = UUID.randomUUID();
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a", "b", "c"));
+
+        InterestDto response = InterestDto.builder()
             .name("interest")
+            .keywords(List.of("a"))
             .build();
 
-        Keyword keywordA = Keyword.builder()
-            .interest(interest)
-            .name("a")
-            .build();
-
-        Keyword keywordB = Keyword.builder()
-            .interest(interest)
-            .name("b")
-            .build();
-
-        InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
+        given(interestService.udpateInterest(eq(interestId), any()))
+            .willReturn(response);
 
 
         // when n then
-        mockMvc.perform(patch("/api/interests/{interestId}", interest.getId())
+        mockMvc.perform(patch("/api/interests/{interestId}", interestId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(interest)))
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value(200))
-            .andExpect(jsonPath("$.keywords.size").value(1));
-
+            .andExpect(jsonPath("$.keywords.length()").value(1));
     }
 
     @Test
@@ -376,23 +373,28 @@ public class InterestControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400))
             .andExpect(jsonPath("$.message").value("Bad Request"));
-
     }
 
     @Test
-    void 관심사_정보가_없을때_404_를_반환한다() throws Exception {
+    void 관심사_정보가_없을때_InterestNotExistException_404_를_반환한다() throws Exception {
         // given
-        UUID invalidId = UUID.randomUUID();
-
+        UUID interestId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
 
+        given(interestService.udpateInterest(eq(interestId), any()))
+            .willThrow(new InterestNotExistException());
+
         // when n then
-        mockMvc.perform(patch("/api/interests/{interestId}", invalidId)
+        MvcResult result = mockMvc.perform(patch("/api/interests/{interestId}", interestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
-            .andExpect(jsonPath("$.message").value("Not Found"));
+            .andExpect(jsonPath("$.message").value("Not Found"))
+            .andReturn();
 
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(InterestNotExistException.class);
     }
 }
