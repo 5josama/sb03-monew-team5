@@ -1,4 +1,4 @@
-package com.sprint5team.monew.repository.user_interest;
+package com.sprint5team.monew.repository.userinterest;
 
 
 
@@ -6,9 +6,6 @@ package com.sprint5team.monew.repository.user_interest;
 import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
-import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
