@@ -319,7 +319,7 @@ public class CommentServiceTest {
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
 
         //when && then
-        assertThatThrownBy(() -> commentService.update(request))
+        assertThatThrownBy(() -> commentService.update(commentId,request))
                 .isInstanceOf(CommentNotFoundException.class);
     }
 

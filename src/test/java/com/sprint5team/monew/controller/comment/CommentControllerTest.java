@@ -205,5 +205,20 @@ public class CommentControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void 댓글_수정_성공() throws Exception{
+        //given
+        UUID commentId = UUID.randomUUID();
+        CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글 입니다.");
+        CommentDto commentDto = new CommentDto(commentId,UUID.randomUUID(),UUID.randomUUID(),"name","수정전 댓글 입니다.",0L,false,Instant.now());
+        given(commentService.update(commentId,request)).willReturn(commentDto);
+
+        //when && then
+        mockMvc.perform(patch("/api/comments/{commentId}", commentId)
+                        .param("content","수정된 댓글 입니다."))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("수정된 댓글 입니다."));
+    }
+
 
 }
