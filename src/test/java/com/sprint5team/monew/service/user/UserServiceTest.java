@@ -15,6 +15,7 @@ import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,7 +86,7 @@ class UserServiceTest {
   @Test
   void 사용자_로그인_성공() {
     // given
-    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(user);
+    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(Optional.of(user));
     given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
     // when
