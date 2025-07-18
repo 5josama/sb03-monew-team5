@@ -5,6 +5,7 @@ import com.sprint5team.monew.domain.interest.exception.InterestNotExistsExceptio
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user_interest.controller.UserInterestController;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.exception.SubscriberNotMatchesException;
 import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
 import org.junit.jupiter.api.DisplayName;
@@ -75,6 +76,7 @@ public class UserInterestControllerTest {
             .andExpect(jsonPath("$.interestKeywords.size()").value(4))
             .andExpect(jsonPath("$.interestSubscriberCount").value(100L));
     }
+
     @Test
     void 관심사_정보가_없으면_InterestNotExistException_404_를_응답한다() throws Exception {
         // given
@@ -105,25 +107,25 @@ public class UserInterestControllerTest {
         UUID userId = UUID.randomUUID();
 
         /// when n then
-        mockMvc.perform(delete("/api/interests/{interestId}", interestId)
+        mockMvc.perform(delete("/api/interests/{interestId}/subscriptions", interestId)
                 .header("Monew-Request-User-ID", userId))
             .andExpect(status().isOk());
     }
 
     @Test
-    void 요청자가_구독중이_아닐때_취소_요청시_UserInterestAlreadyExistsException_409_를_반환한다() throws Exception {
+    void 요청자가_구독중이_아닐때_취소_요청시_UserInterestAlreadyExistsException_400_를_반환한다() throws Exception {
         UUID interestId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
         willThrow(UserInterestAlreadyExistsException.class)
             .given(userInterestService)
-            .unfollowInterest(interestId, userId);
+            .unsubscribeInterest(interestId, userId);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}/subscriptions", interestId)
                 .header("Monew-Request-User-ID", userId))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
             .andExpect(jsonPath("$.details").value("사용자는 이미 관심사를 구독중입니다."))
             .andReturn();
 
@@ -139,14 +141,13 @@ public class UserInterestControllerTest {
 
         willThrow(UserNotFoundException.class)
             .given(userInterestService)
-            .unfollowInterest(interestId, userId);
+            .unsubscribeInterest(interestId, userId);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}/subscriptions", interestId)
                 .header("Monew-Request-User-ID", userId))
-            .andExpect(status().isBadRequest())
+            .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
-            .andExpect(jsonPath("$.details").value("존재하지 않는 사용자입니다."))
             .andReturn();
 
         Exception exception = result.getResolvedException();
@@ -161,12 +162,12 @@ public class UserInterestControllerTest {
 
         willThrow(InterestNotExistsException.class)
             .given(userInterestService)
-            .unfollowInterest(interestId, userId);
+            .unsubscribeInterest(interestId, userId);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}/subscriptions", interestId)
                 .header("Monew-Request-User-ID", userId))
-            .andExpect(status().isBadRequest())
+            .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
             .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."))
             .andReturn();
@@ -174,5 +175,27 @@ public class UserInterestControllerTest {
         Exception exception = result.getResolvedException();
 
         assertThat(exception).isInstanceOf(InterestNotExistsException.class);
+    }
+
+    @Test
+    void 구독자_수가_0일때_구독을_취소하면_SubscriberNotMatchesException_409_를_반환한다() throws Exception {
+        UUID interestId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        willThrow(SubscriberNotMatchesException.class)
+            .given(userInterestService)
+            .unsubscribeInterest(interestId, userId);
+
+        // when
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(jsonPath("$.details").value("구독수와 구독자의 수가 일치하지 않습니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(SubscriberNotMatchesException.class);
     }
 }

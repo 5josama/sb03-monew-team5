@@ -14,5 +14,5 @@ public interface UserInterestService {
 
     SubscriptionDto registerSubscription(UUID interestId, UUID userId);
 
-    void unfollowInterest(UUID interestId, UUID userId);
+    void unsubscribeInterest(UUID interestId, UUID userId);
 }

@@ -59,14 +59,28 @@ public class UserInterestServiceImpl implements UserInterestService {
         userInterestRepository.save(userInterest);
 
         log.info("5. 관심사 구독자 수 증가");
-        interest.subscribed();
+        interest.subscribe();
 
         return userInterestMapper.toDto(userInterest);
     }
 
     // TODO 구독 취소
     @Override
-    public void unfollowInterest(UUID interestId, UUID userId) {
+    public void unsubscribeInterest(UUID interestId, UUID userId) {
+        /**
+         * 1. 구독 여부 확인 - exception
+         * 2. 요청자 확인 - exception
+         * 3. 관심사 확인 - exception
+         * 4. 구독 삭제
+         * 5. 관심사 구독 수 -1
+         * 5-1  관심사가 0 또는 작을 경우 - exception(SubscriberNotMatchesException 추가)
+         * 5-2  문제 없으면 -1
+         */
 
+        UserInterest userInterest = userInterestRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(UserInterestAlreadyExistsException::new);
+        if(!userRepository.existsById(userId)) throw new UserNotFoundException();
+        Interest interest = interestRepository.findById(interestId).orElseThrow(InterestNotExistsException::new);
+        interest.unsubscribe();
+        userInterestRepository.delete(userInterest);
     }
 }

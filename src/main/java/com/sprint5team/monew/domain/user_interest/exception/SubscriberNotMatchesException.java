@@ -6,29 +6,29 @@ import org.springframework.http.HttpStatus;
 import java.time.Instant;
 
 /**
- * PackageName  : com.sprint5team.monew.domain.userinterest
- * FileName     : UserInterestAlreadyExistsException
+ * PackageName  : com.sprint5team.monew.domain.user_interest.exception
+ * FileName     : SubscriberNotMatchesException
  * Author       : dounguk
- * Date         : 2025. 7. 18.
+ * Date         : 2025. 7. 19.
  */
-public class UserInterestAlreadyExistsException extends BaseException {
+public class SubscriberNotMatchesException extends BaseException {
     @Override
     public Instant getTimestamp() {
         return Instant.now();
-    };
+    }
 
     @Override
     public HttpStatus getHttpStatus() {
-        return HttpStatus.BAD_REQUEST;
-    };
+        return HttpStatus.CONFLICT;
+    }
 
     @Override
     public String getMessage() {
-        return "이미 구독중";
-    };
+        return "구독자 수 불일치";
+    }
 
     @Override
     public String getDetails() {
-        return "사용자는 이미 관심사를 구독중입니다.";
-    };
+        return "구독수와 구독자의 수가 일치하지 않습니다.";
+    }
 }

@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import com.sprint5team.monew.domain.user_interest.exception.SubscriberNotMatchesException;
 import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
@@ -79,7 +80,7 @@ public class UserInterestServiceTest {
     }
 
     @Test
-    void 구독중인_경우_UserInterestAlreadyExistsException_409_를_반환한다() throws Exception { //
+    void 구독중인_경우_UserInterestAlreadyExistsException_400_를_반환한다() throws Exception { //
         // given
         User user = new User("test@test.com", "dk", "dkdkdk");
         Interest interest = new Interest("유리 공예");
@@ -160,4 +161,93 @@ public class UserInterestServiceTest {
         assertThat(result.interestSubscriberCount()).isEqualTo(1);
         then(userInterestRepository).should(times(1)).save(any());
     }
+
+    // TODO 구독 취소
+    @Test
+    void 구독_취소가_가능하다() throws Exception {
+        // given
+        UserInterest userInterest = UserInterest.builder().build();
+        Interest interest = Interest.builder().subscriberCount(1L).build();
+
+        given(userInterestRepository.findByUserIdAndInterestId(any(), any()))
+            .willReturn(Optional.of(userInterest));
+        given(userRepository.existsById(any())).willReturn(true);
+        given(interestRepository.findById(any())).willReturn(Optional.of(interest));
+
+        // when
+        userInterestService.unsubscribeInterest(any(), any());
+
+        // then
+        then(userInterestRepository).should(times(1)).delete(any());
+    }
+
+    @Test
+    void 구독_취소시_유저정보가_없을경우_UserNotFoundException_404_를_반환한다() throws Exception {
+        // given
+        UserInterest userInterest = UserInterest.builder().build();
+
+        given(userInterestRepository.findByUserIdAndInterestId(any(), any()))
+            .willReturn(Optional.of(userInterest));
+        given(userRepository.existsById(any())).willReturn(false);
+
+        // when n then
+        assertThatThrownBy(()->userInterestService.unsubscribeInterest(any(), any()))
+            .isInstanceOf(UserNotFoundException.class);
+
+        then(userInterestRepository).should(times(0)).delete(any());
+    }
+
+    @Test
+    void 구독_취소시_관심사_정보가_없을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
+        // given
+        UserInterest userInterest = UserInterest.builder().build();
+
+        given(userInterestRepository.findByUserIdAndInterestId(any(), any()))
+            .willReturn(Optional.of(userInterest));
+        given(userRepository.existsById(any())).willReturn(true);
+        given(interestRepository.findById(any())).willReturn(Optional.empty());
+
+        // when
+        assertThatThrownBy(()->userInterestService.unsubscribeInterest(any(), any()))
+            .isInstanceOf(InterestNotExistsException.class);
+
+        // then
+        then(userInterestRepository).should(times(0)).delete(any());
+    }
+
+    @Test
+    void 요청자가_관심사를_이미_구독중일경우_UserInterestAlreadyExistsException_404_를_반환한다() throws Exception {
+        // given
+
+        given(userInterestRepository.findByUserIdAndInterestId(any(), any()))
+            .willReturn(Optional.empty());
+
+        // when
+        assertThatThrownBy(()->userInterestService.unsubscribeInterest(any(), any()))
+            .isInstanceOf(UserInterestAlreadyExistsException.class);
+
+        // then
+        then(userInterestRepository).should(times(0)).delete(any());
+        then(interestRepository).shouldHaveNoInteractions();
+        then(userRepository).shouldHaveNoInteractions();
+    }
+    @Test
+    void 구독자_수가_1미만일때_구독을_취소하면_SubscriberNotMatchesException_409_를_반환한다() throws Exception {
+        // given
+        UserInterest userInterest = UserInterest.builder().build();
+        Interest interest = Interest.builder().subscriberCount(0L).build();
+
+        given(userInterestRepository.findByUserIdAndInterestId(any(), any()))
+            .willReturn(Optional.of(userInterest));
+        given(userRepository.existsById(any())).willReturn(true);
+        given(interestRepository.findById(any())).willReturn(Optional.of(interest));
+
+        // when
+        assertThatThrownBy(()->userInterestService.unsubscribeInterest(any(), any()))
+            .isInstanceOf(SubscriberNotMatchesException.class);
+
+        // then
+        then(userInterestRepository).should(times(0)).delete(any());
+    }
+
 }
