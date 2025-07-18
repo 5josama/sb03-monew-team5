@@ -43,7 +43,7 @@ public class CommentController implements CommentApi{
             @RequestParam(required = false) String cursor,
             @RequestParam Integer limit,
             @RequestParam(required = false) Instant after,
-            @RequestParam UUID userId
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
     ) {
         log.info("댓글 조회 요청: 기사 ID={}, 요청자 ID={}, 커서={}",articleId, userId, cursor);
         Pageable pageable = PageRequest.of(0, limit+1, Sort.Direction.valueOf(direction), orderBy, "createdAt");

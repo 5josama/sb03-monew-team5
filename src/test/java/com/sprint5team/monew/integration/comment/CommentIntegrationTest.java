@@ -116,7 +116,7 @@ public class CommentIntegrationTest {
                         .param("orderBy", "createdAt")
                         .param("direction","ASC")
                         .param("limit","10")
-                        .param("userId",userId.toString()))
+                        .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
                 .andExpect(jsonPath("$.content[0].content").value("테스트 댓글 입니다.1"))

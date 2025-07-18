@@ -171,7 +171,7 @@ public class CommentControllerTest {
                         .param("limit","10")
                         .param("articleId",articleId.toString())
                         .param("cursor",cursor.toString())
-                        .param("userId",userId.toString()))
+                        .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.nextCursor").isEmpty())
