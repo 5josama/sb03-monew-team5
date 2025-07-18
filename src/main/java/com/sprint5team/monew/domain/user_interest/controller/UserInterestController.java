@@ -1,8 +1,7 @@
-package com.sprint5team.monew.domain.userinterest.controller;
+package com.sprint5team.monew.domain.user_interest.controller;
 
-import com.sprint5team.monew.domain.userinterest.dto.SubscriptionDto;
-import com.sprint5team.monew.domain.userinterest.repository.UserInterestRepository;
-import com.sprint5team.monew.domain.userinterest.service.UserInterestService;
+import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

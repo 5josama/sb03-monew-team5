@@ -1,6 +1,6 @@
-package com.sprint5team.monew.domain.userinterest.entity;
+package com.sprint5team.monew.domain.user_interest.entity;
 
-import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
+import com.sprint5team.monew.base.entity.BaseEntity;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -24,7 +24,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @Table(name = "tbl_user_interest")
-public class UserInterest extends BaseUpdatableEntity {
+public class UserInterest extends BaseEntity {
 
     @Column(name = "created_at", columnDefinition = "timestamp with time zone", nullable = false)
     @CreatedDate

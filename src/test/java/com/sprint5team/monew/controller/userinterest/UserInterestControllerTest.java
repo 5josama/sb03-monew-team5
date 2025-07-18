@@ -2,9 +2,9 @@ package com.sprint5team.monew.controller.userinterest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
-import com.sprint5team.monew.domain.userinterest.controller.UserInterestController;
-import com.sprint5team.monew.domain.userinterest.dto.SubscriptionDto;
-import com.sprint5team.monew.domain.userinterest.service.UserInterestService;
+import com.sprint5team.monew.domain.user_interest.controller.UserInterestController;
+import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

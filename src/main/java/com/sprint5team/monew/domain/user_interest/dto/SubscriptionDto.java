@@ -1,4 +1,4 @@
-package com.sprint5team.monew.domain.userinterest.dto;
+package com.sprint5team.monew.domain.user_interest.dto;
 
 import lombok.Builder;
 

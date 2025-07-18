@@ -13,7 +13,7 @@ import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.exception.NoKeywordsToUpdateException;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
-import com.sprint5team.monew.domain.userinterest.repository.UserInterestRepository;
+import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

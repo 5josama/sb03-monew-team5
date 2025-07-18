@@ -2,7 +2,7 @@ package com.sprint5team.monew.domain.interest.entity;
 
 import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.userinterest.entity.UserInterest;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -45,5 +45,9 @@ public class Interest extends BaseUpdatableEntity {
     public Interest(String name) {
         this.name = name;
         this.subscriberCount = 0;
+    }
+
+    public void subscribed() {
+        this.subscriberCount++;
     }
 }

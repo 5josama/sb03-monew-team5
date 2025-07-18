@@ -1,6 +1,6 @@
-package com.sprint5team.monew.domain.userinterest.service;
+package com.sprint5team.monew.domain.user_interest.service;
 
-import com.sprint5team.monew.domain.userinterest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 
 import java.util.UUID;
 
