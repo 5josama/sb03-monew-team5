@@ -8,8 +8,8 @@ import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
+import com.sprint5team.monew.domain.userinterest.entity.UserInterest;
+import com.sprint5team.monew.domain.userinterest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -133,7 +133,6 @@ class UserInterestRepositoryTest {
     }
 
     @Test
-
     void 사용자ID와_관심사ID를_이용해_관심사_구독중이_아닐경우_false_반환한다() throws Exception {
         // given
         UUID invalidUserId = UUID.randomUUID();
@@ -144,5 +143,22 @@ class UserInterestRepositoryTest {
 
         // then
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void 관심사ID를_이용해_관심사가_있는지_확인한다() throws Exception {
+        // given
+        Interest interest = Interest.builder()
+            .createdAt(Instant.now())
+            .name("여름에 사용할 화장품 목록")
+            .subscriberCount(5L)
+            .build();
+        interestRepository.save(interest);
+
+        // when
+        boolean result = interestRepository.existsById(interest.getId());
+
+        // then
+        assertThat(result).isTrue();
     }
 }

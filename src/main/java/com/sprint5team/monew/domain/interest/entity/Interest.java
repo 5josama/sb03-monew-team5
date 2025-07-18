@@ -2,7 +2,7 @@ package com.sprint5team.monew.domain.interest.entity;
 
 import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.userinterest.entity.UserInterest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

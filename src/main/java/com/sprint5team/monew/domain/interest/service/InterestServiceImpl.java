@@ -13,12 +13,9 @@ import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.exception.NoKeywordsToUpdateException;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
-import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
+import com.sprint5team.monew.domain.userinterest.repository.UserInterestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service

@@ -12,9 +12,9 @@ import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
-import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.userinterest.entity.UserInterest;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
-import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
+import com.sprint5team.monew.domain.userinterest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,13 +57,10 @@ public class InterestServiceTest {
     @Mock
     private UserInterestRepository userInterestRepository;
 
-
     @Mock
     private InterestMapper interestMapper;
 
-    private static final double THRESHOLD = 0.75;
     Interest interestA, interestB, interestC;
-
 
     @BeforeEach
     public void setup() {
