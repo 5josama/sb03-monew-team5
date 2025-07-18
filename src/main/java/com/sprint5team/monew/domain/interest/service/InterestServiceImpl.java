@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Transactional
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
-    private static final double THRESHOLD = 0.75;
+    private static final double THRESHOLD = 0.6;
 
     private final InterestRepository interestRepository;
 
