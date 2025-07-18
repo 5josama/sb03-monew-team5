@@ -24,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +57,9 @@ class UserInterestRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        userRepository.deleteAll();
+        interestRepository.deleteAll();
+
         globalUser = new User("user@user.com", "user1", "password");
         ReflectionTestUtils.setField(globalUser, "createdAt", Instant.now());
         userRepository.saveAndFlush(globalUser);
@@ -120,5 +124,28 @@ class UserInterestRepositoryTest {
         // then
         assertThat(userInterests).hasSize(3);
         assertThat(interestnames).contains("향수", "전자제품", "주류");
+    }
+
+    @Test
+    void 사용자ID와_관심사ID를_이용해_관심사_구독중일_경우_true를_반환한다() throws Exception {
+        // when
+        boolean result = userInterestRepository.existsByUserIdAndInterestId(globalUserInterest1.getUser().getId(), globalUserInterest1.getInterest().getId());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+
+    void 사용자ID와_관심사ID를_이용해_관심사_구독중이_아닐경우_false_반환한다() throws Exception {
+        // given
+        UUID invalidUserId = UUID.randomUUID();
+        UUID invalidInterestId = UUID.randomUUID();
+
+        // when
+        boolean result = userInterestRepository.existsByUserIdAndInterestId(invalidUserId, invalidInterestId);
+
+        // then
+        assertThat(result).isFalse();
     }
 }

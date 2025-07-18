@@ -14,11 +14,13 @@ import com.sprint5team.monew.domain.notification.repository.NotificationReposito
 import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -40,11 +42,13 @@ class NotificationIntegrationTest {
     @Autowired private ArticleRepository articleRepository;
     @Autowired private InterestRepository interestRepository;
     @Autowired private NotificationRepository notificationRepository;
+    @Autowired private EntityManager entityManager;
 
     private User user;
     private Interest interest;
     private Comment comment;
     private Article article;
+    private Notification notification3;
 
     @BeforeEach
     void setup() {
@@ -63,9 +67,27 @@ class NotificationIntegrationTest {
         comment = commentRepository.save(new Comment(article, user, "테스트 댓글"));
 
         notificationService.notifyArticleForInterest(user.getId(), interest.getId(), interest.getName(), 5);
-        notificationService.notifyArticleForInterest(user.getId(), interest2.getId(), interest2.getName(), 2);
-        notificationService.notifyArticleForInterest(user.getId(), interest3.getId(), interest3.getName(), 9);
 
+        NotificationDto notificationDto2 = notificationService.notifyArticleForInterest(
+                user.getId(), interest2.getId(), interest2.getName(), 2);
+
+        Notification notification2 = notificationRepository.findById(notificationDto2.id()).orElseThrow();
+        Instant modifiedCreatedAt2 = Instant.now().plusSeconds(120);
+        ReflectionTestUtils.setField(notification2, "createdAt", modifiedCreatedAt2);
+        notificationRepository.save(notification2);
+        entityManager.flush();
+        entityManager.clear();
+
+        NotificationDto notificationDto3 = notificationService.notifyArticleForInterest(
+                user.getId(), interest3.getId(), interest3.getName(), 9);
+
+        notification3 = notificationRepository.findById(notificationDto3.id()).orElseThrow();
+        Instant modifiedCreatedAt = Instant.now().plusSeconds(300);
+        ReflectionTestUtils.setField(notification3, "createdAt", modifiedCreatedAt);
+        notificationRepository.save(notification3);
+
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
@@ -104,16 +126,23 @@ class NotificationIntegrationTest {
         assertThat(response1.totalElements()).isEqualTo(3);
         assertThat(response1.size()).isEqualTo(2);
 
+        Instant lastCreatedAt = response1.content().get(1).createdAt();
+        assertThat(response1.nextCursor()).isEqualTo(lastCreatedAt.toString());
+        assertThat(response1.nextAfter()).isEqualTo(lastCreatedAt);
+
         // when
+        Instant after = response1.nextAfter();
         CursorPageResponseNotificationDto response2 =
                 notificationService.getAllNotifications(
-                        user.getId(), response1.nextCursor(), response1.nextAfter(), 2);
+                        user.getId(), response1.nextCursor(), after, 2);
 
         // then
         assertThat(response2.content()).hasSize(1);
         assertThat(response2.hasNext()).isFalse();
         assertThat(response2.totalElements()).isEqualTo(3);
         assertThat(response2.size()).isEqualTo(1);
+        assertThat(response2.nextCursor()).isNull();
+        assertThat(response2.nextAfter()).isNull();
     }
 
     @Test
