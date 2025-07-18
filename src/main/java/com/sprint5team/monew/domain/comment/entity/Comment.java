@@ -53,6 +53,10 @@ public class Comment extends BaseUpdatableEntity {
         this.likeCount = likeCount;
     }
 
+    public void softDelete(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
         return "Comment{" +

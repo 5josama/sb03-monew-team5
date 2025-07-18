@@ -27,7 +27,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
                 queryFactory
                         .select(comment.count())
                         .from(comment)
-                        .where(comment.article.id.eq(articleId)) //articleId가 일치하는 comment의 갯수 찾기
+                        .where(comment.article.id.eq(articleId),                // articleId가 일치하는 comment의 갯수 찾기
+                                comment.isDeleted.eq(false))              // 논리삭제된 댓글은 제외
                         .fetchOne()
         ).orElse(0L);
     }
@@ -46,7 +47,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
                 .selectFrom(comment)                                            // 조건에 만족하는 comment의 내용 모두 검색
                 .where(
                         comment.article.id.eq(articleId),                       // articleId가 같은경우 이면서
-                        buildCursorCondition(cursor, after, property, order)    // buildCursorCondition을 만족하는경우
+                        buildCursorCondition(cursor, after, property, order),   // buildCursorCondition을 만족하는경우,
+                        comment.isDeleted.eq(false)                       // 댓글이 논리삭제된 경우를 제외,
                 )
                 .orderBy(getOrderSpecifier(property, order))                    // 해당 순서로 정렬
                 .limit(pageable.getPageSize())                                  // 해당 갯수 불러오기

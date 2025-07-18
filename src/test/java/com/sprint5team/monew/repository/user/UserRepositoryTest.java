@@ -2,10 +2,11 @@ package com.sprint5team.monew.repository.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 
 import com.sprint5team.monew.base.config.QuerydslConfig;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
@@ -85,7 +86,8 @@ class UserRepositoryTest {
     createTestUser(email, "test", password);
 
     // when
-    User user = userRepository.findByEmailAndPassword(email, password);
+    User user = userRepository.findByEmailAndPassword(email, password)
+        .orElseThrow(InvalidLoginException::new);
 
     // then
     assertThat(user).isNotNull();
@@ -100,11 +102,11 @@ class UserRepositoryTest {
     String password = "test1234";
     createTestUser(email, "test", password);
 
-    // when
-    User user = userRepository.findByEmailAndPassword(email, "wrongpassword");
-
-    // then
-    assertThat(user).isNull();
+    // when and then
+    assertThrows(InvalidLoginException.class, () -> {
+      userRepository.findByEmailAndPassword(email, "wrongpassword")
+          .orElseThrow(InvalidLoginException::new);
+    });
   }
 
 }

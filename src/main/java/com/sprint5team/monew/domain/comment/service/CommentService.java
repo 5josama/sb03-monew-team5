@@ -15,4 +15,8 @@ public interface CommentService {
 
     CursorPageResponseCommentDto find(UUID articleId, String cursor, Instant after, Pageable pageable);
 
+    void softDelete(UUID commentId);
+
+    void hardDelete(UUID commentId);
+
 }

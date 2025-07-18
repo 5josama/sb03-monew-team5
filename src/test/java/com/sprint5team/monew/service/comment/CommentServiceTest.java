@@ -8,6 +8,7 @@ import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
@@ -68,8 +69,8 @@ public class CommentServiceTest {
     @BeforeEach
     void setUp() {
         commentId = UUID.randomUUID();
-        article = new Article("Naver","http://naver.com/testURL","테스트 기사","테스트 기사 내용 요약", Instant.now());
-        user = new User("test@test.com","테스트 사용자","test1234");
+        article = new Article("Naver", "http://naver.com/testURL", "테스트 기사", "테스트 기사 내용 요약", Instant.now());
+        user = new User("test@test.com", "테스트 사용자", "test1234");
         createdAt = Instant.now();
         content = "테스트 댓글";
         comment = new Comment(article, user, content);
@@ -79,7 +80,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void 댓글_생성_성공_테스트(){
+    void 댓글_생성_성공_테스트() {
         //given
         CommentRegisterRequest request = new CommentRegisterRequest(article.getId(), user.getId(), content);
         given(articleRepository.findById(article.getId())).willReturn(Optional.of(article));
@@ -99,7 +100,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void 댓글_생성_실패_존재하지않는_게시글(){
+    void 댓글_생성_실패_존재하지않는_게시글() {
         //given
         CommentRegisterRequest request = new CommentRegisterRequest(article.getId(), user.getId(), content);
         given(articleRepository.findById(article.getId())).willReturn(Optional.empty());
@@ -116,7 +117,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void 댓글_페이지네이션을_사용한_생성일자순_조회_성공(){
+    void 댓글_페이지네이션을_사용한_생성일자순_조회_성공() {
         // given
         int pageSize = 3; // 페이지 크기를 3으로 설정, 실제로는 2개의 검색만 보이게 할 것임.
         Instant createdAt = Instant.now();
@@ -127,9 +128,9 @@ public class CommentServiceTest {
         Comment comment2 = new Comment(article, user, content + "2");
         Comment comment3 = new Comment(article, user, content + "3");
 
-        comment1.update((long)1);
-        comment2.update((long)2);
-        comment3.update((long)3);
+        comment1.update((long) 1);
+        comment2.update((long) 2);
+        comment3.update((long) 3);
 
         ReflectionTestUtils.setField(comment1, "id", UUID.randomUUID());
         ReflectionTestUtils.setField(comment2, "id", UUID.randomUUID());
@@ -179,7 +180,7 @@ public class CommentServiceTest {
 
 
         // 첫 페이지 결과 세팅 (2개 메시지)
-        List<Comment> firstPageComments = List.of(comment1, comment2,comment3);
+        List<Comment> firstPageComments = List.of(comment1, comment2, comment3);
         List<CommentDto> firstPageDtos = List.of(commentDto1, commentDto2);
 
         // 첫 페이지는 다음 페이지가 있고, 커서는 comment2의 생성 시간이어야 함
@@ -187,20 +188,20 @@ public class CommentServiceTest {
                 firstPageDtos,
                 message3CreatedAt.toString(),
                 message3CreatedAt,
-                pageSize-1,
+                pageSize - 1,
                 3L,
                 true
         );
 
         given(commentRepository.countTotalElements(any()))
                 .willReturn(3L);
-        given(commentRepository.findCommentsWithCursor(eq(article.getId()),eq(createdAt.toString()),eq(createdAt),any(Pageable.class)))
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(createdAt.toString()), eq(createdAt), any(Pageable.class)))
                 .willReturn(firstPageComments);
         given(commentMapper.toDto(eq(comment1))).willReturn(commentDto1);
         given(commentMapper.toDto(eq(comment2))).willReturn(commentDto2);
 
         // when
-        CursorPageResponseCommentDto result = commentService.find(article.getId(),createdAt.toString(),createdAt,pageable);
+        CursorPageResponseCommentDto result = commentService.find(article.getId(), createdAt.toString(), createdAt, pageable);
 
         // then
         assertThat(result).isEqualTo(firstPageResponse);
@@ -216,7 +217,7 @@ public class CommentServiceTest {
                 secondPageDtos,
                 null,
                 null,
-                pageSize-1,
+                pageSize - 1,
                 3L,
                 false
         );
@@ -225,7 +226,7 @@ public class CommentServiceTest {
         // 두 번째 페이지 모의 객체 설정
         given(commentRepository.countTotalElements(eq(article.getId())))
                 .willReturn(3L);
-        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()),eq(firstPageResponse.nextAfter()), any(Pageable.class)))
+        given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()), eq(firstPageResponse.nextAfter()), any(Pageable.class)))
                 .willReturn(secondPageMessages);
         given(commentMapper.toDto(eq(comment3))).willReturn(commentDto3);
 
@@ -239,6 +240,56 @@ public class CommentServiceTest {
 
     }
 
+    @Test
+    void 댓글_논리_삭제_성공() {
+        //given
+        comment.softDelete(true);
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+
+        //when
+        commentService.softDelete(commentId);
+
+        //then
+        verify(commentRepository).findById(eq(commentId));
+        verify(commentRepository).save(any(Comment.class));
+
+    }
+
+    @Test
+    void 댓글_논리_삭제_실패_존재하지않는_댓글ID() {
+        //given
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
+
+        //when && then
+        assertThatThrownBy(() -> commentService.softDelete(commentId))
+                .isInstanceOf(CommentNotFoundException.class);
+    }
+
+    @Test
+    void 댓글_물리_삭제_성공(){
+        //given
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+
+        //when
+        commentService.hardDelete(commentId);
+
+        //then
+        verify(commentRepository).findById(eq(commentId));
+        verify(commentRepository).deleteById(eq(commentId));
+    }
+
+
+    @Test
+    void 댓글_물리_삭제_실패_존재하지않는_댓글_ID(){
+        //given
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
+
+        //when && then
+        assertThatThrownBy(() -> commentService.hardDelete(commentId))
+                .isInstanceOf(CommentNotFoundException.class);
+
+    }
 
 
 }

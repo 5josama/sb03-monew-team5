@@ -8,9 +8,11 @@ import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +47,8 @@ public class CommentServiceImpl implements CommentService{
         Article article = articleRepository.findById(request.articleId()) // Article이 없을경우 예외발생
                 .orElseThrow(ArticleNotFoundException::new);
 
-        //TODO UserNotFound 예외 리팩토링시 수정예정
         User user = userRepository.findById(request.userId())   // User가 없을경우 예외발생
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(UserNotFoundException::new);
 
         Comment comment = new Comment(article, user, request.content());
         Comment createdComment = commentRepository.save(comment);
@@ -107,6 +108,27 @@ public class CommentServiceImpl implements CommentService{
                 totalElements,
                 hasNext
         );
+    }
+
+    /**
+     * 댓글 논리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void softDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        comment.softDelete(true);                                                                               // 논리 삭제됨
+        commentRepository.save(comment);                                                                              // 변경사항 저장
+    }
+
+    /**
+     * 댓글 물리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void hardDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        commentRepository.deleteById(commentId);
     }
 
     /**

@@ -25,8 +25,8 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -181,6 +181,28 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(false));
 
 
+    }
+
+    @Test
+    void 댓글_논리_삭제_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        willDoNothing().given(commentService).softDelete(eq(commentId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}", commentId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 댓글_물리_삭제_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        willDoNothing().given(commentService).hardDelete(eq(commentId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/hard", commentId))
+                .andExpect(status().isNoContent());
     }
 
 
