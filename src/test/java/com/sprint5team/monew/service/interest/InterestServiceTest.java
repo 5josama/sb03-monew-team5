@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,13 +57,10 @@ public class InterestServiceTest {
     @Mock
     private UserInterestRepository userInterestRepository;
 
-
     @Mock
     private InterestMapper interestMapper;
 
-    private static final double THRESHOLD = 0.75;
     Interest interestA, interestB, interestC;
-
 
     @BeforeEach
     public void setup() {

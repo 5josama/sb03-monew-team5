@@ -24,7 +24,7 @@ import java.util.UUID;
  * Date         : 2025. 7. 11.
  */
 @RequiredArgsConstructor
-@Controller
+@RestController
 @Validated
 @RequestMapping("api/interests")
 public class InterestController {

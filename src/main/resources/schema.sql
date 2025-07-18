@@ -145,7 +145,6 @@ CREATE TABLE IF NOT EXISTS tbl_user_interest
     user_id     UUID        NOT NULL,
     interest_id UUID        NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL,
-    updated_at  TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT fk_interest FOREIGN KEY (interest_id) REFERENCES tbl_interest (id) ON DELETE CASCADE,
     CONSTRAINT uq_user_interest UNIQUE (user_id, interest_id)
