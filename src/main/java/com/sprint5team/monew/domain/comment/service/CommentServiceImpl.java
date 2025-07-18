@@ -74,7 +74,12 @@ public class CommentServiceImpl implements CommentService{
         Long totalElements = commentRepository.countTotalElements(articleId);
 
         //커서게산을 위한 lastIndex 검색 로직 (페이징할때 원하는 사이즈보다 1 더 큰 사이즈를 가져와서 마지막인덱스를 커서로 사용하기 위함)
-        Comment lastIndex = commentList.get(commentList.size() - 1);
+        Comment lastIndex = null;
+
+        if(!commentList.isEmpty()) {
+            lastIndex = commentList.get(commentList.size() - 1);
+        }
+
         String nextCursor = null;
         Instant afterCursor = null;
 
