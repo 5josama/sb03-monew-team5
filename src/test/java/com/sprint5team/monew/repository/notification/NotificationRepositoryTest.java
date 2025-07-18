@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -146,26 +147,23 @@ class NotificationRepositoryTest {
     @Test
     void 확인된_알림이_1주일_경과시_삭제_성공() {
         // given
-        User user = userRepository.save(new User("testuser", "test@abc.com", "1234"));
-
         Notification notification = Notification.builder()
-                .user(user)
+                .user(testUser)
                 .content("알림 입니다.")
                 .confirmed(true)
                 .resourceType(ResourceType.COMMENT)
-                .createdAt(Instant.now().minus(12, ChronoUnit.DAYS))
+                .createdAt(Instant.now())
                 .build();
-
         notificationRepository.save(notification);
+        ReflectionTestUtils.setField(notification, "createdAt", Instant.now().minus(12, ChronoUnit.DAYS));
 
         // when
         notificationRepository.deleteByConfirmedIsTrueAndCreatedAtBefore(
-                Instant.now().minus(7, ChronoUnit.DAYS)
-        );
+                Instant.now().minus(7, ChronoUnit.DAYS));
 
         // then
         List<Notification> all = notificationRepository.findAll();
-        assertThat(all).isEmpty();
+        assertThat(all).hasSize(5);
     }
 
 }

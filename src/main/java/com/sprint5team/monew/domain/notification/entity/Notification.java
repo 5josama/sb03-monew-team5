@@ -26,7 +26,7 @@ public class Notification extends BaseUpdatableEntity {
     private String content;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @Column(name = "confirmed", nullable = false)
