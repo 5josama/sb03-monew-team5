@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
@@ -279,7 +280,6 @@ public class CommentServiceTest {
         verify(commentRepository).deleteById(eq(commentId));
     }
 
-
     @Test
     void 댓글_물리_삭제_실패_존재하지않는_댓글_ID(){
         //given
@@ -289,6 +289,37 @@ public class CommentServiceTest {
         assertThatThrownBy(() -> commentService.hardDelete(commentId))
                 .isInstanceOf(CommentNotFoundException.class);
 
+    }
+
+    @Test
+    void 댓글_수정_성공(){
+        //given
+        CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글");
+        CommentDto updatedComment = new CommentDto(commentId,article.getId(),user.getId(),user.getNickname(),"수정된 댓글",0L,false,createdAt);
+
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+        given(commentMapper.toDto(any(Comment.class))).willReturn(updatedComment);
+
+        //when
+        CommentDto result = commentService.update(commentId,request);
+
+        //then
+        verify(commentRepository).save(any(Comment.class));
+        assertThat(result.content()).isEqualTo("수정된 댓글");
+    }
+
+    @Test
+    void 댓글_수정_실패_존재하지않는_댓글_ID(){
+        //given
+        CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글");
+        CommentDto updatedComment = new CommentDto(commentId,article.getId(),user.getId(),user.getNickname(),"수정된 댓글",0L,false,createdAt);
+
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
+
+        //when && then
+        assertThatThrownBy(() -> commentService.update(commentId,request))
+                .isInstanceOf(CommentNotFoundException.class);
     }
 
 

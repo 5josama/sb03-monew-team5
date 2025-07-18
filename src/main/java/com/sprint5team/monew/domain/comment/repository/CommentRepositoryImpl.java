@@ -74,9 +74,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
                 if(after == null) return null;
 
                 if(order.equals(Order.ASC)){
-                    return comment.createdAt.gt(after);
+                    return comment.createdAt.goe(after);
                 } else{
-                    return comment.createdAt.lt(after);
+                    return comment.createdAt.loe(after);
                 }
 
 
@@ -84,16 +84,16 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
                 if (cursor == null) return null;
 
                 if(order.equals(Order.ASC)){
-                    return comment.likeCount.gt(Long.valueOf(cursor));
+                    return comment.likeCount.goe(Long.valueOf(cursor));
                 } else{
-                    return comment.likeCount.lt(Long.valueOf(cursor));
+                    return comment.likeCount.loe(Long.valueOf(cursor));
                 }
 
             default:
                 if(order.equals(Order.ASC)){
-                    return comment.createdAt.gt(after);
+                    return comment.createdAt.goe(after);
                 } else{
-                    return comment.createdAt.lt(after);
+                    return comment.createdAt.loe(after);
                 }
         }
     }
