@@ -171,7 +171,7 @@ public class CommentControllerTest {
                         .param("limit","10")
                         .param("articleId",articleId.toString())
                         .param("cursor",cursor.toString())
-                        .param("userId",userId.toString()))
+                        .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.nextCursor").isEmpty())
@@ -191,6 +191,17 @@ public class CommentControllerTest {
 
         //when && then
         mockMvc.perform(delete("/api/comments/{commentId}", commentId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 댓글_물리_삭제_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        willDoNothing().given(commentService).hardDelete(eq(commentId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/hard", commentId))
                 .andExpect(status().isNoContent());
     }
 

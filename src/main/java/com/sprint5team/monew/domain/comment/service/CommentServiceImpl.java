@@ -74,7 +74,12 @@ public class CommentServiceImpl implements CommentService{
         Long totalElements = commentRepository.countTotalElements(articleId);
 
         //커서게산을 위한 lastIndex 검색 로직 (페이징할때 원하는 사이즈보다 1 더 큰 사이즈를 가져와서 마지막인덱스를 커서로 사용하기 위함)
-        Comment lastIndex = commentList.get(commentList.size() - 1);
+        Comment lastIndex = null;
+
+        if(!commentList.isEmpty()) {
+            lastIndex = commentList.get(commentList.size() - 1);
+        }
+
         String nextCursor = null;
         Instant afterCursor = null;
 
@@ -117,8 +122,18 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public void softDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
-        comment.update(true);                                                                               // 논리 삭제됨
+        comment.softDelete(true);                                                                               // 논리 삭제됨
         commentRepository.save(comment);                                                                              // 변경사항 저장
+    }
+
+    /**
+     * 댓글 물리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void hardDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        commentRepository.deleteById(commentId);
     }
 
     /**
