@@ -117,8 +117,18 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public void softDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
-        comment.update(true);                                                                               // 논리 삭제됨
+        comment.softDelete(true);                                                                               // 논리 삭제됨
         commentRepository.save(comment);                                                                              // 변경사항 저장
+    }
+
+    /**
+     * 댓글 물리 삭제 메서드
+     * @param commentId 삭제하길 원하는 댓글 ID
+     */
+    @Override
+    public void hardDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        commentRepository.deleteById(commentId);
     }
 
     /**

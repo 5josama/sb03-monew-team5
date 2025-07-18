@@ -194,5 +194,16 @@ public class CommentControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void 댓글_물리_삭제_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        willDoNothing().given(commentService).hardDelete(eq(commentId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/hard", commentId))
+                .andExpect(status().isNoContent());
+    }
+
 
 }

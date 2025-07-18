@@ -154,6 +154,33 @@ public class CommentIntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void 댓글_물리_삭제시_DB에서_지워져야_한다() throws Exception {
+        //Given
+        UUID userId = UUID.randomUUID();
+        String content = "테스트 댓글 입니다.";
+
+        User user = new User("test@naver.com", "testname", "password1234");
+        User createdUser = userRepository.save(user);
+
+        Article article = new Article("Naver", "http://naver.com", "테스트 뉴스제목", "뉴스요약", Instant.now());
+        Article createdArticle = articleRepository.save(article);
+
+        CommentRegisterRequest request1 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'1');
+        CommentRegisterRequest request2 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'2');
+        CommentRegisterRequest request3 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'3');
+
+        CommentDto commentDto1 = commentService.create(request1);
+        CommentDto commentDto2 = commentService.create(request2);
+        CommentDto commentDto3 = commentService.create(request3);
+
+        List<CommentDto> commentDtos = Arrays.asList(commentDto1, commentDto2, commentDto3);
+
+        //When && Then
+        mockMvc.perform(delete("/api/comments/{commentId}/hard",commentDto1.id()))
+                .andExpect(status().isNoContent());
+    }
+
 
 
 }
