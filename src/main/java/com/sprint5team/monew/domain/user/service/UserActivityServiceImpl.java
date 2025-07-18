@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserActivityServiceImpl {
+public class UserActivityServiceImpl implements UserActivityService{
 
   private final UserRepository userRepository;
   private final UserInterestRepository userInterestRepository;
@@ -44,6 +44,7 @@ public class UserActivityServiceImpl {
   private final LikeRepository likeRepository;
   private final CommentMapper commentMapper;
 
+  @Override
   public UserActivityDto getUserActivity(UUID userId) {
     User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     Set<UserInterest> userInterest = userInterestRepository.findByUserId(userId);

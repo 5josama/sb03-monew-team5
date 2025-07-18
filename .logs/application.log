@@ -1,0 +1,202 @@
+25-07-18 10:36:01.327 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:36:01.353 [restartedMain] [32mINFO [0;39m c.sprint5team.monew.MonewApplication [ |  |  | ] - Starting MonewApplication using Java 17.0.15 with PID 79055 (/Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5/build/classes/java/main started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:36:01.354 [restartedMain] [32mINFO [0;39m c.sprint5team.monew.MonewApplication [ |  |  | ] - The following 1 profile is active: "dev"
+25-07-18 10:36:01.377 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor [ |  |  | ] - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+25-07-18 10:36:01.378 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor [ |  |  | ] - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+25-07-18 10:36:01.749 [restartedMain] [32mINFO [0;39m o.s.b.c.c.annotation.BatchRegistrar  [ |  |  | ] - Finished Spring Batch infrastructure beans configuration in 2 ms.
+25-07-18 10:36:01.996 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:36:02.038 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 36 ms. Found 9 JPA repository interfaces.
+25-07-18 10:36:02.385 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  |  | ] - Tomcat initialized with port 8080 (http)
+25-07-18 10:36:02.404 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-07-18 10:36:02.406 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  |  | ] - Starting service [Tomcat]
+25-07-18 10:36:02.407 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.42]
+25-07-18 10:36:02.452 [restartedMain] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  |  | ] - Initializing Spring embedded WebApplicationContext
+25-07-18 10:36:02.453 [restartedMain] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  |  | ] - Root WebApplicationContext: initialization completed in 1075 ms
+25-07-18 10:36:02.551 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  |  | ] - HikariPool-1 - Starting...
+25-07-18 10:36:02.603 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4ec11ada
+25-07-18 10:36:02.604 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  |  | ] - HikariPool-1 - Start completed.
+25-07-18 10:36:02.649 [restartedMain] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:36:02.678 [restartedMain] [32mINFO [0;39m org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:36:02.693 [restartedMain] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:36:02.829 [restartedMain] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:36:02.881 [restartedMain] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:36:03.350 [restartedMain] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:36:03.679 [restartedMain] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:36:03.829 [restartedMain] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:36:04.331 [restartedMain] [32mINFO [0;39m o.s.b.c.r.s.JobRepositoryFactoryBean [ |  |  | ] - No database type set, using meta data indicating: POSTGRES
+25-07-18 10:36:04.338 [restartedMain] [32mINFO [0;39m o.s.b.c.l.s.TaskExecutorJobLauncher  [ |  |  | ] - No TaskExecutor has been set, defaulting to synchronous executor.
+25-07-18 10:36:04.620 [restartedMain] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration [ |  |  | ] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-07-18 10:36:04.636 [restartedMain] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  |  | ] - Adding welcome page: class path resource [static/index.html]
+25-07-18 10:36:05.067 [restartedMain] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration [ |  |  | ] - H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://localhost:5432/monew'
+25-07-18 10:36:05.103 [restartedMain] [32mINFO [0;39m o.s.b.d.a.OptionalLiveReloadServer   [ |  |  | ] - LiveReload server is running on port 35729
+25-07-18 10:36:05.108 [restartedMain] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  [ |  |  | ] - Exposing 14 endpoints beneath base path '/actuator'
+25-07-18 10:36:05.165 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+25-07-18 10:36:05.180 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  |  | ] - Tomcat started on port 8080 (http) with context path '/'
+25-07-18 10:36:05.199 [restartedMain] [32mINFO [0;39m c.sprint5team.monew.MonewApplication [ |  |  | ] - Started MonewApplication in 4.075 seconds (process running for 4.497)
+25-07-18 10:36:05.630 [RMI TCP Connection(3)-127.0.0.1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-07-18 10:36:05.630 [RMI TCP Connection(3)-127.0.0.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  |  | ] - Initializing Servlet 'dispatcherServlet'
+25-07-18 10:36:05.631 [RMI TCP Connection(3)-127.0.0.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  |  | ] - Completed initialization in 1 ms
+25-07-18 10:36:06.748 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:36:06.779 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79071 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:36:06.779 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:36:07.051 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:36:07.104 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 48 ms. Found 9 JPA repository interfaces.
+25-07-18 10:36:07.139 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:36:07.228 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:4d9a3ead-f613-4843-bf2c-184a718cc2e8;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:36:07.384 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:36:07.409 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:36:07.422 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:36:07.526 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:36:07.547 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:36:07.558 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@ce19c86']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:36:08.054 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:36:08.056 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:36:08.212 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:36:08.580 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 2.044 seconds (process running for 2.732)
+25-07-18 10:36:09.027 [Test worker] WARN  o.h.e.jdbc.spi.SqlExceptionHelper    [ |  |  | ] - SQL Error: 23502, SQLState: 23502
+25-07-18 10:36:09.027 [Test worker] ERROR o.h.e.jdbc.spi.SqlExceptionHelper    [ |  |  | ] - NULL not allowed for column "IS_DELETED"; SQL statement:
+insert into tbl_user (created_at,email,is_deleted,nickname,password,id) values (?,?,?,?,?,?) [23502-232]
+25-07-18 10:36:09.056 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:36:36.506 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:36:36.534 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79086 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:36:36.535 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:36:36.831 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:36:36.884 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 47 ms. Found 9 JPA repository interfaces.
+25-07-18 10:36:36.918 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:36:37.015 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:2b6d5c5b-de5e-4142-8506-9577f130ff90;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:36:37.175 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:36:37.210 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:36:37.229 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:36:37.352 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:36:37.376 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:36:37.388 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@74b7497b']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:36:37.976 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:36:37.978 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:36:38.220 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:36:38.528 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 2.269 seconds (process running for 3.16)
+25-07-18 10:37:29.423 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:37:29.450 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79117 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:37:29.451 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:37:29.703 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:37:29.757 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 48 ms. Found 9 JPA repository interfaces.
+25-07-18 10:37:29.791 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:37:29.866 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:852d7ccd-1fa9-4a73-9470-3ecdcd644fcd;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:37:30.024 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:37:30.054 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:37:30.071 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:37:30.193 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:37:30.217 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:37:30.226 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@6c1b82cd']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:37:30.731 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:37:30.732 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:37:30.883 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:37:31.280 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 2.062 seconds (process running for 2.635)
+25-07-18 10:37:31.616 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:38:17.473 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:38:17.500 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79150 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:38:17.502 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:38:17.778 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:38:17.844 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 59 ms. Found 9 JPA repository interfaces.
+25-07-18 10:38:17.884 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:38:17.959 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:b5cd9f29-a6bd-4f5d-8c5f-2e55f46962c9;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:38:18.110 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:38:18.136 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:38:18.151 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:38:18.260 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:38:18.282 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:38:18.290 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@acd3460']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:38:18.752 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:38:18.753 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:38:18.932 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:38:19.245 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 1.967 seconds (process running for 2.546)
+25-07-18 10:38:19.580 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:17.166 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:41:17.198 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79230 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:41:17.199 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:41:17.459 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:41:17.516 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 50 ms. Found 9 JPA repository interfaces.
+25-07-18 10:41:17.552 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:41:17.635 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:4dc35c5c-219a-4b40-86c9-b0447060542b;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:41:17.793 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:41:17.821 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:41:17.838 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:41:17.954 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:41:17.978 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:41:17.986 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@6c1b82cd']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:41:18.503 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:41:18.505 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:18.680 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:41:19.046 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 2.13 seconds (process running for 2.704)
+25-07-18 10:41:19.399 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:23.204 [background-preinit] INFO  o.h.validator.internal.util.Version  [ |  |  | ] - HV000001: Hibernate Validator 8.0.2.Final
+25-07-18 10:41:23.229 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Starting UserRepositoryTest using Java 17.0.15 with PID 79246 (started by jinsolpark in /Users/jinsolpark/myWorkSpace/99-MY/second-project/sb03-monew-team5)
+25-07-18 10:41:23.230 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - The following 1 profile is active: "test"
+25-07-18 10:41:23.469 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-07-18 10:41:23.520 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  |  | ] - Finished Spring Data repository scanning in 46 ms. Found 9 JPA repository interfaces.
+25-07-18 10:41:23.552 [Test worker] INFO  o.s.b.t.a.j.TestDatabaseAutoConfiguration$EmbeddedDataSourceBeanFactoryPostProcessor [ |  |  | ] - Replacing 'dataSource' DataSource bean with embedded version
+25-07-18 10:41:23.622 [Test worker] INFO  o.s.j.d.e.EmbeddedDatabaseFactory    [ |  |  | ] - Starting embedded database: url='jdbc:h2:mem:ee572c4b-ee37-4f4f-ac7f-c8e458016c8e;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+25-07-18 10:41:23.781 [Test worker] INFO  o.h.jpa.internal.util.LogHelper      [ |  |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-07-18 10:41:23.803 [Test worker] INFO  org.hibernate.Version                [ |  |  | ] - HHH000412: Hibernate ORM core version 6.6.18.Final
+25-07-18 10:41:23.817 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator       [ |  |  | ] - HHH000026: Second-level cache disabled
+25-07-18 10:41:23.927 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo  [ |  |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-07-18 10:41:23.956 [Test worker] WARN  org.hibernate.orm.deprecation        [ |  |  | ] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-07-18 10:41:23.966 [Test worker] INFO  o.hibernate.orm.connections.pooling  [ |  |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@6c1b82cd']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-07-18 10:41:24.442 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-07-18 10:41:24.444 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:24.600 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-07-18 10:41:24.927 [Test worker] INFO  c.s.m.r.user.UserRepositoryTest      [ |  |  | ] - Started UserRepositoryTest in 1.919 seconds (process running for 2.468)
+25-07-18 10:41:25.310 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:28.839 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+25-07-18 10:41:28.849 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  |  | ] - Graceful shutdown complete
+25-07-18 10:41:28.857 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-07-18 10:41:28.860 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  |  | ] - HikariPool-1 - Shutdown initiated...
+25-07-18 10:41:28.862 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  |  | ] - HikariPool-1 - Shutdown completed.
