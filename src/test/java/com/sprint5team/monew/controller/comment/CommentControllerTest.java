@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.comment.controller.CommentController;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.service.CommentService;
 import org.junit.jupiter.api.DisplayName;
@@ -210,12 +211,14 @@ public class CommentControllerTest {
         //given
         UUID commentId = UUID.randomUUID();
         CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글 입니다.");
-        CommentDto commentDto = new CommentDto(commentId,UUID.randomUUID(),UUID.randomUUID(),"name","수정전 댓글 입니다.",0L,false,Instant.now());
+        CommentDto commentDto = new CommentDto(commentId,UUID.randomUUID(),UUID.randomUUID(),"name","수정된 댓글 입니다.",0L,false,Instant.now());
         given(commentService.update(commentId,request)).willReturn(commentDto);
 
         //when && then
         mockMvc.perform(patch("/api/comments/{commentId}", commentId)
-                        .param("content","수정된 댓글 입니다."))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("MoNew-Request-User-ID", UUID.randomUUID().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value("수정된 댓글 입니다."));
     }
