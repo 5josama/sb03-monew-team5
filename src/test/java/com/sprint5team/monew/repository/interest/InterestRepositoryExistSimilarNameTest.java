@@ -54,7 +54,7 @@ public class InterestRepositoryExistSimilarNameTest {
 
     private Interest interestA, interestB, interestC;
     private final Instant baseTime = Instant.parse("2025-07-14T00:00:00Z");
-    private double threshold = 0.75;
+    private double threshold = 0.6;
 
 
     @BeforeEach
