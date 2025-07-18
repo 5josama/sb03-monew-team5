@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
@@ -113,6 +114,14 @@ public class CommentServiceImpl implements CommentService{
                 totalElements,
                 hasNext
         );
+    }
+
+    @Override
+    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        comment.update(request.content());
+        commentRepository.save(comment);
+        return commentMapper.toDto(comment);
     }
 
     /**
