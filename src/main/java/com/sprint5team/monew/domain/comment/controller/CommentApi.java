@@ -2,12 +2,14 @@ package com.sprint5team.monew.domain.comment.controller;
 
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,5 +75,22 @@ public interface CommentApi {
     ResponseEntity<Void> hardDelete(
             @Parameter(required = true,description = "댓글 ID") UUID commentId
     );
+
+    @Operation(summary = "댓글 정보 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",description = "수정 성공",
+            content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "400",description = "잘못된 요청 (입력값 검증 실패)",
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "404",description = "댓글 정보 없음",
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "500",description = "서버 내부 오류",
+                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
+    })
+    ResponseEntity<CommentDto> update(
+            @Parameter(required = true, description = "댓글 ID") UUID commentId,
+            @Parameter(required = true,description = "요청자 ID") UUID userId,
+            @RequestBody(required = true,description = "수정할 댓글 정보")CommentUpdateRequest request
+            );
 
 }
