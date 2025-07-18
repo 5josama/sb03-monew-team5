@@ -2,15 +2,14 @@ package com.sprint5team.monew.integration.userinterest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.interest.entity.Interest;
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
@@ -21,8 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -127,7 +124,7 @@ public class UserInterestIntegrationTest {
 
         // when n then
         assertThatThrownBy(() -> userInterestService.registerSubscription(invalidUserId, globalUser.getId()))
-            .isInstanceOf(InterestNotExistException.class)
+            .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }
 

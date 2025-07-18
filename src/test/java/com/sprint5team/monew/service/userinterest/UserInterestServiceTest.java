@@ -1,22 +1,20 @@
 package com.sprint5team.monew.service.userinterest;
 
 import com.sprint5team.monew.domain.interest.entity.Interest;
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
-import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapperTemp;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -127,7 +125,7 @@ public class UserInterestServiceTest {
 
         // when
         assertThatThrownBy(() -> userInterestService.registerSubscription(interest.getId(), user.getId()))
-            .isInstanceOf(InterestNotExistException.class);
+            .isInstanceOf(InterestNotExistsException.class);
 
         // then
         then(userRepository).should(times(1)).findById(any());

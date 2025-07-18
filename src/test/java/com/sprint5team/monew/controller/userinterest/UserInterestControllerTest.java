@@ -1,9 +1,11 @@
 package com.sprint5team.monew.controller.userinterest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user_interest.controller.UserInterestController;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,7 +82,7 @@ public class UserInterestControllerTest {
         UUID userId = UUID.randomUUID();
 
         given(userInterestService.registerSubscription(interestId, userId))
-            .willThrow(InterestNotExistException.class);
+            .willThrow(InterestNotExistsException.class);
 
         // when
         MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
@@ -90,6 +94,85 @@ public class UserInterestControllerTest {
 
         Exception exception = result.getResolvedException();
 
-        assertThat(exception).isInstanceOf(InterestNotExistException.class);
+        assertThat(exception).isInstanceOf(InterestNotExistsException.class);
+    }
+
+    // TODO 구독 취소
+    @Test
+    void 요청자의_구독_취소_요청이_정상적으로_동작한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        /// when n then
+        mockMvc.perform(delete("/api/interests/{interestId}", interestId)
+                .header("Monew-Request-User-ID", userId))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void 요청자가_구독중이_아닐때_취소_요청시_UserInterestAlreadyExistsException_409_를_반환한다() throws Exception {
+        UUID interestId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        willThrow(UserInterestAlreadyExistsException.class)
+            .given(userInterestService)
+            .unfollowInterest(interestId, userId);
+
+        // when
+        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(jsonPath("$.details").value("사용자는 이미 관심사를 구독중입니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(UserInterestAlreadyExistsException.class);
+    }
+
+    @Test
+    void 요청자가_없을경우_UserNotFoundException_404_를_반환한다() throws Exception {
+        UUID interestId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        willThrow(UserNotFoundException.class)
+            .given(userInterestService)
+            .unfollowInterest(interestId, userId);
+
+        // when
+        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.details").value("존재하지 않는 사용자입니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void 관심사가_없을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
+        UUID interestId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        willThrow(InterestNotExistsException.class)
+            .given(userInterestService)
+            .unfollowInterest(interestId, userId);
+
+        // when
+        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(InterestNotExistsException.class);
     }
 }
