@@ -24,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,7 +52,6 @@ public class InterestRepositoryTest {
 
     private Interest interestA, interestB, interestC;
     private final Instant baseTime = Instant.parse("2025-07-14T00:00:00Z");
-    private double threshold = 0.8;
 
     @Autowired
     private UserRepository userRepository;
@@ -200,7 +200,6 @@ public class InterestRepositoryTest {
             .interest(interest)
             .createdAt(baseTime)
             .build();
-        ReflectionTestUtils.setField(userInterest, "updatedAt", baseTime);
         interest.getUserInterests().add(userInterest);
         userInterestRepository.save(userInterest);
 
@@ -227,5 +226,18 @@ public class InterestRepositoryTest {
 
         // then
         assertThat(interestRepository.count()).isEqualTo(2L);
+    }
+
+    @Test
+    void 과심사_아이디로_관심사를_찾는다() throws Exception {
+        // given
+        Interest interest = new Interest("name");
+        interestRepository.save(interest);
+
+        // when
+        Optional<Interest> interestResult = interestRepository.findById(interest.getId());
+
+        // then
+        assertThat(interestResult).isEqualTo(Optional.of(interest));
     }
 }

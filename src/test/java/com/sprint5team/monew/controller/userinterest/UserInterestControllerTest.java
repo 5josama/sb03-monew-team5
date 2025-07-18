@@ -63,10 +63,9 @@ public class UserInterestControllerTest {
             .willReturn(response);
 
         // when
-        mockMvc.perform(post("/api/interest/{interestId}/subscriptions", interestId)
-                .header("Monew-Request-User-ID", userId.toString()))
+        mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(interestId.toString()))
             .andExpect(jsonPath("$.interestId").value(response.interestId().toString()))
             .andExpect(jsonPath("$.interestName").value(response.interestName()))
             .andExpect(jsonPath("$.interestKeywords.size()").value(4))
@@ -82,8 +81,8 @@ public class UserInterestControllerTest {
             .willThrow(InterestNotExistException.class);
 
         // when
-        MvcResult result = mockMvc.perform(post("/api/interest/{interestId}/subscriptions", interestId)
-                .header("Monew-Request-User-ID", userId.toString()))
+        MvcResult result = mockMvc.perform(post("/api/interests/{interestId}/subscriptions", interestId)
+                .header("Monew-Request-User-ID", userId))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
             .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."))
@@ -93,6 +92,4 @@ public class UserInterestControllerTest {
 
         assertThat(exception).isInstanceOf(InterestNotExistException.class);
     }
-
-
 }

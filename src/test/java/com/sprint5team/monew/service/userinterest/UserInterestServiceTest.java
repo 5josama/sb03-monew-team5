@@ -8,6 +8,8 @@ import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapperTemp;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestServiceImpl;
@@ -53,7 +55,7 @@ public class UserInterestServiceTest {
     private UserInterestRepository userInterestRepository;
 
     @Mock
-    private UserInterestMapperTemp userInterestMapper;
+    private UserInterestMapper userInterestMapper;
 
     @Test
     void 구독중이_아닐경우_구독이_가능하다() throws Exception {
@@ -68,7 +70,7 @@ public class UserInterestServiceTest {
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
         given(userInterestRepository.existsByUserIdAndInterestId(user.getId(), interest.getId())).willReturn(false);
-        given(userInterestMapper.toDto(any(),any())).willReturn(subscriptionDto);
+        given(userInterestMapper.toDto(any(UserInterest.class))).willReturn(subscriptionDto);
 
         // when
         SubscriptionDto result = userInterestService.registerSubscription(interest.getId(), user.getId());
@@ -128,7 +130,7 @@ public class UserInterestServiceTest {
             .isInstanceOf(InterestNotExistException.class);
 
         // then
-        then(userRepository).should(times(1)).existsById(any());
+        then(userRepository).should(times(1)).findById(any());
         then(userInterestRepository).should(times(0)).save(any());
         then(userInterestRepository).shouldHaveNoInteractions();
     }
@@ -150,14 +152,11 @@ public class UserInterestServiceTest {
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
         given(userInterestRepository.existsByUserIdAndInterestId(user.getId(), interest.getId())).willReturn(false);
-        given(userInterestMapper.toDto(any(),any())).willReturn(subscriptionDto);
+        given(userInterestMapper.toDto(any())).willReturn(subscriptionDto);
 
         // when
         SubscriptionDto result = userInterestService.registerSubscription(interest.getId(), user.getId());
-        ArgumentCaptor<Interest> interestCaptor = ArgumentCaptor.forClass(Interest.class);
 
-        verify(userInterestMapper).toDto(any(), interestCaptor.capture());
-        System.out.println(interestCaptor.getValue().getSubscriberCount());
         // then
         assertThat(result.interestId()).isEqualTo(interest.getId());
         assertThat(result.interestSubscriberCount()).isEqualTo(1);

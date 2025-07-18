@@ -73,7 +73,6 @@ class UserInterestRepositoryTest {
             .interest(interest1)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest1, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest1);
 
         Interest interest2 = Interest.builder()
@@ -89,7 +88,6 @@ class UserInterestRepositoryTest {
             .interest(interest2)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest2, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest2);
 
         interest3 = Interest.builder()
@@ -105,7 +103,6 @@ class UserInterestRepositoryTest {
             .interest(interest3)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest3, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest3);
     }
 

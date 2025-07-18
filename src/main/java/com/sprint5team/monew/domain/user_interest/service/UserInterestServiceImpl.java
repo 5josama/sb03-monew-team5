@@ -9,6 +9,7 @@ import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.UserInterestAlreadyExistsException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapperTemp;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class UserInterestServiceImpl implements UserInterestService {
 
     private final InterestRepository interestRepository;
 
-    private final UserInterestMapperTemp userInterestMapper;
+    private final UserInterestMapper userInterestMapper;
 
     @Override
     public SubscriptionDto registerSubscription(UUID interestId, UUID userId) {
@@ -61,6 +62,6 @@ public class UserInterestServiceImpl implements UserInterestService {
         log.info("5. 관심사 구독자 수 증가");
         interest.subscribed();
 
-        return userInterestMapper.toDto(userInterest.getId(), interest);
+        return userInterestMapper.toDto(userInterest);
     }
 }
