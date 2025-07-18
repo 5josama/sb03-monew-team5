@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @Import({QuerydslConfig.class})
-@DisplayName("user interest Repository 슬라이스 테스트")
+@DisplayName("User Interest Repository 슬라이스 테스트")
 class UserInterestRepositoryTest {
     @Autowired
     private InterestRepository interestRepository;
@@ -72,6 +72,7 @@ class UserInterestRepositoryTest {
             .interest(interest1)
             .createdAt(Instant.now())
             .build();
+        ReflectionTestUtils.setField(globalUserInterest1, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest1);
 
         Interest interest2 = Interest.builder()
@@ -79,6 +80,7 @@ class UserInterestRepositoryTest {
             .name("전자제품")
             .subscriberCount(5L)
             .build();
+        ReflectionTestUtils.setField(interest2, "updatedAt", Instant.now());
         interestRepository.saveAndFlush(interest2);
 
         globalUserInterest2 = UserInterest.builder()
@@ -86,6 +88,7 @@ class UserInterestRepositoryTest {
             .interest(interest2)
             .createdAt(Instant.now())
             .build();
+        ReflectionTestUtils.setField(globalUserInterest2, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest2);
 
         interest3 = Interest.builder()
@@ -93,6 +96,7 @@ class UserInterestRepositoryTest {
             .name("주류")
             .subscriberCount(5L)
             .build();
+        ReflectionTestUtils.setField(interest3, "updatedAt", Instant.now());
         interestRepository.saveAndFlush(interest3);
 
         globalUserInterest3 = UserInterest.builder()
@@ -100,6 +104,7 @@ class UserInterestRepositoryTest {
             .interest(interest3)
             .createdAt(Instant.now())
             .build();
+        ReflectionTestUtils.setField(globalUserInterest3, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest3);
     }
 

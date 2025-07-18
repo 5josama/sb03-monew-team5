@@ -18,6 +18,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
+.logs
 .idea
 *.iws
 *.iml
@@ -42,3 +43,4 @@ src/main/generated
 .vscode/
 .env
 src/main/java/com/sprint5team/monew/domain/keyword/entity/.DS_Store
+local.env

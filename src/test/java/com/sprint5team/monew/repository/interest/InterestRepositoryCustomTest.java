@@ -173,49 +173,6 @@ public class InterestRepositoryCustomTest {
             .containsExactlyElementsOf(sortedInterest);
     }
 
-    //    @Test
-//    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_오름차순() throws Exception {
-//        interestRepository.deleteAll();
-//
-//        Interest interestA1 = Interest.builder()
-//            .name("sport")
-//            .subscriberCount(50L)
-//            .createdAt(baseTime.minus(Duration.ofMinutes(10)))
-//            .build();
-//        interestRepository.save(interestA1);
-//        Interest interestB1 = Interest.builder()
-//            .name("sport")
-//            .subscriberCount(200L)
-//            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
-//            .build();
-//        interestRepository.save(interestB1);
-//        Interest interestC1 = Interest.builder()
-//            .name("sport")
-//            .subscriberCount(100L)
-//            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
-//            .build();
-//        interestRepository.save(interestC1);
-//
-//        String keyword = null;
-//        String orderBy = "name";
-//        String direction = "asc";
-//        String cursor = "sport";
-//        Instant after = baseTime.minus(Duration.ofMinutes(15));
-//        Integer limit = 10;
-//        UUID userId = UUID.randomUUID();
-//
-//        List<Interest> sortedInterest = List.of(interestA1, interestC1);
-//
-//        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
-//        // when
-//        List<Interest> result = interestRepository.findAllInterestByRequest(request);
-//
-//        // then
-//        assertThat(result)
-//            .isNotNull()
-//            .hasSize(sortedInterest.size())
-//            .containsExactlyElementsOf(sortedInterest);
-//    }
     @Test
     void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_오름차순() throws Exception {
 
@@ -253,6 +210,56 @@ public class InterestRepositoryCustomTest {
         UUID userId = UUID.randomUUID();
 
         List<Interest> sortedInterest = List.of(interestA1, interestC1);
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+
+        // when
+        List<Interest> result = interestRepository.findAllInterestByRequest(request);
+
+        // then
+        assertThat(result)
+            .isNotNull()
+            .hasSize(sortedInterest.size())
+            .containsExactlyElementsOf(sortedInterest);
+    }
+
+    @Test
+    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() throws Exception {
+
+        interestRepository.deleteAll();
+
+        Interest interestB1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(200L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
+            .build();
+        interestRepository.save(interestB1);
+
+        Interest interestA1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(50L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(10)))
+            .build();
+        interestRepository.save(interestA1);
+
+        Interest interestC1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(100L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
+            .build();
+        interestRepository.save(interestC1);
+
+        String keyword = null;
+        String orderBy = "name";
+        String direction = "desc";
+        String cursor = "스포츠";
+
+        Instant after = interestA1.getCreatedAt();
+
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        List<Interest> sortedInterest = List.of(interestB1);
 
         CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
 

@@ -4,21 +4,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.comment.controller.CommentController;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import com.sprint5team.monew.domain.comment.service.CommentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,6 +108,90 @@ public class CommentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentRegisterRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void 댓글_조회_성공() throws Exception {
+        //given
+        UUID articleId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        Instant cursor = Instant.now();
+        Pageable pageable = PageRequest.of(0, 50, Sort.Direction.DESC, "createdAt");
+
+        CommentDto commentDto1 = new CommentDto(
+                UUID.randomUUID(),
+                articleId,
+                userId,
+                "testName1",
+                "테스트댓글1",
+                1L,
+                false,
+                cursor.minusSeconds(10)
+        );
+
+        CommentDto commentDto2 = new CommentDto(
+                UUID.randomUUID(),
+                articleId,
+                userId,
+                "testName2",
+                "테스트댓글2",
+                2L,
+                false,
+                cursor.minusSeconds(20)
+        );
+
+        CommentDto commentDto3 = new CommentDto(
+                UUID.randomUUID(),
+                articleId,
+                userId,
+                "testName3",
+                "테스트댓글3",
+                3L,
+                false,
+                cursor.minusSeconds(30)
+        );
+
+        List<CommentDto> commentDtos = Arrays.asList(commentDto1, commentDto2, commentDto3);
+
+        CursorPageResponseCommentDto response = new CursorPageResponseCommentDto(
+                commentDtos,
+                null,
+                null,
+                10,
+                3L,
+                false
+        );
+
+        given(commentService.find(eq(articleId), any(), any() ,any(Pageable.class))).willReturn(response);
+
+        //when && then
+        mockMvc.perform(get("/api/comments")
+                        .param("orderBy","createdAt")
+                        .param("direction","DESC")
+                        .param("limit","10")
+                        .param("articleId",articleId.toString())
+                        .param("cursor",cursor.toString())
+                        .param("userId",userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.nextCursor").isEmpty())
+                .andExpect(jsonPath("$.nextAfter").isEmpty())
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.hasNext").value(false));
+
+
+    }
+
+    @Test
+    void 댓글_논리_삭제_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        willDoNothing().given(commentService).softDelete(eq(commentId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}", commentId))
+                .andExpect(status().isNoContent());
     }
 
 

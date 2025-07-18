@@ -1,20 +1,21 @@
 package com.sprint5team.monew.domain.interest.service;
 
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
-import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-import com.sprint5team.monew.domain.user_interest.mapper.InterestMapper;
+import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,10 +31,11 @@ import java.util.stream.Collectors;
  */
 @Validated
 @Service
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
     private static final String NAME = "name";
+    private static final double THRESHOLD = 0.75;
 
     private final InterestRepository interestRepository;
 
@@ -43,6 +45,7 @@ public class InterestServiceImpl implements InterestService{
 
     private final InterestMapper interestMapper;
 
+    @Override
     public CursorPageResponseInterestDto generateCursorPage(CursorPageRequest request) {
 
         log.info("1. content 조회");
@@ -97,5 +100,66 @@ public class InterestServiceImpl implements InterestService{
             .build();
 
         return result;
+    }
+
+    @Override
+    public InterestDto registerInterest(InterestRegisterRequest request) {
+        String name = request.name().trim();
+
+        log.info("분기 시작 test 환경에선 h2 로직 실행 prod 환경에서 postgresql 사용 로직 실행");
+        log.info("1. 동일한 관심사 이름 있는지 확인");
+        if(name.length()<=3){
+            if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
+        }else {
+            if(interestRepository.existsSimilarName(name, THRESHOLD)) throw new SimilarInterestException();
+        }
+
+        log.info("2.유사 관심사 없음 생성 로직 실행");
+        log.info("2-1. 관심사 저장");
+        Interest interest = new Interest(name);
+        interestRepository.save(interest);
+
+        log.info("2-2.키워드 저장");
+        List<Keyword> keywords= new ArrayList<>();
+        for (String keywordName : request.keywords()) {
+            Keyword keyword = new Keyword(keywordName, interest);
+            keywords.add(keyword);
+        }
+        keywordRepository.saveAll(keywords);
+
+        log.info("2-3. dto 만들어서 반환");
+        InterestDto response = interestMapper.toDto(interest, request.keywords(), false);
+
+        return response;
+    }
+
+    @Override
+    public void deleteInterest(UUID interestId) {
+        log.info("관심사 삭제");
+        if(!interestRepository.existsById(interestId)) throw new InterestNotExistException();
+
+        interestRepository.deleteById(interestId);
+    }
+
+    private void validateSimilarityInTest(InterestRegisterRequest request) {
+        String name = request.name().trim();
+        log.info("1. 동일한 관심사 이름 있는지 확인");
+        if(interestRepository.existsByNameEqualsIgnoreCase(name)) throw new SimilarInterestException();
+
+        log.info("1-1. 관심사 전체 조회");
+        List<Interest> interests = interestRepository.findAll();
+
+        JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+
+        // 관심도
+        double similarityRate = 0.8;
+
+        log.info("1-2. 80% 이상 관심사 이름 유사도 확인");
+        for(Interest interest : interests) {
+            if(similarity.apply(interest.getName(),name)>=similarityRate){
+                log.warn("유사도 높은 관심사 발견. 등록 불가");
+                throw new SimilarInterestException();
+            }
+        }
     }
 }

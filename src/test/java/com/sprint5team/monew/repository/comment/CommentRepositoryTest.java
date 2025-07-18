@@ -1,28 +1,45 @@
 package com.sprint5team.monew.repository.comment;
 
+import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.CommentRepositoryImpl;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.time.Instant;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @EnableJpaAuditing
 @ActiveProfiles("test")
+@Import({CommentRepositoryImpl.class, QuerydslConfig.class})
 @DisplayName("댓글 Repository 단위 테스트")
 public class CommentRepositoryTest {
 
     @Autowired
     private CommentRepository commentRepository;
 
-    private Comment createComment(Article article, User user, String content ) {
+    @Autowired
+    private ArticleRepository articleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private Comment createComment(Article article, User user, String content) {
         Comment comment = new Comment(article, user, content);
         commentRepository.save(comment);
         return comment;
@@ -30,10 +47,10 @@ public class CommentRepositoryTest {
 
 
     @Test
-    void 신규_댓글_등록_성공(){
+    void 신규_댓글_등록_성공() {
         //given
         Article article = new Article();
-        User user = new User("<EMAIL>","<NICKNAME>","<PASSWORD>");
+        User user = new User("<EMAIL>", "<NICKNAME>", "<PASSWORD>");
         String content = "테스트 댓글 입니다.";
 
         //when
@@ -46,7 +63,84 @@ public class CommentRepositoryTest {
         assertThat(save.getContent()).isEqualTo("테스트 댓글 입니다.");
         assertThat(save.getIsDeleted()).isEqualTo(false);
         assertThat(save.getLikeCount()).isEqualTo(0);
+    }
 
+    @Test
+    void 댓글_날짜_빠른_순으로_조회_성공() {
+        //given
+        Article article = new Article("SRC1", "http://example.com", "Title", "Summary", Instant.now());
+        User user = new User("test@test.com", "nickname", "password");
 
+        article = articleRepository.save(article);
+        user = userRepository.save(user);
+
+        // 댓글 생성 및 저장
+        Comment save1 = commentRepository.save(createComment(article, user, "테스트 내용1"));
+        Comment save2 = commentRepository.save(createComment(article, user, "테스트 내용2"));
+        Comment save3 = commentRepository.save(createComment(article, user, "테스트 내용3"));
+
+        // 저장된 댓글에 좋아요 수 업데이트
+        save1.update(1L);   // 좋아요 1개
+        save2.update(2L);   // 좋아요 2개
+        save3.update(3L);   // 좋아요 3개
+
+        // 업데이트된 댓글 저장
+        save1 = commentRepository.save(save1);
+        save2 = commentRepository.save(save2);
+        save3 = commentRepository.save(save3);
+
+        //when
+        List<Comment> commentList = commentRepository.findCommentsWithCursor(article.getId(),null,null, PageRequest.of(0,3, Sort.Direction.ASC,"createdAt")); // 정렬기준 1. 날짜, 2. 좋아요 수 (save1,save2,save3 순으로 정렬되어야 함)
+
+        //then
+        assertThat(commentList).hasSize(3);
+        assertThat(commentList.get(0).getContent()).isEqualTo(save1.getContent());
+        assertThat(commentList.get(0).getLikeCount()).isEqualTo(save1.getLikeCount());
+        assertThat(commentList.get(1).getContent()).isEqualTo(save2.getContent());
+        assertThat(commentList.get(1).getLikeCount()).isEqualTo(save2.getLikeCount());
+        assertThat(commentList.get(2).getContent()).isEqualTo(save3.getContent());
+        assertThat(commentList.get(2).getLikeCount()).isEqualTo(save3.getLikeCount());
+    }
+
+    @Test
+    void 댓글_좋아요수_많은_순으로_조회_성공() {
+        //given
+        Article article = new Article("SRC1", "http://example.com", "Title", "Summary", Instant.now());
+        User user = new User("test@test.com", "nickname", "password");
+
+        article = articleRepository.save(article);
+        user = userRepository.save(user);
+
+        // 댓글 생성 및 저장
+        Comment save1 = commentRepository.save(createComment(article, user, "테스트 내용1"));
+        Comment save2 = commentRepository.save(createComment(article, user, "테스트 내용2"));
+        Comment save3 = commentRepository.save(createComment(article, user, "테스트 내용3"));
+
+        // 저장된 댓글에 좋아요 수 업데이트
+        save1.update(1L);   // 좋아요 1개
+        save2.update(2L);   // 좋아요 2개
+        save3.update(3L);   // 좋아요 3개
+
+        // 업데이트된 댓글 저장
+        save1 = commentRepository.save(save1);
+        save2 = commentRepository.save(save2);
+        save3 = commentRepository.save(save3);
+
+        //when
+        List<Comment> commentList = commentRepository.findCommentsWithCursor(
+                article.getId(),
+                null,
+                null,
+                PageRequest.of(0, 3, Sort.Direction.DESC, "likeCount")
+        );
+
+        //then
+        assertThat(commentList).hasSize(3);
+        assertThat(commentList.get(0).getContent()).isEqualTo("테스트 내용3");
+        assertThat(commentList.get(0).getLikeCount()).isEqualTo(3L);
+        assertThat(commentList.get(1).getContent()).isEqualTo("테스트 내용2");
+        assertThat(commentList.get(1).getLikeCount()).isEqualTo(2L);
+        assertThat(commentList.get(2).getContent()).isEqualTo("테스트 내용1");
+        assertThat(commentList.get(2).getLikeCount()).isEqualTo(1L);
     }
 }

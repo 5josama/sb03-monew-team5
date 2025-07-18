@@ -2,8 +2,12 @@ package com.sprint5team.monew.domain.interest.service;
 
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestDto;
+import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.UUID;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.interest.service
@@ -15,4 +19,9 @@ import org.springframework.validation.annotation.Validated;
 public interface InterestService{
 
     CursorPageResponseInterestDto generateCursorPage(@Valid CursorPageRequest request);
+
+    InterestDto registerInterest(InterestRegisterRequest  request);
+
+    void deleteInterest(UUID interestId);
+
 }

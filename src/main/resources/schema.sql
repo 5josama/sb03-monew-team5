@@ -1,3 +1,7 @@
+-- postgrest 초기 설정(라이브러리 추가 + interest에 적용)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+
 -- 테이블 생성
 DROP TABLE IF EXISTS tbl_keyword CASCADE ;
 DROP TABLE IF EXISTS tbl_user_interest CASCADE ;
@@ -30,8 +34,8 @@ CREATE TABLE tbl_article
 (
     id                  UUID PRIMARY KEY,
     source              VARCHAR(5)            NOT NULL,
-    source_url          VARCHAR(500) UNIQUE   NOT NULL,
-    title               VARCHAR(100)          NOT NULL,
+    source_url          TEXT UNIQUE           NOT NULL,
+    title               TEXT                  NOT NULL,
     summary             TEXT                  NOT NULL,
     is_deleted          BOOLEAN DEFAULT FALSE NOT NULL,
     original_created_at TIMESTAMPTZ           NOT NULL,
@@ -59,6 +63,7 @@ CREATE TABLE IF NOT EXISTS tbl_interest
     subscriber_count BIGINT      NOT NULL,
     name             VARCHAR(50) NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_interest_name_trgm ON tbl_interest USING gin (name gin_trgm_ops);
 
 -- 뉴스 관심사
 CREATE TABLE tbl_article_keyword
@@ -107,6 +112,7 @@ CREATE TABLE tbl_notification
     resource_type VARCHAR(8)  NOT NULL,
     content       TEXT        NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed     BOOLEAN     NOT NULL DEFAULT FALSE,
 
     user_id       UUID        NOT NULL,
@@ -117,7 +123,7 @@ CREATE TABLE tbl_notification
     FOREIGN KEY (comment_id) REFERENCES tbl_comment (id) on delete cascade,
     FOREIGN KEY (interest_id) REFERENCES tbl_interest (id) on delete cascade,
 
-    CONSTRAINT chk_resource_type CHECK (resource_type IN ('interest', 'comment'))
+    CONSTRAINT chk_resource_type CHECK (resource_type IN ('INTEREST', 'COMMENT'))
 );
 -- 키워드
 CREATE TABLE IF NOT EXISTS tbl_keyword

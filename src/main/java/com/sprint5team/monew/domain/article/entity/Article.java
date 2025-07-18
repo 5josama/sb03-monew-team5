@@ -21,13 +21,13 @@ public class Article extends BaseEntity {
     @Column(name = "source")
     private String source;
 
-    @Column(name = "source_url")
+    @Column(name = "source_url", columnDefinition = "text")
     private String sourceUrl;
 
-    @Column(name = "title")
+    @Column(name = "title", columnDefinition = "text")
     private String title;
 
-    @Column(name = "summary")
+    @Column(name = "summary", columnDefinition = "text")
     private String summary;
 
     @Column(name = "is_deleted")
@@ -47,5 +47,9 @@ public class Article extends BaseEntity {
         this.summary = summary;
         this.originalDateTime = originalDateTime;
         this.isDeleted = false;
+    }
+
+    public void softDelete() {
+        isDeleted = true;
     }
 }

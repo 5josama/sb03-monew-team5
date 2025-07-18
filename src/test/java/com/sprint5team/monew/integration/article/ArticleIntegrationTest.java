@@ -6,6 +6,8 @@ import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.article.service.ArticleService;
+import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
@@ -21,6 +23,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,7 @@ public class ArticleIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private KeywordRepository keywordRepository;
     @Autowired private InterestRepository interestRepository;
+    @Autowired private CommentRepository commentRepository;
 
     private User user;
 
@@ -92,7 +97,7 @@ public class ArticleIntegrationTest {
     @Test
     void 주어진_관심사를_포함한_뉴스기사를_게시일을_기준으로_내림차순_정렬후_조회할_수_있다() {
         // given
-        Interest interest = new Interest(Instant.now(), "IT", 0);
+        Interest interest = new Interest(Instant.now(), "IT", 0, new ArrayList<>(), new ArrayList<>());
         interestRepository.save(interest);
 
         Keyword keyword1 = new Keyword(Instant.now(), "AI", interest);
@@ -120,8 +125,8 @@ public class ArticleIntegrationTest {
                 null,
                 interest.getId(),
                 Arrays.asList("NAVER"),
-                Instant.parse("2025-07-01T00:00:00Z"),
-                Instant.parse("2025-07-16T00:00:00Z"),
+                LocalDateTime.parse("2025-07-01T00:00:00"),
+                LocalDateTime.parse("2025-07-16T00:00:00"),
                 "publishDate",
                 "DESC",
                 null,
@@ -138,4 +143,74 @@ public class ArticleIntegrationTest {
         assertThat(result.get(1).getTitle()).contains("AI");
     }
 
+    @Test
+    void 뉴스기사_출처_목록을_조회할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+
+        articleRepository.save(article1);
+        articleRepository.save(article2);
+        articleRepository.save(article3);
+        articleRepository.flush();
+
+        // when
+        List<String> sources = articleService.getSources();
+
+        // then
+        assertThat(sources).hasSize(2);
+        assertThat(sources.get(1)).isEqualTo("한국경제");
+    }
+
+    @Test
+    void 주어진_ID로_뉴스기사를_논리_삭제_할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+
+        articleRepository.save(article1);
+        articleRepository.save(article2);
+        articleRepository.save(article3);
+        articleRepository.flush();
+
+        // when
+        articleService.softDeleteArticle(article2.getId());
+
+        // then
+        Article updated = articleRepository.findById(article2.getId()).orElseThrow();
+        assertThat(updated.isDeleted()).isTrue();
+    }
+
+    @Test
+    void 주어진_ID로_뉴스기사를_물리_삭제_할_수_있다() {
+        // given
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+
+        articleRepository.save(article1);
+        articleRepository.save(article2);
+        articleRepository.save(article3);
+        articleRepository.flush();
+
+        Comment comment = new Comment(article2, user, "test 댓글");
+        commentRepository.save(comment);
+        ArticleCount viewCount = new ArticleCount(article2, user);
+        articleCountRepository.save(viewCount);
+
+        // when
+        articleService.hardDeleteArticle(article2.getId());
+
+        // then
+        List<Comment> comments = commentRepository.findByArticleId(article2.getId());
+        assertThat(comments).isEmpty();
+
+        List<ArticleCount> views = articleCountRepository.findByArticleId(article2.getId());
+        assertThat(views).isEmpty();
+
+        assertThat(commentRepository.findById(comment.getId())).isEmpty();
+        assertThat(articleCountRepository.findById(article2.getId())).isEmpty();
+    }
 }

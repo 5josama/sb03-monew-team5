@@ -17,4 +17,3 @@ public interface InterestRepositoryCustom {
 
     List<Interest> findAllInterestByRequest(CursorPageRequest request);
 }
-
