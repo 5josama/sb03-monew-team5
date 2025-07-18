@@ -21,12 +21,10 @@ spring:
       mode: never
 
 management:
-  endpoint:
-    health:
-      show-details: never
-  info:
-    env:
-      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
 naver:
   client_id: ${X_Naver_Client_Id}
