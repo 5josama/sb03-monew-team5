@@ -23,7 +23,6 @@ import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,10 +46,10 @@ public class UserActivityServiceImpl implements UserActivityService{
   @Override
   public UserActivityDto getUserActivity(UUID userId) {
     User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-    Set<UserInterest> userInterest = userInterestRepository.findByUserId(userId);
-    List<Comment> comment = commentRepository.findByUserId(userId);
-    List<Like> commentLike = likeRepository.findByUserId(userId);
-    List<ArticleCount> articleCount = articleCountRepository.findAllByUserId(userId);
+    List<UserInterest> userInterest = userInterestRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
+    List<Comment> comment = commentRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
+    List<Like> commentLike = likeRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
+    List<ArticleCount> articleCount = articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
 
     List<SubscriptionDto> userInterests =
         userInterest.stream()
