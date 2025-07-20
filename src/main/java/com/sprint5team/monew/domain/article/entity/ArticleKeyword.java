@@ -1,8 +1,8 @@
 package com.sprint5team.monew.domain.article.entity;
 
+import com.sprint5team.monew.domain.interest.entity.Interest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -10,6 +10,8 @@ import java.util.UUID;
 @Table(name = "tbl_article_keyword")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class ArticleKeyword {
 
     @Id
@@ -22,6 +24,13 @@ public class ArticleKeyword {
     private Article article;
 
     @ManyToOne
-    @JoinColumn(name = "interest_id")
-    private ArticleKeyword articleKeyword;
+    @JoinColumn(name = "interest_id", nullable = false)
+    private Interest interest;
+
+    public static ArticleKeyword of(Article article, Interest interest) {
+        ArticleKeyword ak = new ArticleKeyword();
+        ak.article = article;
+        ak.interest = interest;
+        return ak;
+    }
 }
