@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.user_interest.repository;
 
+import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import java.util.List;
 import java.util.Set;
@@ -18,4 +19,5 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, UUID
 
     List<UserInterest> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
 
+    boolean existsByUserIdAndInterestId(UUID userId, UUID interestId);
 }

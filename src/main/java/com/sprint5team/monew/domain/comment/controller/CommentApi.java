@@ -60,7 +60,17 @@ public interface CommentApi {
             @ApiResponse(responseCode = "404",description = "댓글 정보 없음"),
             @ApiResponse(responseCode = "500",description = "서버 내부 오류")
     })
-    ResponseEntity<Void> delete(
+    ResponseEntity<Void> softDelete(
+            @Parameter(required = true,description = "댓글 ID") UUID commentId
+    );
+
+    @Operation(summary = "댓글 물리 삭제")
+    @ApiResponses(value ={
+            @ApiResponse(responseCode = "204",description = "삭제 성공"),
+            @ApiResponse(responseCode = "404",description = "댓글 정보 없음"),
+            @ApiResponse(responseCode = "500",description = "서버 내부 오류")
+    })
+    ResponseEntity<Void> hardDelete(
             @Parameter(required = true,description = "댓글 ID") UUID commentId
     );
 

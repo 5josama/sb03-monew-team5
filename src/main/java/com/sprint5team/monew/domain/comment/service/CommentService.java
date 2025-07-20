@@ -17,4 +17,6 @@ public interface CommentService {
 
     void softDelete(UUID commentId);
 
+    void hardDelete(UUID commentId);
+
 }
