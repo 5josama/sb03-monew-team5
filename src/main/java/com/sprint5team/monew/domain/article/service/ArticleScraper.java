@@ -36,6 +36,7 @@ public class ArticleScraper {
     private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate;
     private final KeywordRepository keywordRepository;
+    private final ArticleService articleService;
 
     private List<String> keywords = new ArrayList<>();
 
@@ -128,7 +129,9 @@ public class ArticleScraper {
             }
 
             if (!articles.isEmpty()) {
-                articleRepository.saveAll(articles);
+                for (Article article : articles) {
+                    articleService.saveArticle(article);
+                }
             }
 
         } catch (Exception e) {
