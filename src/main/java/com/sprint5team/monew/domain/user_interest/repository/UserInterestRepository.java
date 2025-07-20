@@ -16,4 +16,5 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, UUID
 
     Set<UserInterest> findByUserId(UUID userId);
 
+    boolean existsByUserIdAndInterestId(UUID userId, UUID interestId);
 }

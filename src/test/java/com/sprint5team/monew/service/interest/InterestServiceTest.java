@@ -9,6 +9,7 @@ import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
+import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
@@ -29,8 +30,7 @@ import java.time.Instant;
 import java.util.*;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
@@ -57,13 +57,10 @@ public class InterestServiceTest {
     @Mock
     private UserInterestRepository userInterestRepository;
 
-
     @Mock
     private InterestMapper interestMapper;
 
-    private static final double THRESHOLD = 0.75;
     Interest interestA, interestB, interestC;
-
 
     @BeforeEach
     public void setup() {
@@ -218,8 +215,10 @@ public class InterestServiceTest {
         given(userInterestRepository.findByUserId(any())).willReturn(Set.of());
         given(interestMapper.toDto(any(), any(), eq(false))).willReturn(dto);
 
+        // when
         CursorPageResponseInterestDto result = interestService.generateCursorPage(request);
 
+        // then
         assertThat(result.content()).containsExactly(dto);
         assertThat(result.totalElements()).isEqualTo(1L);
     }
@@ -397,9 +396,6 @@ public class InterestServiceTest {
         assertThat(result.content().size()).isEqualTo(2);
     }
 
-
-    // TODO 관심사 추가 로직 관련 테스트 코드 작성
-
     @Test
     void 관심사를_추가한다_() throws Exception {
         // given
@@ -426,7 +422,6 @@ public class InterestServiceTest {
         then(interestRepository).should(times(1)).save(any(Interest.class));
         then(keywordRepository).should(times(1)).saveAll(anyList());
     }
-
 
     @Test
     void 관심사_이름의_유사도가_80퍼센트_이상일경우_SimilarInterestException_409_을_반환한다() throws Exception {
@@ -504,7 +499,6 @@ public class InterestServiceTest {
             .containsExactlyInAnyOrderElementsOf(keywords);
     }
 
-    // TODO 관심사 삭제 로직
     @Test
     void 관심사를_삭제할_수_있다() throws Exception {
         // given
@@ -531,8 +525,81 @@ public class InterestServiceTest {
             .hasMessageContaining("일치하는 관심사 없음");
     }
 
+    // TODO 관심사 수정 기능
+    @Test
+    void 키워드_변경사항이_없으면_키워드가_수정되지_않는다() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        Keyword keywordA = new Keyword("cup",interestA);
+        Keyword keywordB = new Keyword("glass",interestA);
 
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
 
+        InterestDto interestDto = InterestDto.builder()
+            .id(userId)
+            .name(interestA.getName())
+            .keywords(List.of(keywordA.getName(), keywordB.getName()))
+            .subscriberCount(0L)
+            .subscribedByMe(false)
+            .build();
 
+        given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
+        given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
+        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false))).willReturn(interestDto);
 
+        // when
+        InterestDto result = interestService.updateInterest(interestA.getId(), request, userId);
+
+        // then
+        then(keywordRepository).should(times(0)).saveAll(anyList());
+        assertThat(result.name()).isEqualTo(interestDto.name());
+        assertThat(result.keywords()).isEqualTo(interestDto.keywords());
+        assertThat(result.subscribedByMe()).isEqualTo(interestDto.subscribedByMe());
+    }
+
+    @Test
+    void 키워드_수정시_키워드가_추가될_수_있다() throws Exception {
+        UUID userId = UUID.randomUUID();
+        Keyword keywordA = new Keyword("cup",interestA);
+        Keyword keywordB = new Keyword("glass",interestA);
+
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass", "bowl"));
+
+        InterestDto interestDto = InterestDto.builder()
+            .id(userId)
+            .name(interestA.getName())
+            .keywords(List.of(keywordA.getName(), keywordB.getName(),"bowl"))
+            .subscriberCount(0L)
+            .subscribedByMe(false)
+            .build();
+
+        given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
+        given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
+        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
+        given(interestMapper.toDto(any(Interest.class), any(), eq(false))).willReturn(interestDto);
+
+        // when
+        InterestDto result = interestService.updateInterest(interestA.getId(), request, userId);
+
+        // then
+        then(keywordRepository).should(times(1)).saveAll(anyList());
+        assertThat(result.name()).isEqualTo(interestDto.name());
+        assertThat(result.keywords()).isEqualTo(interestDto.keywords());
+        assertThat(result.subscribedByMe()).isEqualTo(interestDto.subscribedByMe());
+    }
+
+    @Test
+    void 변경할_관심사가_없으면_InterestNotExistException_404_를_반환한다() throws Exception {
+        // given
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
+
+        given(interestRepository.findById(interestA.getId()))
+            .willThrow(InterestNotExistException.class);
+
+        // when
+        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request, any(UUID.class)))
+            .isInstanceOf(InterestNotExistException.class)
+            .hasMessageContaining("일치하는 관심사 없음");
+    }
 }

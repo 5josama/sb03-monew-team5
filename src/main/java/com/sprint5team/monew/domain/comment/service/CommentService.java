@@ -3,6 +3,7 @@ package com.sprint5team.monew.domain.comment.service;
 
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
 import org.springframework.data.domain.Pageable;
 
@@ -18,5 +19,7 @@ public interface CommentService {
     void softDelete(UUID commentId);
 
     void hardDelete(UUID commentId);
+
+    CommentDto update(UUID commentId, CommentUpdateRequest request);
 
 }

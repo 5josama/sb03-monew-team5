@@ -1,4 +1,4 @@
-package com.sprint5team.monew.repository.user_interest;
+package com.sprint5team.monew.repository.userinterest;
 
 
 
@@ -6,9 +6,6 @@ package com.sprint5team.monew.repository.user_interest;
 import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
-import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
-import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
@@ -24,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +54,9 @@ class UserInterestRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        userRepository.deleteAll();
+        interestRepository.deleteAll();
+
         globalUser = new User("user@user.com", "user1", "password");
         ReflectionTestUtils.setField(globalUser, "createdAt", Instant.now());
         userRepository.saveAndFlush(globalUser);
@@ -72,7 +73,6 @@ class UserInterestRepositoryTest {
             .interest(interest1)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest1, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest1);
 
         Interest interest2 = Interest.builder()
@@ -88,7 +88,6 @@ class UserInterestRepositoryTest {
             .interest(interest2)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest2, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest2);
 
         interest3 = Interest.builder()
@@ -104,7 +103,6 @@ class UserInterestRepositoryTest {
             .interest(interest3)
             .createdAt(Instant.now())
             .build();
-        ReflectionTestUtils.setField(globalUserInterest3, "updatedAt", Instant.now());
         userInterestRepository.saveAndFlush(globalUserInterest3);
     }
 
@@ -120,5 +118,44 @@ class UserInterestRepositoryTest {
         // then
         assertThat(userInterests).hasSize(3);
         assertThat(interestnames).contains("향수", "전자제품", "주류");
+    }
+
+    @Test
+    void 사용자ID와_관심사ID를_이용해_관심사_구독중일_경우_true를_반환한다() throws Exception {
+        // when
+        boolean result = userInterestRepository.existsByUserIdAndInterestId(globalUserInterest1.getUser().getId(), globalUserInterest1.getInterest().getId());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void 사용자ID와_관심사ID를_이용해_관심사_구독중이_아닐경우_false_반환한다() throws Exception {
+        // given
+        UUID invalidUserId = UUID.randomUUID();
+        UUID invalidInterestId = UUID.randomUUID();
+
+        // when
+        boolean result = userInterestRepository.existsByUserIdAndInterestId(invalidUserId, invalidInterestId);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void 관심사ID를_이용해_관심사가_있는지_확인한다() throws Exception {
+        // given
+        Interest interest = Interest.builder()
+            .createdAt(Instant.now())
+            .name("여름에 사용할 화장품 목록")
+            .subscriberCount(5L)
+            .build();
+        interestRepository.save(interest);
+
+        // when
+        boolean result = interestRepository.existsById(interest.getId());
+
+        // then
+        assertThat(result).isTrue();
     }
 }

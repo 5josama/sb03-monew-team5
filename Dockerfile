@@ -27,6 +27,8 @@ FROM amazoncorretto:17-alpine3.21-jdk
 
 WORKDIR /app
 
+RUN apk add --no-cache curl
+
 # jar만 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
 

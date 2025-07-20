@@ -251,6 +251,7 @@ public class InterestIntegrationTest {
         assertThat(interestRepository.findById(interestA.getId())).isNotPresent();
     }
 
+
     @Test
     void 관심사를_찾지_못하면_InterestNotExistException_404_를_반환한다() throws Exception {
         // given
