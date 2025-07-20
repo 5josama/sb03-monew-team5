@@ -1,10 +1,15 @@
 package com.sprint5team.monew.domain.user_interest.repository;
 
+import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.user_interest.repository
@@ -19,4 +24,7 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, UUID
     List<UserInterest> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
 
     boolean existsByUserIdAndInterestId(UUID userId, UUID interestId);
+
+    @Query("SELECT ui.user FROM UserInterest ui WHERE ui.interest.id = :interestId")
+    List<User> findUsersByInterestId(@Param("interestId") UUID interestId);
 }
