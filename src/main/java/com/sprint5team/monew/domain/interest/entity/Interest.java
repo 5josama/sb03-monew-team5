@@ -46,4 +46,8 @@ public class Interest extends BaseUpdatableEntity {
         this.name = name;
         this.subscriberCount = 0;
     }
+
+    public void subscribed() {
+        this.subscriberCount++;
+    }
 }

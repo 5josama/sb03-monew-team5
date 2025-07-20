@@ -1,6 +1,5 @@
 package com.sprint5team.monew.domain.user_interest.repository;
 
-import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
