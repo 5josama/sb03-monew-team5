@@ -3,10 +3,8 @@ package com.sprint5team.monew.domain.user.service;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
-import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
-import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
-import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.article.service.ArticleService;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
@@ -35,10 +33,9 @@ public class UserActivityServiceImpl implements UserActivityService{
 
   private final UserRepository userRepository;
   private final UserInterestRepository userInterestRepository;
-  private final UserInterestMapper userInterestMapper;
-  private final ArticleRepository articleRepository;
+  private final ArticleService articleService;
   private final ArticleCountRepository articleCountRepository;
-  private final ArticleViewMapper articleViewMapper;
+  private final UserInterestMapper userInterestMapper;
   private final CommentRepository commentRepository;
   private final LikeRepository likeRepository;
   private final CommentMapper commentMapper;
@@ -49,7 +46,6 @@ public class UserActivityServiceImpl implements UserActivityService{
     List<UserInterest> userInterest = userInterestRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
     List<Comment> comment = commentRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
     List<Like> commentLike = likeRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
-    List<ArticleCount> articleCount = articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
 
     List<SubscriptionDto> userInterests =
         userInterest.stream()
@@ -63,13 +59,12 @@ public class UserActivityServiceImpl implements UserActivityService{
         commentLike.stream()
             .map(commentMapper::toDto)
             .toList();
-    List<ArticleViewDto> articleViewDtos =
-        articleCount.stream()
-        .map(ac -> {
-          Article article = articleRepository.findById(ac.getArticle().getId())
-              .orElseThrow(ArticleNotFoundException::new);
-          return articleViewMapper.toDto(article, user, ac);
-        })
+    List<Article> articles = articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId)
+        .stream()
+        .map(ArticleCount::getArticle)
+        .toList();
+    List<ArticleViewDto> articleViewDtos = articles.stream()
+        .map(article -> articleService.saveArticleView(article.getId(), user.getId()))
         .toList();
 
     UserActivityDto userActivityDto = new UserActivityDto(

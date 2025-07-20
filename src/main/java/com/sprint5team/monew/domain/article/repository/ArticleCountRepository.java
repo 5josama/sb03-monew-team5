@@ -16,5 +16,6 @@ public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID
 
     List<ArticleCount> findByArticleId(UUID articleId);
 
+    // 사용자 활동 내역에서 최근 본 기사 조회 시 사용
   List<ArticleCount> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
 }

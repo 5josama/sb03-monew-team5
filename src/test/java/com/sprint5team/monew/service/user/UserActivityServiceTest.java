@@ -3,15 +3,15 @@ package com.sprint5team.monew.service.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
-import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
-import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
 import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
@@ -53,15 +53,13 @@ class UserActivityServiceTest {
   @Mock
   private LikeRepository likeRepository;
   @Mock
-  private ArticleRepository articleRepository;
+  private ArticleServiceImpl articleService;
   @Mock
   private ArticleCountRepository articleCountRepository;
   @Mock
   private UserInterestMapper userInterestMapper;
   @Mock
   private CommentMapper commentMapper;
-  @Mock
-  private ArticleViewMapper articleViewMapper;
 
   @InjectMocks
   private UserActivityServiceImpl userActivityService;
@@ -79,7 +77,7 @@ class UserActivityServiceTest {
     given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
 
     // 관심사
-    Interest interest = new Interest(Instant.now(), "test", 1L);
+    Interest interest = new Interest("test");
     Keyword keyword1 = new Keyword(Instant.now(), "test1", interest);
     Keyword keyword2 = new Keyword(Instant.now(), "test2", interest);
     UserInterest userInterest = new UserInterest(Instant.now(), user, interest);
@@ -96,8 +94,6 @@ class UserActivityServiceTest {
         Instant.now());
     Article article2 = new Article("Naver", "http://naver.com/testURL", "테스트 기사2", "테스트 기사 내용 요약2",
         Instant.now());
-    given(articleRepository.findById(article1.getId())).willReturn(Optional.of(article1));
-    given(articleRepository.findById(article2.getId())).willReturn(Optional.of(article2));
 
     ArticleCount articleCount1 = new ArticleCount(article1, user);
     ArticleCount articleCount2 = new ArticleCount(article2, user);
@@ -113,8 +109,8 @@ class UserActivityServiceTest {
         article2.getSourceUrl(), article2.getTitle(), article2.getOriginalDateTime(),
         article2.getSummary(), 1L, 1L);
     doReturn(articleViewDto1, articleViewDto2)
-        .when(articleViewMapper)
-        .toDto(any(Article.class), any(User.class), any(ArticleCount.class));
+        .when(articleService)
+        .saveArticleView(nullable(UUID.class), any(UUID.class));
 
     // 댓글
     Comment comment = new Comment(article1, user, "content");
