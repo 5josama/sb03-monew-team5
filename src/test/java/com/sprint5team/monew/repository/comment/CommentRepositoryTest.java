@@ -176,4 +176,35 @@ public class CommentRepositoryTest {
         assertThat(commentRepository.findById(save3.getId())).isEmpty();
         assertThat(commentRepository.findAll()).hasSize(2);
     }
+    @Test
+    void 댓글_수정_성공(){
+        //given
+        Article article = new Article("SRC1", "http://example.com", "Title", "Summary", Instant.now());
+        User user = new User("test@test.com", "nickname", "password");
+
+        article = articleRepository.save(article);
+        user = userRepository.save(user);
+
+        // 댓글 생성 및 저장
+        Comment save1 = commentRepository.save(createComment(article, user, "테스트 내용1"));
+        Comment save2 = commentRepository.save(createComment(article, user, "테스트 내용2"));
+        Comment save3 = commentRepository.save(createComment(article, user, "테스트 내용3"));
+
+        // 저장된 댓글에 좋아요 수 업데이트
+        save1.update(1L);   // 좋아요 1개
+        save2.update(2L);   // 좋아요 2개
+        save3.update(3L);   // 좋아요 3개
+
+        // 업데이트된 댓글 저장
+        save1 = commentRepository.save(save1);
+        save2 = commentRepository.save(save2);
+        save3 = commentRepository.save(save3);
+
+        //when
+        save3.update("수정된 테스트 내용");
+        commentRepository.save(save3);    //save3 수정된 내용 저장
+
+        //then
+        assertThat(commentRepository.findById(save3.getId()).get().getContent()).isEqualTo("수정된 테스트 내용");
+    }
 }
