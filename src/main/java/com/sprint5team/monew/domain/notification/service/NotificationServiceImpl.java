@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper notificationMapper;
 
     @Override
-    public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, int articleCount) {
+    public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, long articleCount) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
