@@ -10,8 +10,8 @@ import static org.mockito.Mockito.doReturn;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
-import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
 import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
 import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
@@ -53,7 +53,7 @@ class UserActivityServiceTest {
   @Mock
   private LikeRepository likeRepository;
   @Mock
-  private ArticleServiceImpl articleService;
+  private ArticleViewMapper articleViewMapper;
   @Mock
   private ArticleCountRepository articleCountRepository;
   @Mock
@@ -109,8 +109,8 @@ class UserActivityServiceTest {
         article2.getSourceUrl(), article2.getTitle(), article2.getOriginalDateTime(),
         article2.getSummary(), 1L, 1L);
     doReturn(articleViewDto1, articleViewDto2)
-        .when(articleService)
-        .saveArticleView(nullable(UUID.class), any(UUID.class));
+        .when(articleViewMapper)
+        .toDto(nullable(Article.class), any(User.class), nullable(ArticleCount.class), nullable(Long.class), nullable(Long.class));
 
     // 댓글
     Comment comment = new Comment(article1, user, "content");
@@ -148,6 +148,7 @@ class UserActivityServiceTest {
   void 사용자_활동_내역_조회_실패_존재하지_않는_사용자() {
     // given
     UUID notExistUserId = UUID.randomUUID();
+    given(userRepository.findById(notExistUserId)).willReturn(Optional.empty());
 
     // when and then
     assertThrows(UserNotFoundException.class,

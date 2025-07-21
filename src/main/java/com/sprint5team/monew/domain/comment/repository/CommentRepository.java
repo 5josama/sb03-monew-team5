@@ -20,5 +20,10 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, Comment
     List<ArticleCommentCount> countByArticleIds(@Param("articleIds") List<UUID> articleIds);
 
     List<Comment> findByArticleId(UUID articleId);
-  List<Comment> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    // 사용자 활동 내역 조회 시 사용
+    List<Comment> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    // 사용자 활동 내역 조회 시 사용
+    long countByArticleId(UUID id);
 }

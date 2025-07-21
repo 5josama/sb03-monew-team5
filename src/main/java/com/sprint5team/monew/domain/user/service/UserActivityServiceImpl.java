@@ -2,9 +2,8 @@ package com.sprint5team.monew.domain.user.service;
 
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
-import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
-import com.sprint5team.monew.domain.article.service.ArticleService;
 import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
 import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
@@ -33,7 +32,7 @@ public class UserActivityServiceImpl implements UserActivityService{
 
   private final UserRepository userRepository;
   private final UserInterestRepository userInterestRepository;
-  private final ArticleService articleService;
+  private final ArticleViewMapper articleViewMapper;
   private final ArticleCountRepository articleCountRepository;
   private final UserInterestMapper userInterestMapper;
   private final CommentRepository commentRepository;
@@ -59,13 +58,15 @@ public class UserActivityServiceImpl implements UserActivityService{
         commentLike.stream()
             .map(commentMapper::toActivityDto)
             .toList();
-    List<Article> articles = articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId)
-        .stream()
-        .map(ArticleCount::getArticle)
-        .toList();
-    List<ArticleViewDto> articleViewDtos = articles.stream()
-        .map(article -> articleService.saveArticleView(article.getId(), user.getId()))
-        .toList();
+    List<ArticleViewDto> articleViewDtos =
+        articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId).stream()
+            .map(ac -> {
+              Article article = ac.getArticle();
+              long viewCount = articleCountRepository.countViewByArticleId(article.getId());
+              long commentCount = commentRepository.countByArticleId(ac.getArticle().getId());
+              return articleViewMapper.toDto(article, user, ac, viewCount, commentCount);
+            })
+            .toList();
 
     UserActivityDto userActivityDto = new UserActivityDto(
         user.getId(),

@@ -7,9 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
 import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
 import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
@@ -58,7 +58,7 @@ public class UserActivityIntegrationTest {
   @Autowired private UserInterestRepository userInterestRepository;
   @Autowired private CommentRepository commentRepository;
   @Autowired private LikeRepository likeRepository;
-  @Autowired private ArticleServiceImpl articleService;
+  @Autowired private ArticleViewMapper articleViewMapper;
   @Autowired private ArticleRepository articleRepository;
   @Autowired private ArticleCountRepository articleCountRepository;
   @Autowired private CommentMapper commentMapper;
@@ -129,7 +129,7 @@ public class UserActivityIntegrationTest {
     SubscriptionDto subscriptionDto = userInterestMapper.toDto(userInterest);
     CommentActivityDto commentActivityDto = commentMapper.toActivityDto(comment);
     CommentLikeActivityDto commentLikeActivityDto = commentMapper.toActivityDto(like);
-    ArticleViewDto articleViewDto = articleService.saveArticleView(article.getId(), user.getId());
+    ArticleViewDto articleViewDto = articleViewMapper.toDto(article, user, articleCount, 1L, 2L);
 
     UserActivityDto userActivityDto = userActivityService.getUserActivity(user.getId());
 
@@ -243,7 +243,7 @@ public class UserActivityIntegrationTest {
     SubscriptionDto subscriptionDto = userInterestMapper.toDto(userInterest);
     CommentActivityDto commentActivityDto = commentMapper.toActivityDto(comment);
     CommentLikeActivityDto commentLikeActivityDto = commentMapper.toActivityDto(like);
-    ArticleViewDto articleViewDto = articleService.saveArticleView(article.getId(), user.getId());
+    ArticleViewDto articleViewDto = articleViewMapper.toDto(article, user, articleCount, 1L, 2L);
 
     UserActivityDto userActivityDto = new UserActivityDto(
         user.getId(),
