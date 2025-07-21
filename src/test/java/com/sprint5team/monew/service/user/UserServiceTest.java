@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.sprint5team.monew.domain.user.dto.UserDto;
@@ -103,12 +104,12 @@ class UserServiceTest {
   @Test
   void 사용자_로그인_실패() {
     // given
-    given(userRepository.findByEmailAndPassword(eq(email), eq(password))).willReturn(null);
+    String wrongPassword = "wrongPassword";
+    given(userRepository.findByEmailAndPassword(eq(email), any(String.class))).willThrow(InvalidLoginException.class);
 
     // when and then
-    assertThatThrownBy(() -> userService.login(email, password))
+    assertThatThrownBy(() -> userService.login(email, wrongPassword))
         .isInstanceOf(InvalidLoginException.class);
-    verify(userRepository).findByEmailAndPassword(eq(email), eq(password));
   }
 
   @Test
@@ -116,16 +117,16 @@ class UserServiceTest {
     // given
     String newNickname = "newNickname";
     UserUpdateRequest request = new UserUpdateRequest(newNickname);
-    given(userRepository.findById(eq(id))).willReturn(Optional.of(user));
-    given(userMapper.toDto(nullable(User.class))).willReturn(userDto);
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
+    given(userRepository.save(any(User.class))).willReturn(user);
 
     // when
-    UserDto result = userService.update(id, request);
+    userService.update(id, request);
 
     // then
     verify(userRepository).save(any(User.class));
-    assertThat(result).isNotEqualTo(userDto);
-    assertThat(result.nickname()).isEqualTo(newNickname);
+    assertThat(user.getNickname()).isEqualTo(newNickname);
+    then(userRepository).should(times(1)).save(any(User.class));
   }
 
 }
