@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
+import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
@@ -106,6 +107,22 @@ class UserServiceTest {
     assertThatThrownBy(() -> userService.login(email, password))
         .isInstanceOf(InvalidLoginException.class);
     verify(userRepository).findByEmailAndPassword(eq(email), eq(password));
+  }
+
+  @Test
+  void 사용자_정보_수정_성공() {
+    // given
+    String newNickname = "newNickname";
+    UserUpdateRequest request = new UserUpdateRequest(newNickname);
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
+    given(userRepository.save(any(User.class))).willReturn(user);
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
+
+    // when
+    UserDto result = userService.update(id, request);
+
+    // then
+    assertThat(result.nickname()).isEqualTo(newNickname);
   }
 
 }
