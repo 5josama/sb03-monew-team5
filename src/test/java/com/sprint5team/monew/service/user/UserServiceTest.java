@@ -13,6 +13,7 @@ import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.InvalidInputValueException;
 import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
@@ -129,4 +130,16 @@ class UserServiceTest {
     then(userRepository).should(times(1)).save(any(User.class));
   }
 
+  @Test
+  void 사용자_정보_수정_실패_닉네임_길이_초과() {
+    // given
+    String newNickname = "nnnnnnnnnnnnnnnnnnnnNewname"; // 닉네임 길이 초과
+    UserUpdateRequest request = new UserUpdateRequest(newNickname);
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
+    given(userService.update(id, request)).willThrow(InvalidInputValueException.class);
+
+    // when and then
+    assertThatThrownBy(() -> userService.update(id, request))
+        .isInstanceOf(InvalidInputValueException.class);
+  }
 }

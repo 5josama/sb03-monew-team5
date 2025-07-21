@@ -2,6 +2,7 @@ package com.sprint5team.monew.controller.user;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,7 +13,9 @@ import com.sprint5team.monew.domain.user.controller.UserController;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserLoginRequest;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
+import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
 import java.time.Instant;
 import java.util.UUID;
@@ -61,7 +64,7 @@ class UserControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.userId").value(userId.toString()))
+        .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.email").value("test@test.kr"))
         .andExpect(jsonPath("$.nickname").value("test"))
         .andExpect(jsonPath("$.createdAt").exists())
@@ -145,6 +148,41 @@ class UserControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void 사용자_정보_수정_성공() throws Exception {
+    // given
+    UUID userId = UUID.randomUUID();
+    String email = "test@test.kr";
+    UserUpdateRequest request = new UserUpdateRequest("newNickname");
+    UserDto userDto = new UserDto(userId, email, "newNickname", Instant.now());
+    given(userService.update(any(UUID.class), any(UserUpdateRequest.class))).willReturn(userDto);
+
+    // when and then
+    mockMvc.perform(patch("/api/users/{userId}", userId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()))
+        .andExpect(jsonPath("$.email").value(email))
+        .andExpect(jsonPath("$.nickname").value("newNickname"))
+        .andExpect(jsonPath("$.createdAt").exists());
+  }
+
+  @Test
+  void 사용자_정보_수정_실패_존재하지_않는_사용자() throws Exception {
+    // given
+    UUID userId = UUID.randomUUID();
+    UserUpdateRequest request = new UserUpdateRequest("newNickname");
+    given(userService.update(any(UUID.class), any(UserUpdateRequest.class))).willThrow(
+        UserNotFoundException.class);
+
+    // when and then
+    mockMvc.perform(patch("/api/users/{userId}", userId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound());
   }
 
 }
