@@ -2,10 +2,7 @@ package com.sprint5team.monew.controller.comment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.comment.controller.CommentController;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.service.CommentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -221,6 +219,22 @@ public class CommentControllerTest {
                         .header("MoNew-Request-User-ID", UUID.randomUUID().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value("수정된 댓글 입니다."));
+    }
+
+    @Test
+    void 댓글_좋아요_성공(){
+        //given
+        UUID commentId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        CommentLikeDto likeDto = new CommentLikeDto(UUID.randomUUID(), userId, Instant.now(), commentId, UUID.randomUUID(), UUID.randomUUID(), "nickName", "댓글내용", 1L, Instant.now());
+        given(commentService.like(commentId,userId)).willReturn(likeDto);
+
+
+        //when && then
+        mockMvc.perform(post("api/comments/{commentId}/comment-likes", commentId)
+                        .header("MoNew-Request-User-ID", UUID.randomUUID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.commentLikeCount").value(1L));
     }
 
 
