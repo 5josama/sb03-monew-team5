@@ -2,11 +2,14 @@ package com.sprint5team.monew.domain.user.service;
 
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
+import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +52,20 @@ public class UserServiceImpl implements UserService{
 
     if (user == null) {
       throw new InvalidLoginException();
+    }
+
+    return userMapper.toDto(user);
+  }
+
+  @Override
+  public UserDto update(UUID userId, UserUpdateRequest request) {
+    User user = userRepository
+        .findById(userId)
+        .orElseThrow(UserNotFoundException::new);
+
+    if (request.nickname() != null) {
+      user.updateNickname(request.nickname());
+      userRepository.save(user);
     }
 
     return userMapper.toDto(user);
