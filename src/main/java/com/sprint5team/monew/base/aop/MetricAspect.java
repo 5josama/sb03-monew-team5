@@ -1,6 +1,7 @@
 package com.sprint5team.monew.base.aop;
 
 import com.sprint5team.monew.base.metric.MonewMetrics;
+import com.sprint5team.monew.base.service.BatchStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class MetricAspect {
 
     private final MonewMetrics monewMetrics;
+    private final BatchStatusService batchStatusService;
 
     @AfterReturning("execution(* com.sprint5team.monew.domain.user.service.UserService.register(..))")
     public void countUserCreated() {
@@ -35,6 +37,10 @@ public class MetricAspect {
     )
     public void countArticleCreated(Object xml) {
         monewMetrics.updateGaugeMetrics();
-        log.debug("[s4][MetricAspect] 뉴스 기사 수 갱신 완료");
+    }
+
+    @AfterReturning("execution(* com.sprint5team.monew.base.util.*Scheduler.run*Job(..))")
+    public void batchMetricsUpdated() {
+        monewMetrics.updateBatchMetrics(batchStatusService);
     }
 }
