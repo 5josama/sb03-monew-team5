@@ -1,15 +1,15 @@
 package com.sprint5team.monew.domain.article.entity;
 
 import com.sprint5team.monew.base.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_article")
@@ -40,6 +40,9 @@ public class Article extends BaseEntity {
     @Column(name = "created_at", columnDefinition = "timestamp with time zone")
     private Instant createdAt;
 
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ArticleKeyword> articleKeywords = new ArrayList<>();
+
     public Article(String source, String sourceUrl, String title, String summary, Instant originalDateTime) {
         this.source = source;
         this.sourceUrl = sourceUrl;
@@ -51,5 +54,9 @@ public class Article extends BaseEntity {
 
     public void softDelete() {
         isDeleted = true;
+    }
+
+    public void addArticleKeyword(ArticleKeyword articleKeyword) {
+        this.articleKeywords.add(articleKeyword);
     }
 }

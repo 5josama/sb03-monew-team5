@@ -38,6 +38,7 @@ public class ArticleScraper {
     private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate;
     private final KeywordRepository keywordRepository;
+    private final ArticleService articleService;
 
     @Value("${naver.client_id}")
     private String clientId;
@@ -177,7 +178,9 @@ public class ArticleScraper {
             }
 
             if (!articles.isEmpty()) {
-                articleRepository.saveAll(articles);
+                for (Article article : articles) {
+                    articleService.saveArticle(article);
+                }
             }
 
         } catch (Exception e) {

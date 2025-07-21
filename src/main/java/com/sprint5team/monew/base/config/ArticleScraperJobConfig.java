@@ -1,6 +1,7 @@
 package com.sprint5team.monew.base.config;
 
 import com.sprint5team.monew.base.util.ArticleScraperTasklet;
+import com.sprint5team.monew.base.util.NotificationTasklet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -16,11 +17,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class ArticleScraperJobConfig {
 
     private final ArticleScraperTasklet articleScraperTasklet;
+    private final NotificationTasklet notificationTasklet;
 
     @Bean
-    public Job articleScraperJob(JobRepository jobRepository, Step articleScraperStep) {
+    public Job articleScraperJob(JobRepository jobRepository, Step articleScraperStep, Step notificationStep) {
         return new JobBuilder("articleScraperJob", jobRepository)
                 .start(articleScraperStep)
+                .next(notificationStep)
                 .build();
     }
 
@@ -29,6 +32,14 @@ public class ArticleScraperJobConfig {
                                    PlatformTransactionManager transactionManager) {
         return new StepBuilder("articleScraperStep", jobRepository)
                 .tasklet(articleScraperTasklet, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step notificationStep(JobRepository jobRepository,
+                                 PlatformTransactionManager transactionManager) {
+        return new StepBuilder("notificationStep", jobRepository)
+                .tasklet(notificationTasklet, transactionManager)
                 .build();
     }
 }

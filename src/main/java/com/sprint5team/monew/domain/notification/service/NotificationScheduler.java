@@ -27,4 +27,5 @@ public class NotificationScheduler {
         log.info("1주일이 지난 확인된 알림을 삭제합니다.");
         notificationRepository.deleteByConfirmedIsTrueAndCreatedAtBefore(sevenDaysAgo);
     }
+
 }
