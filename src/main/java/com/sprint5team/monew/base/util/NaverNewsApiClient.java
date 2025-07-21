@@ -1,17 +1,17 @@
-package com.sprint5team.monew.domain.article.service;
+package com.sprint5team.monew.base.util;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.keyword.entity.Keyword;
-import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -28,77 +28,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
-public class ArticleScraper {
+@Slf4j
+public class NaverNewsApiClient {
 
-    private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate;
-    private final KeywordRepository keywordRepository;
+    private final ArticleRepository articleRepository;
 
-    private List<String> keywords = new ArrayList<>();
+    @Value("${naver.client_id}")
+    private String clientId;
 
-    private static final List<String> RSS_FEEDS = List.of(
-            "https://www.hankyung.com/feed/all-news",            // 한국경제
-            "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml", // 조선일보
-            "https://www.yonhapnewstv.co.kr/browse/feed/"                     // 연합뉴스
-    );
+    @Value("${naver.client_secret}")
+    private String clientSecret;
 
-    private static final List<String> SOURCES = List.of(
-            "한국경제",
-            "조선일보",
-            "연합뉴스"
-    );
+    public void scrape(String keyword) {
+        String url = UriComponentsBuilder
+                .fromUriString("https://openapi.naver.com")
+                .path("/v1/search/news.xml")
+                .queryParam("query", keyword)
+                .queryParam("display", 100)
+                .queryParam("sort", "sim")
+                .encode()
+                .build()
+                .toUriString();
 
-    public void scrapeAll() {
-        List<String> keywords = keywordRepository.findAll().stream()
-                .map(Keyword::getName)
-                .distinct()
-                .toList();
-        this.keywords = keywords;
-        scrapeRssFeeds(); // RSS 기반 수집
-    }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Naver-Client-Id", clientId);
+        headers.set("X-Naver-Client-Secret", clientSecret);
 
-    /**
-     * RSS 요청 전용 메서드
-     */
-    private void scrapeRssFeeds() {
-        for (int i = 0; i < RSS_FEEDS.size(); i++) {
-            String feedUrl = RSS_FEEDS.get(i);
-            String source = SOURCES.get(i);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
 
-            try {
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("User-Agent", "Mozilla/5.0");
-                headers.set("Accept", "application/rss+xml");
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                String.class
+        );
 
-                HttpEntity<Void> request = new HttpEntity<>(headers);
-
-                ResponseEntity<String> response = restTemplate.exchange(
-                        feedUrl,
-                        HttpMethod.GET,
-                        request,
-                        String.class
-                );
-
-                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    parseAndSaveArticles(response.getBody(), source);
-                } else {
-                    log.warn("RSS 수집 실패 - URL: {} 상태: {}", feedUrl, response.getStatusCode());
-                }
-            } catch (Exception e) {
-                log.error("RSS 수집 중 오류 발생 - URL: {}", feedUrl, e);
-            }
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new RuntimeException("응답 실패 - 상태: " + response.getStatusCode());
         }
+
+        // 기존의 XML 파싱 로직 그대로 재사용
+        parseAndSaveArticles(response.getBody(), "NAVER", List.of(keyword));
     }
 
-    /**
-     * RSS 요청을 통해 반환받은 xml을 파싱하여 DB에 저장하는 헬퍼 메서드
-     *
-     * @param xml
-     */
-    private void parseAndSaveArticles(String xml, String source) {
+    private void parseAndSaveArticles(String xml, String source, List<String> keywords) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
