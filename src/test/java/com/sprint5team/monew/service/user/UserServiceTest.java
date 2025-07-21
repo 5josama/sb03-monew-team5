@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -16,6 +17,7 @@ import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +57,7 @@ class UserServiceTest {
 
     user = new User(email, nickname, password);
     ReflectionTestUtils.setField(user, "id", id);
-    userDto = new UserDto(id, email, nickname, null);
+    userDto = new UserDto(id, email, nickname, Instant.now());
   }
 
   @Test
@@ -114,14 +116,15 @@ class UserServiceTest {
     // given
     String newNickname = "newNickname";
     UserUpdateRequest request = new UserUpdateRequest(newNickname);
-    given(userRepository.findById(id)).willReturn(Optional.of(user));
-    given(userRepository.save(any(User.class))).willReturn(user);
-    given(userMapper.toDto(any(User.class))).willReturn(userDto);
+    given(userRepository.findById(eq(id))).willReturn(Optional.of(user));
+    given(userMapper.toDto(nullable(User.class))).willReturn(userDto);
 
     // when
     UserDto result = userService.update(id, request);
 
     // then
+    verify(userRepository).save(any(User.class));
+    assertThat(result).isNotEqualTo(userDto);
     assertThat(result.nickname()).isEqualTo(newNickname);
   }
 
