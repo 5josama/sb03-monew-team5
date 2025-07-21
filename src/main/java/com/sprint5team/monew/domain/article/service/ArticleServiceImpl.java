@@ -1,10 +1,12 @@
 package com.sprint5team.monew.domain.article.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.InterestMatcher;
 import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
+import com.sprint5team.monew.domain.article.entity.ArticleKeyword;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.mapper.ArticleMapper;
 import com.sprint5team.monew.domain.article.mapper.ArticleViewMapper;
@@ -19,7 +21,9 @@ import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
@@ -39,6 +44,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final S3Storage s3Storage;
     private final ObjectMapper objectMapper;
     private final CommentRepository commentRepository;
+    private final InterestMatcher interestMatcher;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -199,5 +205,31 @@ public class ArticleServiceImpl implements ArticleService {
         commentRepository.deleteAll(comments);
         articleCountRepository.deleteAll(articleViews);
         articleRepository.deleteById(articleId);
+    }
+
+    @Override
+    @Transactional
+    public void saveArticle(Article article) {
+        // 1. 중복 체크
+        if (articleRepository.existsBySourceUrl(article.getSourceUrl())) return;
+
+        // 2. 관심사 매칭
+        log.debug("관심사 매칭 시작");
+        List<Interest> matchedInterests = interestMatcher.match(article)
+                .stream()
+                .distinct()
+                .toList();
+        log.debug("관심사 매칭 결과: {}개 -> {}", matchedInterests.size(),
+                matchedInterests.stream().map(Interest::getName).toList());
+
+        // 3. 중간 테이블 관계 설정
+        for (Interest interest : matchedInterests) {
+            article.addArticleKeyword(ArticleKeyword.of(article, interest));
+        }
+
+        // 4. 저장
+        articleRepository.save(article);
+        log.info("기사 저장 완료: {}", article.getTitle());
+
     }
 }

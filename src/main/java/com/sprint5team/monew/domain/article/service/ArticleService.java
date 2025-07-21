@@ -4,6 +4,7 @@ import com.sprint5team.monew.domain.article.dto.ArticleRestoreResultDto;
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
 import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
+import com.sprint5team.monew.domain.article.entity.Article;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,4 +22,6 @@ public interface ArticleService {
     void softDeleteArticle(UUID articleId);
 
     void hardDeleteArticle(UUID articleId);
+
+    void saveArticle(Article article);
 }
