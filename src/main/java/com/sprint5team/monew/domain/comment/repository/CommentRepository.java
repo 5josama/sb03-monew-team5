@@ -14,10 +14,16 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, Comment
     @Query("""
         SELECT c.article.id AS articleId, COUNT(c) AS count
         FROM Comment c
-        WHERE c.article.id IN :articleIds
+        WHERE c.article.id IN :articleIds AND c.isDeleted=false
         GROUP BY c.article.id
     """)
     List<ArticleCommentCount> countByArticleIds(@Param("articleIds") List<UUID> articleIds);
 
     List<Comment> findByArticleId(UUID articleId);
+
+    // 사용자 활동 내역 조회 시 사용
+    List<Comment> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    // 사용자 활동 내역 조회 시 사용
+    long countByArticleId(UUID id);
 }

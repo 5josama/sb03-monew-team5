@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface LikeRepository extends JpaRepository<Like, UUID> {
 
     List<Like> findAllByUserIdAndCommentId(UUID userId, UUID CommentId);
+
+  List<Like> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
 }

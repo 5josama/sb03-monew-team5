@@ -102,11 +102,13 @@ class UserRepositoryTest {
     String password = "test1234";
     createTestUser(email, "test", password);
 
-    // when and then
-    assertThrows(InvalidLoginException.class, () -> {
-      userRepository.findByEmailAndPassword(email, "wrongpassword")
-          .orElseThrow(InvalidLoginException::new);
-    });
+    // when
+    User user = userRepository
+        .findByEmailAndPassword(email, "wrongpassword")
+        .orElseThrow(InvalidLoginException::new);
+
+    // then
+    assertThat(user).isNull();
   }
 
 }
