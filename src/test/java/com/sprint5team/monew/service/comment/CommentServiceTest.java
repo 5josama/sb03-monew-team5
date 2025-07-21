@@ -357,5 +357,27 @@ public class CommentServiceTest {
         verify(userRepository).findById(eq(userId));
     }
 
+    @Test
+    void 댓글_좋아요_취소_성공(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        comment.update(comment.getLikeCount() + 1);
+        comment = commentRepository.save(comment);
+        like = likeRepository.save(like);
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+
+        //when
+        commentService.cencelLike(commentId,userId);
+
+        //then
+        verify(likeRepository).save(any(Like.class));
+        verify(commentRepository).save(any(Comment.class));
+        verify(commentRepository).findById(eq(commentId));
+        verify(userRepository).findById(eq(userId));
+        verify(likeRepository).findById(eq(like.getId()));
+    }
+
 
 }
