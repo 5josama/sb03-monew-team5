@@ -222,7 +222,7 @@ public class CommentControllerTest {
     }
 
     @Test
-    void 댓글_좋아요_성공(){
+    void 댓글_좋아요_성공() throws Exception {
         //given
         UUID commentId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
@@ -231,10 +231,10 @@ public class CommentControllerTest {
 
 
         //when && then
-        mockMvc.perform(post("api/comments/{commentId}/comment-likes", commentId)
-                        .header("MoNew-Request-User-ID", UUID.randomUUID().toString()))
+        mockMvc.perform(post("/api/comments/{commentId}/comment-likes", commentId)
+                        .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.commentLikeCount").value(1L));
+                .andExpect(jsonPath("$.commentLikeCount").value(1));
     }
 
 

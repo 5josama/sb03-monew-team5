@@ -9,6 +9,7 @@ import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
+import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
@@ -57,6 +58,9 @@ public class CommentServiceTest {
 
     @Mock
     private CommentMapper commentMapper;
+
+    @Mock
+    private LikeMapper likeMapper;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -331,8 +335,13 @@ public class CommentServiceTest {
         Like like = new Like(comment, user);
         CommentLikeDto commentLikeDto = new CommentLikeDto(UUID.randomUUID(),userId,Instant.now(),commentId,UUID.randomUUID(),UUID.randomUUID(),"nickName","댓글내용",1L,Instant.now());
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
-        given(likeRepository.findAllByUserIdAndCommentId(eq(userId),eq(commentId))).willReturn(List.of(like));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+
+        comment.update(comment.getLikeCount() + 1);
+
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
         given(likeRepository.save(any(Like.class))).willReturn(like);
+        given(likeMapper.toDto(any(Like.class))).willReturn(commentLikeDto);
         ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
 
 
@@ -342,6 +351,10 @@ public class CommentServiceTest {
         //then
         assertThat(likeDto).isEqualTo(commentLikeDto);
         verify(likeRepository).save(any(Like.class));
+        verify(commentRepository).save(any(Comment.class));
+        verify(likeMapper).toDto(any(Like.class));
+        verify(commentRepository).findById(eq(commentId));
+        verify(userRepository).findById(eq(userId));
     }
 
 
