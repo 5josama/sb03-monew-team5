@@ -1,5 +1,6 @@
 package com.sprint5team.monew.base.metric;
 
+import com.sprint5team.monew.base.service.BatchStatusService;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -21,6 +22,7 @@ public class MonewMetrics {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final InterestRepository interestRepository;
+    private final BatchStatusService batchStatusService;
 
     @Getter
     private Counter articleCreatedCounter;
@@ -32,13 +34,19 @@ public class MonewMetrics {
     private final AtomicLong totalArticlesGauge = new AtomicLong(0);
     private final AtomicLong activeUsersGauge = new AtomicLong(0);
     private final AtomicLong totalInterestsGauge = new AtomicLong(0);
+    private final AtomicLong lastJobSuccessful = new AtomicLong(0);
+    private final AtomicLong lastJobTimestamp = new AtomicLong(0);
+    private final AtomicLong successCount = new AtomicLong(0);
+    private final AtomicLong failureCount = new AtomicLong(0);
+    private final AtomicLong lastExecutionTime = new AtomicLong(0);
 
 
-    public MonewMetrics(MeterRegistry meterRegistry, ArticleRepository articleRepository, UserRepository userRepository, InterestRepository interestRepository) {
+    public MonewMetrics(MeterRegistry meterRegistry, ArticleRepository articleRepository, UserRepository userRepository, InterestRepository interestRepository, BatchStatusService batchStatusService) {
         this.meterRegistry = meterRegistry;
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.interestRepository = interestRepository;
+        this.batchStatusService = batchStatusService;
     }
 
     @PostConstruct
@@ -74,6 +82,30 @@ public class MonewMetrics {
                 .tag("system", "monew")
                 .register(meterRegistry);
 
+        Gauge.builder("batch.last.success", lastJobSuccessful, AtomicLong::get)
+                .description("배치 성공 여부 (1: 성공, 0: 실패)")
+                .tag("system", "monew")
+                .register(meterRegistry);
+
+        Gauge.builder("batch.last.timestamp", lastJobTimestamp, AtomicLong::get)
+                .description("마지막 배치 시각 (Epoch millis)")
+                .tag("system", "monew")
+                .register(meterRegistry);
+
+        Gauge.builder("batch.success.count", successCount, AtomicLong::get)
+                .description("배치 성공 횟수")
+                .tag("system", "monew")
+                .register(meterRegistry);
+
+        Gauge.builder("batch.failure.count", failureCount, AtomicLong::get)
+                .description("배치 실패 횟수")
+                .tag("system", "monew")
+                .register(meterRegistry);
+
+        Gauge.builder("batch.execution.time", lastExecutionTime, AtomicLong::get)
+                .description("배치 실행 시간 (ms)")
+                .tag("system", "monew")
+                .register(meterRegistry);
     }
 
     public double getTotalArticles() {
@@ -95,6 +127,19 @@ public class MonewMetrics {
         updateTotalInterests();
 
         log.debug("[s4][MonewMetrics] 게이지 메트릭 업데이트 완료");
+    }
+
+    public void updateBatchMetrics(BatchStatusService statusService) {
+        try {
+            lastJobSuccessful.set(statusService.wasLastJobSuccessful() ? 1 : 0);
+            lastJobTimestamp.set(statusService.getLastJobTime().toEpochMilli());
+            successCount.set(statusService.getSuccessCount());
+            failureCount.set(statusService.getFailureCount());
+            lastExecutionTime.set(statusService.getTotalExecutionTime().toMillis());
+            log.debug("[s4][MonewMetrics] 배치 메트릭 업데이트 완료");
+        } catch (Exception e) {
+            log.warn("[s4][MonewMetrics] 배치 메트릭 업데이트 중 오류 발생", e);
+        }
     }
 
     private void updateTotalArticles() {
