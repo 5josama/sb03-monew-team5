@@ -4,14 +4,14 @@ package com.sprint5team.monew.domain.comment.service;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
+import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -36,6 +36,8 @@ public class CommentServiceImpl implements CommentService{
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
+    private final LikeRepository likeRepository;
+    private final LikeMapper likeMapper;
 
     /**
      * 댓글을 생성하는 메소드
@@ -121,6 +123,12 @@ public class CommentServiceImpl implements CommentService{
         );
     }
 
+    /**
+     * 댓글 정보 수정 메서드
+     * @param commentId 수정하고자 하는 댓글ID
+     * @param request 바꾸고싶은 내용
+     * @return 바꾼 결과 Dto
+     */
     @Override
     public CommentDto update(UUID commentId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
@@ -150,4 +158,18 @@ public class CommentServiceImpl implements CommentService{
         commentRepository.deleteById(commentId);
     }
 
+
+    @Override
+    public CommentLikeDto like(UUID commentId, UUID userId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
+
+        Like like = new Like(comment, user);
+        likeRepository.save(like);
+        comment.update(comment.getLikeCount() + 1);
+        commentRepository.save(comment);
+
+        return likeMapper.toDto(like);
+    }
 }
