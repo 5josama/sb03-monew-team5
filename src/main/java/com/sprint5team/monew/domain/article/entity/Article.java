@@ -58,6 +58,5 @@ public class Article extends BaseEntity {
 
     public void addArticleKeyword(ArticleKeyword articleKeyword) {
         this.articleKeywords.add(articleKeyword);
-        articleKeyword.setArticle(this);
     }
 }

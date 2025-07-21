@@ -30,6 +30,7 @@ public class ArticleKeyword {
         ArticleKeyword ak = new ArticleKeyword();
         ak.article = article;
         ak.interest = interest;
+        article.getArticleKeywords().add(ak);
         return ak;
     }
 }
