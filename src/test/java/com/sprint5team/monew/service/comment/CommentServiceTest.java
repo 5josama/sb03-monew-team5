@@ -4,14 +4,13 @@ package com.sprint5team.monew.service.comment;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -46,6 +45,9 @@ public class CommentServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private LikeRepository likeRepository;
 
     @Mock
     private ArticleRepository articleRepository;
@@ -320,6 +322,26 @@ public class CommentServiceTest {
         //when && then
         assertThatThrownBy(() -> commentService.update(commentId,request))
                 .isInstanceOf(CommentNotFoundException.class);
+    }
+
+    @Test
+    void 댓글_좋아요_성공(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        CommentLikeDto commentLikeDto = new CommentLikeDto(UUID.randomUUID(),userId,Instant.now(),commentId,UUID.randomUUID(),UUID.randomUUID(),"nickName","댓글내용",1L,Instant.now());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(likeRepository.findAllByUserIdAndCommentId(eq(userId),eq(commentId))).willReturn(List.of(like));
+        given(likeRepository.save(any(Like.class))).willReturn(like);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+
+
+        //when
+        CommentLikeDto likeDto = commentService.like(commentId,userId);
+
+        //then
+        assertThat(likeDto).isEqualTo(commentLikeDto);
+        verify(likeRepository).save(any(Like.class));
     }
 
 
