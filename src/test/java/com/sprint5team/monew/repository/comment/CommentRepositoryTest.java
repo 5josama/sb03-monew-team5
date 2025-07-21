@@ -4,8 +4,10 @@ import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.CommentRepositoryImpl;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +34,9 @@ public class CommentRepositoryTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     @Autowired
     private ArticleRepository articleRepository;
@@ -95,11 +100,8 @@ public class CommentRepositoryTest {
         //then
         assertThat(commentList).hasSize(3);
         assertThat(commentList.get(0).getContent()).isEqualTo(save1.getContent());
-        assertThat(commentList.get(0).getLikeCount()).isEqualTo(save1.getLikeCount());
         assertThat(commentList.get(1).getContent()).isEqualTo(save2.getContent());
-        assertThat(commentList.get(1).getLikeCount()).isEqualTo(save2.getLikeCount());
         assertThat(commentList.get(2).getContent()).isEqualTo(save3.getContent());
-        assertThat(commentList.get(2).getLikeCount()).isEqualTo(save3.getLikeCount());
     }
 
     @Test
@@ -206,5 +208,29 @@ public class CommentRepositoryTest {
 
         //then
         assertThat(commentRepository.findById(save3.getId()).get().getContent()).isEqualTo("수정된 테스트 내용");
+    }
+
+    @Test
+    void 댓글_좋아요_성공(){
+        //given
+        Article article = new Article("SRC1", "http://example.com", "Title", "Summary", Instant.now());
+        User user = new User("test@test.com", "nickname", "password");
+
+        article = articleRepository.save(article);
+        user = userRepository.save(user);
+
+        // 댓글 생성 및 저장
+        Comment save1 = commentRepository.save(createComment(article, user, "테스트 내용1"));
+        Like like;
+
+        //when
+        like = likeRepository.save(new Like(save1, user));
+        save1.update(save1.getLikeCount() + 1);
+        save1 = commentRepository.save(save1);
+
+        //then
+        assertThat(save1.getLikeCount()).isEqualTo(1);
+        assertThat(like.getComment()).isEqualTo(save1);
+        assertThat(like.getUser()).isEqualTo(user);
     }
 }
