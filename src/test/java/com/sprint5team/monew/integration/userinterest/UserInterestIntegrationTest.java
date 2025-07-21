@@ -9,7 +9,7 @@ import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.InvalidSubscriptionRequestException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
@@ -129,14 +129,62 @@ public class UserInterestIntegrationTest {
     }
 
     @Test
-    void 구독중인_관심사를_구독하려_시도할_경우_UserInterestAlreadyExistsException_404_를_반환한다() throws Exception {
+    void 구독중인_관심사를_구독하려_시도할_경우_InvalidSubscriptionRequestException_400_를_반환한다() throws Exception {
         // given
         userInterestService.registerSubscription(globalInterest.getId(), globalUser.getId());
 
         // when n then
         assertThatThrownBy(() -> userInterestService.registerSubscription(globalInterest.getId(), globalUser.getId()))
-            .isInstanceOf(UserInterestAlreadyExistsException.class)
-            .hasMessageContaining("이미 구독중");
+            .isInstanceOf(InvalidSubscriptionRequestException.class)
+            .hasMessageContaining("구독 요청에 문제 있음");
+    }
+
+    @Test
+    void 구독을_정상적으로_취소한다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+    @Test
+    void 요청자_정보가_없을경우_UserNotFoundException_404_를_반환한다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+
+    @Test
+    void 관심사_정보가_없을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+
+    @Test
+    void 관심사_구독한_사용자_수에_문제가_있을경우_SubscriberNotMatchesException_409_를_반환한다() throws Exception {
+        // given
+
+        // when
+
+        // then
+
+    }
+    @Test
+    void 요청자가_() throws Exception {
+        // given
+
+        // when
+
+        // then
+
     }
 
 }

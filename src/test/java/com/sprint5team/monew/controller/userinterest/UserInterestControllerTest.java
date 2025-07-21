@@ -6,7 +6,7 @@ import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user_interest.controller.UserInterestController;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.exception.SubscriberNotMatchesException;
-import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.InvalidSubscriptionRequestException;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,7 +99,6 @@ public class UserInterestControllerTest {
         assertThat(exception).isInstanceOf(InterestNotExistsException.class);
     }
 
-    // TODO 구독 취소
     @Test
     void 요청자의_구독_취소_요청이_정상적으로_동작한다() throws Exception {
         // given
@@ -117,7 +116,7 @@ public class UserInterestControllerTest {
         UUID interestId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        willThrow(UserInterestAlreadyExistsException.class)
+        willThrow(InvalidSubscriptionRequestException.class)
             .given(userInterestService)
             .unsubscribeInterest(interestId, userId);
 
@@ -131,7 +130,7 @@ public class UserInterestControllerTest {
 
         Exception exception = result.getResolvedException();
 
-        assertThat(exception).isInstanceOf(UserInterestAlreadyExistsException.class);
+        assertThat(exception).isInstanceOf(InvalidSubscriptionRequestException.class);
     }
 
     @Test

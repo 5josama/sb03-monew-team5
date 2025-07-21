@@ -525,7 +525,6 @@ public class InterestServiceTest {
             .hasMessageContaining("일치하는 관심사 없음");
     }
 
-    // TODO 관심사 수정 기능
     @Test
     void 키워드_변경사항이_없으면_키워드가_수정되지_않는다() throws Exception {
         // given

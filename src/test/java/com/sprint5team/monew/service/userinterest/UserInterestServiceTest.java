@@ -7,7 +7,7 @@ import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.exception.SubscriberNotMatchesException;
-import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.InvalidSubscriptionRequestException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
@@ -80,7 +80,7 @@ public class UserInterestServiceTest {
     }
 
     @Test
-    void 구독중인_경우_UserInterestAlreadyExistsException_400_를_반환한다() throws Exception { //
+    void 구독중인_경우_InvalidSubscriptionRequestException_400_를_반환한다() throws Exception { //
         // given
         User user = new User("test@test.com", "dk", "dkdkdk");
         Interest interest = new Interest("유리 공예");
@@ -88,11 +88,11 @@ public class UserInterestServiceTest {
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
         given(userInterestRepository.existsByUserIdAndInterestId(user.getId(), interest.getId()))
-            .willThrow(UserInterestAlreadyExistsException.class);
+            .willThrow(InvalidSubscriptionRequestException.class);
 
         // when
         assertThatThrownBy(() -> userInterestService.registerSubscription(interest.getId(), user.getId()))
-            .isInstanceOf(UserInterestAlreadyExistsException.class);
+            .isInstanceOf(InvalidSubscriptionRequestException.class);
 
         // then
         then(userInterestRepository).should(times(0)).save(any());
@@ -162,7 +162,6 @@ public class UserInterestServiceTest {
         then(userInterestRepository).should(times(1)).save(any());
     }
 
-    // TODO 구독 취소
     @Test
     void 구독_취소가_가능하다() throws Exception {
         // given
@@ -224,7 +223,7 @@ public class UserInterestServiceTest {
 
         // when
         assertThatThrownBy(()->userInterestService.unsubscribeInterest(any(), any()))
-            .isInstanceOf(UserInterestAlreadyExistsException.class);
+            .isInstanceOf(InvalidSubscriptionRequestException.class);
 
         // then
         then(userInterestRepository).should(times(0)).delete(any());

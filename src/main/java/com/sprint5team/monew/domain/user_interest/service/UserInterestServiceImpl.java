@@ -6,7 +6,7 @@ import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user_interest.exception.UserInterestAlreadyExistsException;
+import com.sprint5team.monew.domain.user_interest.exception.InvalidSubscriptionRequestException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.mapper.UserInterestMapper;
@@ -49,7 +49,7 @@ public class UserInterestServiceImpl implements UserInterestService {
         Interest interest = interestRepository.findById(interestId).orElseThrow(InterestNotExistsException::new);
 
         log.info("3. 구독 중복 여부 확인");
-        if (userInterestRepository.existsByUserIdAndInterestId(userId, interestId)) throw new UserInterestAlreadyExistsException();
+        if (userInterestRepository.existsByUserIdAndInterestId(userId, interestId)) throw new InvalidSubscriptionRequestException();
 
         log.info("4. 구독 정보 저장");
         UserInterest userInterest = UserInterest.builder()
@@ -64,23 +64,21 @@ public class UserInterestServiceImpl implements UserInterestService {
         return userInterestMapper.toDto(userInterest);
     }
 
-    // TODO 구독 취소
     @Override
     public void unsubscribeInterest(UUID interestId, UUID userId) {
-        /**
-         * 1. 구독 여부 확인 - exception
-         * 2. 요청자 확인 - exception
-         * 3. 관심사 확인 - exception
-         * 4. 구독 삭제
-         * 5. 관심사 구독 수 -1
-         * 5-1  관심사가 0 또는 작을 경우 - exception(SubscriberNotMatchesException 추가)
-         * 5-2  문제 없으면 -1
-         */
+        log.info("1. 구독 여부 확인");
+        UserInterest userInterest = userInterestRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(InvalidSubscriptionRequestException::new);
 
-        UserInterest userInterest = userInterestRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(UserInterestAlreadyExistsException::new);
+        log.info("2. 요청자 확인");
         if(!userRepository.existsById(userId)) throw new UserNotFoundException();
+
+        log.info("3. 관심사 확인");
         Interest interest = interestRepository.findById(interestId).orElseThrow(InterestNotExistsException::new);
+
+        log.info("4. 관심사 구독자 수 감소");
         interest.unsubscribe();
+
+        log.info("5. 구독 정보 삭제");
         userInterestRepository.delete(userInterest);
     }
 }
