@@ -104,7 +104,7 @@ public class InterestControllerTest {
                 .param("cursor", "강의")
                 .param("after", Instant.now().toString())
                 .param("limit", "3")
-                .header("monew-request-user-id", id.toString()))
+                .header("Monew-Request-User-ID", id.toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.nextCursor").value("취미"))
@@ -303,7 +303,6 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
     }
 
-    // TODO 관심사 수정 기능
     @Test
     void 관심사의_키워드를_추가할_수_있다() throws Exception {
         // given
