@@ -150,31 +150,4 @@ public class CommentServiceImpl implements CommentService{
         commentRepository.deleteById(commentId);
     }
 
-//    /**
-//     * Cursor가 CreatedAt(Instant)인지 판단하는 로직
-//     * @param cursor 커서
-//     * @return true: Instant, false: Long
-//     */
-//    private boolean isInstantCursor(String cursor) {
-//        try {
-//            Instant.parse(cursor);  // ISO-8601 형태 파싱 시도
-//            return true;
-//        } catch (DateTimeParseException e) {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * Cursor가 likeCount(Long)인지 판단하는 로직
-//     * @param cursor 커서
-//     * @return true: Long, false: Instant
-//     */
-//    private boolean isLongCursor(String cursor) {
-//        try {
-//            Long.parseLong(cursor);  // 숫자 파싱 시도
-//            return true;
-//        } catch (NumberFormatException e) {
-//            return false;
-//        }
-//    }
 }
