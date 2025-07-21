@@ -237,5 +237,20 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.commentLikeCount").value(1));
     }
 
+    @Test
+    void 댓글_좋아요_취소_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        given(commentService.cancelLike(commentId,userId)).willReturn(null);
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/comment-likes", commentId)
+                        .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk());
+    }
+
+
+
 
 }
