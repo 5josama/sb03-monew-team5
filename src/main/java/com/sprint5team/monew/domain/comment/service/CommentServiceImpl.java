@@ -18,6 +18,7 @@ import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -84,15 +85,19 @@ public class CommentServiceImpl implements CommentService{
         String nextCursor = null;
         Instant afterCursor = null;
 
+        Sort.Order sortOrder = pageable.getSort().iterator().next();
+        String property = sortOrder.getProperty();
+
         //hasNext 판단 로직
         boolean hasNext = false;
         if(commentList.size() == pageable.getPageSize()) {
             hasNext = true;
             afterCursor = lastIndex.getCreatedAt();
+
             //lastIndex의 커서를 확인하는 로직(hasNext가 존재할경우만 판단)
-            if(isInstantCursor(cursor)){
+            if(property.equals("createdAt")){
                 nextCursor = lastIndex.getCreatedAt().toString();
-            }else if (isLongCursor(cursor)){
+            }else if (property.equals("likeCount")){
                 nextCursor = lastIndex.getLikeCount().toString();
             }
         }
@@ -145,31 +150,31 @@ public class CommentServiceImpl implements CommentService{
         commentRepository.deleteById(commentId);
     }
 
-    /**
-     * Cursor가 CreatedAt(Instant)인지 판단하는 로직
-     * @param cursor 커서
-     * @return true: Instant, false: Long
-     */
-    private boolean isInstantCursor(String cursor) {
-        try {
-            Instant.parse(cursor);  // ISO-8601 형태 파싱 시도
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Cursor가 likeCount(Long)인지 판단하는 로직
-     * @param cursor 커서
-     * @return true: Long, false: Instant
-     */
-    private boolean isLongCursor(String cursor) {
-        try {
-            Long.parseLong(cursor);  // 숫자 파싱 시도
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
+//    /**
+//     * Cursor가 CreatedAt(Instant)인지 판단하는 로직
+//     * @param cursor 커서
+//     * @return true: Instant, false: Long
+//     */
+//    private boolean isInstantCursor(String cursor) {
+//        try {
+//            Instant.parse(cursor);  // ISO-8601 형태 파싱 시도
+//            return true;
+//        } catch (DateTimeParseException e) {
+//            return false;
+//        }
+//    }
+//
+//    /**
+//     * Cursor가 likeCount(Long)인지 판단하는 로직
+//     * @param cursor 커서
+//     * @return true: Long, false: Instant
+//     */
+//    private boolean isLongCursor(String cursor) {
+//        try {
+//            Long.parseLong(cursor);  // 숫자 파싱 시도
+//            return true;
+//        } catch (NumberFormatException e) {
+//            return false;
+//        }
+//    }
 }
