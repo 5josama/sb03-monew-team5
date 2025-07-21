@@ -5,8 +5,8 @@ import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.service.ArticleService;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
+import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
@@ -51,13 +51,13 @@ public class UserActivityServiceImpl implements UserActivityService{
         userInterest.stream()
         .map(userInterestMapper::toDto)
         .toList();
-    List<CommentDto> comments =
+    List<CommentActivityDto> comments =
         comment.stream()
-            .map(commentMapper::toDto)
+            .map(commentMapper::toActivityDto)
             .toList();
-    List<CommentLikeDto> commentLikes =
+    List<CommentLikeActivityDto> commentLikes =
         commentLike.stream()
-            .map(commentMapper::toDto)
+            .map(commentMapper::toActivityDto)
             .toList();
     List<Article> articles = articleCountRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId)
         .stream()

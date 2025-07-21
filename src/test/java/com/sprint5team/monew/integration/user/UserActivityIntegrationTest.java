@@ -10,8 +10,8 @@ import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
+import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
@@ -110,6 +110,7 @@ public class UserActivityIntegrationTest {
     entityManager.flush();
 
     Interest interest = new Interest("스포츠");
+    interest.subscribed();
     interestRepository.save(interest);
     entityManager.flush();
 
@@ -126,8 +127,8 @@ public class UserActivityIntegrationTest {
     entityManager.clear();
 
     SubscriptionDto subscriptionDto = userInterestMapper.toDto(userInterest);
-    CommentDto commentDto = commentMapper.toDto(comment);
-    CommentLikeDto commentLikeDto = commentMapper.toDto(like);
+    CommentActivityDto commentActivityDto = commentMapper.toActivityDto(comment);
+    CommentLikeActivityDto commentLikeActivityDto = commentMapper.toActivityDto(like);
     ArticleViewDto articleViewDto = articleService.saveArticleView(article.getId(), user.getId());
 
     UserActivityDto userActivityDto = userActivityService.getUserActivity(user.getId());
@@ -145,24 +146,23 @@ public class UserActivityIntegrationTest {
         .andExpect(jsonPath("$.subscriptions[0].interestName").value("스포츠"))
         .andExpect(jsonPath("$.subscriptions[0].interestKeywords[0]").value("축구"))
         .andExpect(jsonPath("$.subscriptions[0].interestKeywords[1]").value("야구"))
-        // TODO: 현재 사용자가 관심사를 구독하고있음에도 해당 관심사의 구독자 수가 0이 나오는 문제가 있음.
-        .andExpect(jsonPath("$.subscriptions[0].interestSubscriberCount").value(0L))
+        .andExpect(jsonPath("$.subscriptions[0].interestSubscriberCount").value(1L))
         .andExpect(jsonPath("$.subscriptions[0].createdAt").exists())
         .andExpect(jsonPath("$.comments").isArray())
         .andExpect(jsonPath("$.comments[0].id").value(comment.getId().toString()))
         .andExpect(jsonPath("$.comments[0].articleId").value(article.getId().toString()))
+        .andExpect(jsonPath("$.comments[0].articleTitle").value("기사제목"))
         .andExpect(jsonPath("$.comments[0].userId").value(user.getId().toString()))
         .andExpect(jsonPath("$.comments[0].userNickname").value("test"))
         .andExpect(jsonPath("$.comments[0].content").value("댓글 내용 입니다."))
         .andExpect(jsonPath("$.comments[0].likeCount").value(0L))
-        .andExpect(jsonPath("$.comments[0].likedByMe").value(false))
         .andExpect(jsonPath("$.comments[0].createdAt").exists())
         .andExpect(jsonPath("$.commentLikes").isArray())
         .andExpect(jsonPath("$.commentLikes[0].id").value(like.getId().toString()))
-        .andExpect(jsonPath("$.commentLikes[0].likedBy").value(user.getId().toString()))
         .andExpect(jsonPath("$.commentLikes[0].createdAt").exists())
         .andExpect(jsonPath("$.commentLikes[0].commentId").value(commentByOtherUser.getId().toString()))
         .andExpect(jsonPath("$.commentLikes[0].articleId").value(article.getId().toString()))
+        .andExpect(jsonPath("$.commentLikes[0].articleTitle").value("기사제목"))
         .andExpect(jsonPath("$.commentLikes[0].commentUserId").value(commentUser.getId().toString()))
         .andExpect(jsonPath("$.commentLikes[0].commentUserNickname").value("commentUser"))
         .andExpect(jsonPath("$.commentLikes[0].commentContent").value("다른 사용자가 작성한 댓글 내용 입니다."))
@@ -241,8 +241,8 @@ public class UserActivityIntegrationTest {
     entityManager.clear();
 
     SubscriptionDto subscriptionDto = userInterestMapper.toDto(userInterest);
-    CommentDto commentDto = commentMapper.toDto(comment);
-    CommentLikeDto commentLikeDto = commentMapper.toDto(like);
+    CommentActivityDto commentActivityDto = commentMapper.toActivityDto(comment);
+    CommentLikeActivityDto commentLikeActivityDto = commentMapper.toActivityDto(like);
     ArticleViewDto articleViewDto = articleService.saveArticleView(article.getId(), user.getId());
 
     UserActivityDto userActivityDto = new UserActivityDto(
@@ -251,8 +251,8 @@ public class UserActivityIntegrationTest {
         "test",
         Instant.now(),
         List.of(subscriptionDto),
-        List.of(commentDto),
-        List.of(commentLikeDto),
+        List.of(commentActivityDto),
+        List.of(commentLikeActivityDto),
         List.of(articleViewDto)
     );
   }

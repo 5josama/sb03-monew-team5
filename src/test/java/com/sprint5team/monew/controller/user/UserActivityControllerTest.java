@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
+import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.user.controller.UserActivityController;
 import com.sprint5team.monew.domain.user.dto.UserActivityDto;
 import com.sprint5team.monew.domain.user.service.UserActivityServiceImpl;
@@ -44,9 +44,9 @@ public class UserActivityControllerTest {
     List<String> keywords = List.of("축구", "야구", "농구");
 
     SubscriptionDto subscriptionDto = new SubscriptionDto(userId, interestId,"interest", keywords, 1L, Instant.now());
-    CommentDto commentDto = new CommentDto(commentId, articleId, userId, "test", "댓글 내용 입니다.",0L, false, Instant.now());
-    CommentLikeDto commentLikeDto = new CommentLikeDto(commentLikeId, userId, Instant.now(), commentId, articleId, commentUserId, "commentUser", "내가 좋아하는 댓글 내용", 1L, Instant.now());
-    ArticleViewDto articleViewDto = new ArticleViewDto(articleViewId, userId, Instant.now(), articleId, "NAVER", "https://naver.com/news/12333", "test", Instant.now(), "요약", 10L, 10L);
+    CommentActivityDto commentDto = new CommentActivityDto(commentId, articleId, "기사 제목", userId, "test","댓글 내용 입니다.",0L, Instant.now());
+    CommentLikeActivityDto commentLikeDto = new CommentLikeActivityDto(commentLikeId, Instant.now(), commentId, articleId, "기사 제목", commentUserId, "commentUser", "내가 좋아하는 댓글 내용", 1L, Instant.now());
+    ArticleViewDto articleViewDto = new ArticleViewDto(articleViewId, userId, Instant.now(), articleId, "NAVER", "https://naver.com/news/12333", "기사 제목", Instant.now(), "요약", 10L, 10L);
 
     UserActivityDto userActivityDto = new UserActivityDto(
         userId,
@@ -80,18 +80,18 @@ public class UserActivityControllerTest {
         .andExpect(jsonPath("$.comments").isArray())
         .andExpect(jsonPath("$.comments[0].id").value(commentId.toString()))
         .andExpect(jsonPath("$.comments[0].articleId").value(articleId.toString()))
+        .andExpect(jsonPath("$.comments[0].articleTitle").value("기사 제목"))
         .andExpect(jsonPath("$.comments[0].userId").value(userId.toString()))
         .andExpect(jsonPath("$.comments[0].userNickname").value("test"))
         .andExpect(jsonPath("$.comments[0].content").value("댓글 내용 입니다."))
         .andExpect(jsonPath("$.comments[0].likeCount").value(0L))
-        .andExpect(jsonPath("$.comments[0].likedByMe").value(false))
         .andExpect(jsonPath("$.comments[0].createdAt").exists())
         .andExpect(jsonPath("$.commentLikes").isArray())
         .andExpect(jsonPath("$.commentLikes[0].id").value(commentLikeId.toString()))
-        .andExpect(jsonPath("$.commentLikes[0].likedBy").value(userId.toString()))
         .andExpect(jsonPath("$.commentLikes[0].createdAt").exists())
         .andExpect(jsonPath("$.commentLikes[0].commentId").value(commentId.toString()))
         .andExpect(jsonPath("$.commentLikes[0].articleId").value(articleId.toString()))
+        .andExpect(jsonPath("$.commentLikes[0].articleTitle").value("기사 제목"))
         .andExpect(jsonPath("$.commentLikes[0].commentUserId").value(commentUserId.toString()))
         .andExpect(jsonPath("$.commentLikes[0].commentUserNickname").value("commentUser"))
         .andExpect(jsonPath("$.commentLikes[0].commentContent").value("내가 좋아하는 댓글 내용"))
@@ -104,10 +104,10 @@ public class UserActivityControllerTest {
         .andExpect(jsonPath("$.articleViews[0].articleId").value(articleId.toString()))
         .andExpect(jsonPath("$.articleViews[0].source").value("NAVER"))
         .andExpect(jsonPath("$.articleViews[0].sourceUrl").value("https://naver.com/news/12333"))
-        .andExpect(jsonPath("$.articleViews[0].title").value("test"))
-        .andExpect(jsonPath("$.articleViews[0].publishDate").exists())
-        .andExpect(jsonPath("$.articleViews[0].summary").value("요약"))
-        .andExpect(jsonPath("$.articleViews[0].commentCount").value(10L))
-        .andExpect(jsonPath("$.articleViews[0].viewCount").value(10L));
+        .andExpect(jsonPath("$.articleViews[0].articleTitle").value("기사 제목"))
+        .andExpect(jsonPath("$.articleViews[0].articlePublishDate").exists())
+        .andExpect(jsonPath("$.articleViews[0].articleSummary").value("요약"))
+        .andExpect(jsonPath("$.articleViews[0].articleCommentCount").value(10L))
+        .andExpect(jsonPath("$.articleViews[0].articleViewCount").value(10L));
   }
 }

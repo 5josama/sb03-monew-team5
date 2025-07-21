@@ -12,8 +12,8 @@ import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.entity.ArticleCount;
 import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
 import com.sprint5team.monew.domain.article.service.ArticleServiceImpl;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
+import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
@@ -116,17 +116,17 @@ class UserActivityServiceTest {
     Comment comment = new Comment(article1, user, "content");
     given(commentRepository.findTop10ByUserIdOrderByCreatedAtDesc(user.getId())).willReturn(
         List.of(comment));
-    given(commentMapper.toDto(comment)).willReturn(
-        new CommentDto(comment.getId(), article1.getId(), user.getId(), user.getNickname(),
-            comment.getContent(), 0L, false, comment.getCreatedAt()));
+    given(commentMapper.toActivityDto(comment)).willReturn(
+        new CommentActivityDto(comment.getId(), article1.getId(), article1.getTitle(), user.getId(), user.getNickname(),
+            comment.getContent(), 0L, comment.getCreatedAt()));
 
     // 댓글 좋아요
     Like like = new Like(comment, user);
     given(likeRepository.findTop10ByUserIdOrderByCreatedAtDesc(user.getId())).willReturn(
         List.of(like));
-    given(commentMapper.toDto(like)).willReturn(
-        new CommentLikeDto(like.getId(), user.getId(), like.getCreatedAt(), comment.getId(),
-            article1.getId(), comment.getUser().getId(), comment.getUser().getNickname(),
+    given(commentMapper.toActivityDto(like)).willReturn(
+        new CommentLikeActivityDto(like.getId(), like.getCreatedAt(), comment.getId(),
+            article1.getId(), article1.getTitle(), comment.getUser().getId(), comment.getUser().getNickname(),
             comment.getContent(), 1L, comment.getCreatedAt()));
 
     // when

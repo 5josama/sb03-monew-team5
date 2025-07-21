@@ -1,8 +1,8 @@
 package com.sprint5team.monew.domain.user.dto;
 
 import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
+import com.sprint5team.monew.domain.comment.dto.CommentActivityDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeActivityDto;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
 import java.time.Instant;
 import java.util.List;
@@ -14,8 +14,8 @@ public record UserActivityDto(
     String nickname,
     Instant createdAt,
     List<SubscriptionDto> subscriptions,
-    List<CommentDto> comments,
-    List<CommentLikeDto> commentLikes,
+    List<CommentActivityDto> comments,
+    List<CommentLikeActivityDto> commentLikes,
     List<ArticleViewDto> articleViews
 ) {
 
