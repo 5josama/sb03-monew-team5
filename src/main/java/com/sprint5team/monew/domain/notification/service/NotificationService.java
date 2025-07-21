@@ -12,4 +12,5 @@ public interface NotificationService {
     CursorPageResponseNotificationDto getAllNotifications(UUID userId, String cursor, Instant after, int limit);
     void confirmNotification(UUID notificationId, UUID userId);
     void confirmAllNotifications(UUID userId);
+    void notifyNewArticles();
 }
