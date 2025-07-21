@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService{
         .findById(userId)
         .orElseThrow(UserNotFoundException::new);
 
-    if (request.nickname() != null) {
+    if (request.nickname() != null && request.nickname() != user.getNickname()) {
       user.updateNickname(request.nickname());
       userRepository.save(user);
     }
