@@ -126,4 +126,19 @@ class UserRepositoryTest {
     assertThat(userRepository.findById(user.getId()).get().getNickname()).isEqualTo(newNickname);
   }
 
+  @Test
+  void 사용자_논리삭제_성공() {
+    // given
+    String email = "test@test.kr";
+    String nickname = "test";
+    String password = "test1234";
+    User user = userRepository.save(createTestUser(email, nickname, password));
+
+    // when
+    user.softDelete();
+    userRepository.save(user);
+
+    // then
+    assertThat(userRepository.findById(user.getId()).get().getIsDeleted()).isEqualTo(true);
+  }
 }

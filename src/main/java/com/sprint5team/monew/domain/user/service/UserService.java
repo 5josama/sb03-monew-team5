@@ -12,4 +12,8 @@ public interface UserService {
   UserDto login(String email, String password);
 
   UserDto update(UUID userId, UserUpdateRequest request);
+
+  void hardDelete(UUID userId);
+
+  UserDto softDelete(UUID id);
 }

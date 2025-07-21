@@ -2,6 +2,8 @@ package com.sprint5team.monew.controller.user;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -185,4 +187,28 @@ class UserControllerTest {
         .andExpect(status().isNotFound());
   }
 
+  @Test
+  void 사용자_정보_삭제_성공() throws Exception {
+    // given
+    UUID userId = UUID.randomUUID();
+    willDoNothing().given(userService).softDelete(any(UUID.class));
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent())
+        .andExpect(content().string(userId +" is deleted."));
+  }
+
+  @Test
+  void 사용자_정보_삭제_실패_존재하지_않는_사용자() throws Exception {
+    // given
+    UUID userId = UUID.randomUUID();
+    given(userService.softDelete(any(UUID.class))).willThrow(UserNotFoundException.class);
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
 }

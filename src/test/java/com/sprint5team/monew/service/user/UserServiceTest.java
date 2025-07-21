@@ -142,4 +142,20 @@ class UserServiceTest {
     assertThatThrownBy(() -> userService.update(id, request))
         .isInstanceOf(InvalidInputValueException.class);
   }
+
+  @Test
+  void 사용자_논리삭제_성공() {
+    // given
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
+
+    // when
+    userService.softDelete(id);
+
+    // then
+    assertThat(user.getIsDeleted()).isTrue();
+    verify(userRepository).softDeleteById(id);
+    then(userRepository).should(times(1)).save(any(User.class));
+    then(userMapper).should(times(1)).toDto(any(User.class));
+  }
 }

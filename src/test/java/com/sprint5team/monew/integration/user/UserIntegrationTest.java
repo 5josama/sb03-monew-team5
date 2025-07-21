@@ -1,5 +1,6 @@
 package com.sprint5team.monew.integration.user;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -7,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint5team.monew.domain.user.dto.UserDto;
+import com.sprint5team.monew.domain.user.dto.UserLoginRequest;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
@@ -112,17 +114,51 @@ class UserIntegrationTest {
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
         "test",
-        "test" // 비밀번호 최소 길이 위반
+        "test1234"
     );
-    userService.register(request);
+    UserDto userDto = userService.register(request);
 
     entityManager.flush();
     entityManager.clear();
 
+    UserLoginRequest loginRequest = new UserLoginRequest(
+        "test@test.kr",
+        "test1234"
+    );
+
     // when and then
     mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+            .content(objectMapper.writeValueAsString(loginRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userDto.id().toString()))
+        .andExpect(jsonPath("$.email").value("test@test.kr"))
+        .andExpect(jsonPath("$.nickname").value("test"))
+        .andExpect(jsonPath("$.createdAt").exists());
+  }
+
+  @Test
+  void 사용자_로그인_실패_API_통합_테스트() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test@test.kr",
+        "test",
+        "test1234"
+    );
+    UserDto userDto = userService.register(request);
+
+    entityManager.flush();
+    entityManager.clear();
+
+    UserLoginRequest loginRequest = new UserLoginRequest(
+        "test@test.kr",
+        "test1234!!!"
+    );
+
+    // when and then
+    mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isBadRequest());
   }
 
@@ -132,7 +168,7 @@ class UserIntegrationTest {
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
         "test",
-        "test" // 비밀번호 최소 길이 위반
+        "test1234"
     );
 
     UserDto userDto = userService.register(request);
@@ -152,5 +188,34 @@ class UserIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userDto.id().toString()))
         .andExpect(jsonPath("$.nickname").value("newNickname"));
+  }
+
+  @Test
+  void 사용자_논리삭제_API_통합테스트() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test@test.kr",
+        "test",
+        "test1234"
+    );
+
+    UserDto userDto = userService.register(request);
+
+    entityManager.flush();
+
+    userService.softDelete(userDto.id());
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}", userDto.id()))
+        .andExpect(status().isNoContent())
+        .andExpect(jsonPath("$.id").value(userDto.id().toString()));
+  }
+
+  @Test
+  void 사용자_논리삭제_실패_API_통합테스트_존재하지_않는_사용자() {
+
   }
 }
