@@ -111,4 +111,21 @@ class UserRepositoryTest {
     assertThat(user).isNull();
   }
 
+  @Test
+  void 사용자_닉네임_수정_성공() {
+    // given
+    String email = "test@test.kr";
+    String nickname = "test";
+    String password = "test1234";
+    User user = userRepository.save(createTestUser(email, nickname, password));
+
+    String newNickname = "newNickname";
+
+    // when
+    user.updateNickname(newNickname);
+
+    // then
+    assertThat(userRepository.findById(user.getId()).get().getNickname()).isEqualTo(newNickname);
+  }
+
 }
