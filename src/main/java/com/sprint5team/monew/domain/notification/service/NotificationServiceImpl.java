@@ -130,6 +130,7 @@ public class NotificationServiceImpl implements NotificationService {
         notifications.forEach(Notification::confirm);
     }
 
+    @Override
     @Transactional
     public void notifyNewArticles() {
         Instant oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS);
