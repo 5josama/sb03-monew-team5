@@ -13,6 +13,7 @@ import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
 import jakarta.persistence.EntityManager;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,7 +42,7 @@ class UserIntegrationTest {
   private EntityManager entityManager;
 
   @Test
-  void 사용자_등록_API_통합_테스트() throws Exception {
+  void 사용자_등록_API_통합테스트() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -61,7 +62,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_등록_API_실패_통합_테스트_유효하지_않은_이메일_형식() throws Exception {
+  void 사용자_등록_API_통합테스트_실패_유효하지_않은_이메일_형식() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test", // 이메일 형식 위반
@@ -77,7 +78,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_등록_API_실패_통합_테스트_유효하지_않은_닉네임() throws Exception {
+  void 사용자_등록_API_통합테스트_실패_유효하지_않은_닉네임() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -93,7 +94,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_등록_API_실패_통합_테스트_유효하지_않은_비밀번호() throws Exception {
+  void 사용자_등록_API_통합테스트_실패_유효하지_않은_비밀번호() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -109,7 +110,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_로그인_API_통합_테스트() throws Exception {
+  void 사용자_로그인_API_통합테스트() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -138,7 +139,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_로그인_실패_API_통합_테스트() throws Exception {
+  void 사용자_로그인_API_통합테스트_실패() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -152,7 +153,7 @@ class UserIntegrationTest {
 
     UserLoginRequest loginRequest = new UserLoginRequest(
         "test@test.kr",
-        "test1234!!!"
+        "test1234!!!" // 일치하지 않는 비밀번호
     );
 
     // when and then
@@ -163,7 +164,7 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_정보_수정_API_통합_테스트() throws Exception {
+  void 사용자_정보_수정_API_통합테스트() throws Exception {
     // given
     UserRegisterRequest request = new UserRegisterRequest(
         "test@test.kr",
@@ -202,10 +203,6 @@ class UserIntegrationTest {
     UserDto userDto = userService.register(request);
 
     entityManager.flush();
-
-    userService.softDelete(userDto.id());
-
-    entityManager.flush();
     entityManager.clear();
 
     // when and then
@@ -215,7 +212,21 @@ class UserIntegrationTest {
   }
 
   @Test
-  void 사용자_논리삭제_실패_API_통합테스트_존재하지_않는_사용자() {
+  void 사용자_논리삭제_API_통합테스트_실패_존재하지_않는_사용자() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test@test.kr",
+        "test",
+        "test1234"
+    );
 
+    UserDto userDto = userService.register(request);
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}", UUID.randomUUID()))
+        .andExpect(status().isBadRequest());
   }
 }

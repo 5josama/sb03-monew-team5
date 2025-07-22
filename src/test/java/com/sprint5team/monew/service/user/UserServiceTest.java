@@ -147,15 +147,14 @@ class UserServiceTest {
   void 사용자_논리삭제_성공() {
     // given
     given(userRepository.findById(id)).willReturn(Optional.of(user));
-    given(userMapper.toDto(any(User.class))).willReturn(userDto);
+    given(userRepository.save(any(User.class))).willReturn(user);
 
     // when
     userService.softDelete(id);
 
     // then
+    verify(userRepository).save(any(User.class));
     assertThat(user.getIsDeleted()).isTrue();
-    verify(userRepository).softDeleteById(id);
     then(userRepository).should(times(1)).save(any(User.class));
-    then(userMapper).should(times(1)).toDto(any(User.class));
   }
 }

@@ -70,4 +70,21 @@ public class UserServiceImpl implements UserService{
 
     return userMapper.toDto(user);
   }
+
+  @Override
+  public void hardDelete(UUID userId) {
+    User user = userRepository
+        .findById(userId)
+        .orElseThrow(UserNotFoundException::new);
+  }
+
+  @Override
+  public void softDelete(UUID id) {
+    User user = userRepository
+        .findById(id)
+        .orElseThrow(UserNotFoundException::new);
+
+    user.softDelete();
+    userRepository.save(user);
+  }
 }

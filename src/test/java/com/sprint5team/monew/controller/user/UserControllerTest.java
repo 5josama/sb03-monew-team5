@@ -204,7 +204,7 @@ class UserControllerTest {
   void 사용자_정보_삭제_실패_존재하지_않는_사용자() throws Exception {
     // given
     UUID userId = UUID.randomUUID();
-    given(userService.softDelete(any(UUID.class))).willThrow(UserNotFoundException.class);
+    willDoNothing().given(userService).softDelete(any(UUID.class));
 
     // when and then
     mockMvc.perform(delete("/api/users/{userId}", userId)

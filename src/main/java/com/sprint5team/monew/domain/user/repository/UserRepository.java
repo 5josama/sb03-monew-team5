@@ -15,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   void deleteById(UUID id);
 
-  User softDeleteById(UUID id);
+  void softDeleteById(UUID id);
 }
