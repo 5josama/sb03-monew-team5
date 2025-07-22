@@ -4,11 +4,12 @@ import com.sprint5team.monew.domain.comment.entity.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface LikeRepository extends JpaRepository<Like, UUID> {
 
-    List<Like> findAllByUserIdAndCommentId(UUID userId, UUID CommentId);
+    Optional<Like> findByUserIdAndCommentId(UUID userId, UUID CommentId);
 
     // 사용자 활동 내역 조회 시 사용
     List<Like> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);

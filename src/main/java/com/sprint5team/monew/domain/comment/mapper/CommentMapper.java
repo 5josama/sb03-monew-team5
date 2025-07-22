@@ -30,11 +30,7 @@ public abstract class CommentMapper {
     abstract public CommentDto toDto(Comment comment);
 
     protected Boolean getLikedByMe(Comment comment) {
-        List<Like> likeList = likeRepository.findAllByUserIdAndCommentId(comment.getUser().getId(), comment.getId());
-        if (!likeList.isEmpty()) {
-            return true;
-        }
-        return false;
+        return likeRepository.findByUserIdAndCommentId(comment.getUser().getId(), comment.getId()).isPresent();
     }
 
     @Mapping(target = "id", source = "like.id")

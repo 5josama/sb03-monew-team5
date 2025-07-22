@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -355,6 +356,31 @@ public class CommentServiceTest {
         verify(likeMapper).toDto(any(Like.class));
         verify(commentRepository).findById(eq(commentId));
         verify(userRepository).findById(eq(userId));
+    }
+
+    @Test
+    void 댓글_좋아요_취소_성공(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+
+        comment.update(comment.getLikeCount() - 1);
+        given(commentRepository.findById(eq(comment.getId()))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+        given(likeRepository.findByUserIdAndCommentId(userId,commentId)).willReturn(Optional.of(like));
+        willDoNothing().given(likeRepository).deleteById(eq(like.getId()));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+
+        //when
+        commentService.cancelLike(commentId,userId);
+
+        //then
+        verify(likeRepository).deleteById(like.getId());
+        verify(commentRepository).save(any(Comment.class));
+        verify(commentRepository).findById(eq(commentId));
+        verify(userRepository).findById(eq(userId));
+        verify(likeRepository).findByUserIdAndCommentId(eq(userId),eq(commentId));
     }
 
 

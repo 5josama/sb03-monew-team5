@@ -233,4 +233,31 @@ public class CommentRepositoryTest {
         assertThat(like.getComment()).isEqualTo(save1);
         assertThat(like.getUser()).isEqualTo(user);
     }
+    @Test
+    void 댓글_좋아요_취소_성공(){
+        //given
+        Article article = new Article("SRC1", "http://example.com", "Title", "Summary", Instant.now());
+        User user = new User("test@test.com", "nickname", "password");
+
+        article = articleRepository.save(article);
+        user = userRepository.save(user);
+
+        // 댓글 생성 및 저장
+        Comment save1 = commentRepository.save(createComment(article, user, "테스트 내용1"));
+        Like like;
+
+        //좋아요 설정
+        like = likeRepository.save(new Like(save1, user));
+        save1.update(save1.getLikeCount() + 1);
+        save1 = commentRepository.save(save1);
+
+        //when
+        save1.update(save1.getLikeCount() - 1);
+        save1 = commentRepository.save(save1);
+        likeRepository.deleteById(like.getId());
+
+        //then
+        assertThat(save1.getLikeCount()).isEqualTo(0);
+        assertThat(likeRepository.findById(like.getId())).isEmpty();
+    }
 }

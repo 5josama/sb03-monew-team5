@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -236,6 +235,21 @@ public class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.commentLikeCount").value(1));
     }
+
+    @Test
+    void 댓글_좋아요_취소_성공() throws Exception {
+        //given
+        UUID commentId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        willDoNothing().given(commentService).cancelLike(eq(commentId),eq(userId));
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/comment-likes", commentId)
+                        .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk());
+    }
+
+
 
 
 }
