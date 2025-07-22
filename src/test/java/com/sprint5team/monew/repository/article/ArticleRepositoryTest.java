@@ -56,7 +56,7 @@ public class ArticleRepositoryTest {
     @Test
     void 뉴스_기사를_저장할_수_있다() {
         // given
-        Article article = new Article("NAVER", "https://naver.com/news/12333", "test title", "test summary", false, Instant.now(), Instant.now());
+        Article article = new Article("NAVER", "https://naver.com/news/12333", "test title", "test summary", false, Instant.now(), Instant.now(), new ArrayList<>());
 
         // when
         Article saved = articleRepository.save(article);
@@ -72,9 +72,9 @@ public class ArticleRepositoryTest {
         Instant article2Time = Instant.parse("2025-07-12T21:00:00Z");
         Instant article3Time = Instant.parse("2025-07-12T22:00:00Z");
 
-        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, article1Time, article1Time);
-        Article article2 = new Article("NAVER", "https://...2", "AI2", "경제2", false, article2Time, article2Time);
-        Article article3 = new Article("NAVER", "https://...3", "AI3", "경제3", false, article3Time, article3Time);
+        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, article1Time, article1Time, new ArrayList<>());
+        Article article2 = new Article("NAVER", "https://...2", "AI2", "경제2", false, article2Time, article2Time, new ArrayList<>());
+        Article article3 = new Article("NAVER", "https://...3", "AI3", "경제3", false, article3Time, article3Time, new ArrayList<>());
         em.persist(article1);
         em.persist(article2);
         em.persist(article3);
@@ -106,10 +106,10 @@ public class ArticleRepositoryTest {
     @Test
     void 뉴스기사_출처를_중복없이_조회할_수_있다() {
         // given
-        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
-        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now());
-        Article article3 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now());
-        Article article4 = new Article("연합뉴스", "https://...4", "AI4", "경제4", false, Instant.now(), Instant.now());
+        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article3 = new Article("연합뉴스", "https://...3", "AI3", "경제3", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article4 = new Article("연합뉴스", "https://...4", "AI4", "경제4", false, Instant.now(), Instant.now(), new ArrayList<>());
 
         em.persist(article1);
         em.persist(article2);
