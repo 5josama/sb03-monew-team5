@@ -368,7 +368,7 @@ public class CommentServiceTest {
         comment.update(comment.getLikeCount() - 1);
         given(commentRepository.findById(eq(comment.getId()))).willReturn(Optional.of(comment));
         given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
-        given(likeRepository.findAllByUserIdAndCommentId(userId,commentId)).willReturn(List.of(like));
+        given(likeRepository.findByUserIdAndCommentId(userId,commentId)).willReturn(Optional.of(like));
         willDoNothing().given(likeRepository).deleteById(eq(like.getId()));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
@@ -380,7 +380,7 @@ public class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
         verify(commentRepository).findById(eq(commentId));
         verify(userRepository).findById(eq(userId));
-        verify(likeRepository).findAllByUserIdAndCommentId(eq(userId),eq(commentId));
+        verify(likeRepository).findByUserIdAndCommentId(eq(userId),eq(commentId));
     }
 
 

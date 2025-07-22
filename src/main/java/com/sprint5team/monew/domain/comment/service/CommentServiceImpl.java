@@ -171,9 +171,8 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public CommentLikeDto like(UUID commentId, UUID userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        // 유저 찾기, 없으면 NotfoundException
-        if(likeRepository.findAllByUserIdAndCommentId(userId, commentId).stream().findFirst().isPresent()) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
+        if(likeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {                                 // 이미 좋아요 한 댓글이라면
             throw new AlreadyLikedException();
         }
 
@@ -195,9 +194,7 @@ public class CommentServiceImpl implements CommentService{
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
 
-        Like like = likeRepository.findAllByUserIdAndCommentId(userId, commentId)
-                .stream()
-                .findFirst()
+        Like like = likeRepository.findByUserIdAndCommentId(userId, commentId)
                 .orElseThrow(LikeNotFoundException::new);
 
         likeRepository.deleteById(like.getId());
