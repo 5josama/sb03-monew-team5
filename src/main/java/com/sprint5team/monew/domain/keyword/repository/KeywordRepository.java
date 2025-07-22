@@ -5,9 +5,7 @@ import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
