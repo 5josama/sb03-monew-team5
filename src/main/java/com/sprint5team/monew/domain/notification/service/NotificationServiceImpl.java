@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.notification.service;
 
+import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
@@ -12,18 +13,22 @@ import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -31,9 +36,11 @@ public class NotificationServiceImpl implements NotificationService {
     private final InterestRepository interestRepository;
     private final CommentRepository commentRepository;
     private final NotificationMapper notificationMapper;
+    private final ArticleRepository articleRepository;
+    private final UserInterestRepository userInterestRepository;
 
     @Override
-    public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, int articleCount) {
+    public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, long articleCount) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
@@ -121,6 +128,34 @@ public class NotificationServiceImpl implements NotificationService {
     public void confirmAllNotifications(UUID userId) {
         List<Notification> notifications = notificationRepository.findByUserIdAndConfirmedIsFalse(userId);
         notifications.forEach(Notification::confirm);
+    }
+
+    @Override
+    @Transactional
+    public void notifyNewArticles() {
+        Instant oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS);
+        List<Interest> interests = interestRepository.findAll();
+
+        for (Interest interest : interests) {
+            long count = articleRepository.countRecentArticlesByInterestId(interest.getId(), oneHourAgo);
+            if (count == 0) continue;
+
+            List<User> users = userInterestRepository.findUsersByInterestId(interest.getId());
+            if (users.isEmpty()) continue;
+
+            for (User user : users) {
+                boolean alreadyNotified = notificationRepository.existsByUserIdAndInterestIdAndCreatedAtAfter(
+                        user.getId(), interest.getId(), oneHourAgo
+                );
+                if (alreadyNotified) continue;
+
+                notifyArticleForInterest(
+                        user.getId(), interest.getId(), interest.getName(), count
+                );
+            }
+        }
+
+        log.info("알림 생성 완료");
     }
 
 }
