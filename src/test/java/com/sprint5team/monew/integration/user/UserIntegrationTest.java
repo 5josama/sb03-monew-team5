@@ -228,4 +228,33 @@ class UserIntegrationTest {
     mockMvc.perform(delete("/api/users/{userId}", UUID.randomUUID()))
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  void 사용자_물리삭제_API_통합테스트() throws Exception {
+    // given
+    UserRegisterRequest request = new UserRegisterRequest(
+        "test@test.kr",
+        "test",
+        "test1234"
+    );
+
+    UserDto userDto = userService.register(request);
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}/hard", userDto.id()))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void 사용자_물리삭제_API_통합테스트_실패_존재하지_않는_사용자() throws Exception {
+    // given
+    UUID notExistUserId = UUID.randomUUID();
+
+    // when and then
+    mockMvc.perform(delete("/api/users/{userId}/hard", notExistUserId))
+        .andExpect(status().isNotFound());
+  }
 }

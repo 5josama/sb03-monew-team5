@@ -13,4 +13,6 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     List<Notification> findByUserIdAndConfirmedIsFalse(UUID userId);
     void deleteByConfirmedIsTrueAndCreatedAtBefore(Instant before);
     boolean existsByUserIdAndInterestIdAndCreatedAtAfter(UUID userId, UUID interestId, Instant createdAt);
+    // 사용자 물리삭제 시 사용
+    void deleteAllByUserId(UUID userId);
 }

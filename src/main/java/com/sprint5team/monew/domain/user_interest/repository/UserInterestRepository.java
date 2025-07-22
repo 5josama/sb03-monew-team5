@@ -21,10 +21,14 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, UUID
 
     Set<UserInterest> findByUserId(UUID userId);
 
+    // 사용자 활동 내역 조회 시 사용
     List<UserInterest> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
 
     boolean existsByUserIdAndInterestId(UUID userId, UUID interestId);
 
     @Query("SELECT ui.user FROM UserInterest ui WHERE ui.interest.id = :interestId")
     List<User> findUsersByInterestId(@Param("interestId") UUID interestId);
+
+    // 사용자 물리삭제 시 사용
+    void deleteAllByUserId(UUID userId);
 }

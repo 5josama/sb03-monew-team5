@@ -10,5 +10,9 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
 
     List<Like> findAllByUserIdAndCommentId(UUID userId, UUID CommentId);
 
-  List<Like> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+    // 사용자 활동 내역 조회 시 사용
+    List<Like> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    // 사용자 물리삭제 시 사용
+    void deleteAllByUserId(UUID userId);
 }

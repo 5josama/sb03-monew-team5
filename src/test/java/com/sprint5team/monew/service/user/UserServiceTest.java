@@ -6,9 +6,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.sprint5team.monew.domain.article.repository.ArticleCountRepository;
+import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
+import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.user.dto.UserDto;
 import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.dto.UserUpdateRequest;
@@ -16,9 +21,11 @@ import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.InvalidInputValueException;
 import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserAlreadyExistsException;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.mapper.UserMapper;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user.service.UserServiceImpl;
+import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,11 +40,13 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-  @Mock
-  private UserRepository userRepository;
-
-  @Mock
-  private UserMapper userMapper;
+  @Mock private UserRepository userRepository;
+  @Mock private ArticleCountRepository articleCountRepository;
+  @Mock private CommentRepository commentRepository;
+  @Mock private LikeRepository likeRepository;
+  @Mock private UserInterestRepository userInterestRepository;
+  @Mock private NotificationRepository notificationRepository;
+  @Mock private UserMapper userMapper;
 
   @InjectMocks
   private UserServiceImpl userService;
@@ -156,5 +165,48 @@ class UserServiceTest {
     verify(userRepository).save(any(User.class));
     assertThat(user.getIsDeleted()).isTrue();
     then(userRepository).should(times(1)).save(any(User.class));
+  }
+
+  @Test
+  void 사용자_논리삭제_실패_존재하지_않는_사용자() {
+    // given
+    given(userRepository.findById(id)).willReturn(Optional.empty());
+
+    // when and then
+    assertThatThrownBy(() -> userService.softDelete(id))
+        .isInstanceOf(UserNotFoundException.class);
+  }
+
+  @Test
+  void 사용자_물리삭제_성공() {
+    // given
+    willDoNothing().given(userRepository).deleteById(id);
+    willDoNothing().given(articleCountRepository).deleteAllByUserId(id);
+    willDoNothing().given(commentRepository).deleteAllByUserId(id);
+    willDoNothing().given(likeRepository).deleteAllByUserId(id);
+    willDoNothing().given(userInterestRepository).deleteAllByUserId(id);
+    willDoNothing().given(notificationRepository).deleteAllByUserId(id);
+
+    // when
+    userService.hardDelete(id);
+
+    // then
+    then(userRepository).should(times(1)).deleteById(id);
+    then(articleCountRepository).should(times(1)).deleteAllByUserId(id);
+    then(commentRepository).should(times(1)).deleteAllByUserId(id);
+    then(likeRepository).should(times(1)).deleteAllByUserId(id);
+    then(userInterestRepository).should(times(1)).deleteAllByUserId(id);
+    then(notificationRepository).should(times(1)).deleteAllByUserId(id);
+  }
+
+  @Test
+  void 사용자_물리삭제_실패_존재하지_않는_사용자() {
+    // given
+    UUID notExistUserId = UUID.randomUUID();
+    given(userRepository.findById(notExistUserId)).willReturn(Optional.empty());
+
+    // when and then
+    assertThatThrownBy(() -> userService.hardDelete(notExistUserId))
+        .isInstanceOf(UserNotFoundException.class);
   }
 }
