@@ -9,7 +9,7 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -292,7 +292,7 @@ public class InterestControllerTest {
         // given
         UUID interestId = UUID.randomUUID();
 
-        doThrow(new InterestNotExistException())
+        doThrow(new InterestNotExistsException())
             .when(interestService)
             .deleteInterest(interestId);
 
@@ -380,7 +380,7 @@ public class InterestControllerTest {
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
 
         given(interestService.updateInterest(eq(interestId), any(), any()))
-            .willThrow(new InterestNotExistException());
+            .willThrow(new InterestNotExistsException());
 
         // when n then
         MvcResult result = mockMvc.perform(patch("/api/interests/{interestId}", interestId)
@@ -395,6 +395,6 @@ public class InterestControllerTest {
 
         Exception exception = result.getResolvedException();
 
-        assertThat(exception).isInstanceOf(InterestNotExistException.class);
+        assertThat(exception).isInstanceOf(InterestNotExistsException.class);
     }
 }

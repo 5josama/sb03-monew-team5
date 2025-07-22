@@ -6,7 +6,7 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestService;
@@ -266,6 +266,6 @@ public class InterestIntegrationTest {
             .andReturn();
 
         Exception exception = result.getResolvedException();
-        assertThat(exception).isInstanceOf(InterestNotExistException.class);
+        assertThat(exception).isInstanceOf(InterestNotExistsException.class);
     }
 }

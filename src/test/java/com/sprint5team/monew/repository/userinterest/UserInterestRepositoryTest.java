@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,6 +57,7 @@ class UserInterestRepositoryTest {
     void setUp() {
         userRepository.deleteAll();
         interestRepository.deleteAll();
+        userInterestRepository.deleteAll();
 
         globalUser = new User("user@user.com", "user1", "password");
         ReflectionTestUtils.setField(globalUser, "createdAt", Instant.now());
@@ -157,5 +159,17 @@ class UserInterestRepositoryTest {
 
         // then
         assertThat(result).isTrue();
+    }
+
+    @Test
+    void 요청자ID와_관심사ID를_이용해_구독을_가져온다() throws Exception {
+        // when
+        Optional<UserInterest> userInterest = userInterestRepository.findByUserIdAndInterestId(globalUser.getId(), globalUserInterest1.getInterest().getId());
+
+        // then
+        assertThat(userInterest).isNotNull();
+        assertThat(userInterest.get().getCreatedAt()).isEqualTo(globalUserInterest1.getCreatedAt());
+        assertThat(userInterest.get().getInterest()).isEqualTo(globalUserInterest1.getInterest());
+        assertThat(userInterest.get().getUser()).isEqualTo(globalUserInterest1.getUser());
     }
 }

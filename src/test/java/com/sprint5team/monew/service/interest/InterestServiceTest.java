@@ -1,6 +1,6 @@
 package com.sprint5team.monew.service.interest;
 
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
@@ -521,11 +521,10 @@ public class InterestServiceTest {
 
         // when n then
         assertThatThrownBy(() -> interestService.deleteInterest(interestId))
-            .isInstanceOf(InterestNotExistException.class)
+            .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }
 
-    // TODO 관심사 수정 기능
     @Test
     void 키워드_변경사항이_없으면_키워드가_수정되지_않는다() throws Exception {
         // given
@@ -595,11 +594,11 @@ public class InterestServiceTest {
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
 
         given(interestRepository.findById(interestA.getId()))
-            .willThrow(InterestNotExistException.class);
+            .willThrow(InterestNotExistsException.class);
 
         // when
         assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request, any(UUID.class)))
-            .isInstanceOf(InterestNotExistException.class)
+            .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
     }
 }
