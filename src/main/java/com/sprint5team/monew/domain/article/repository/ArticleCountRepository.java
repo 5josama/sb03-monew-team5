@@ -21,4 +21,7 @@ public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID
 
     // 사용자 활동 내역 조회 시 사용
     long countViewByArticleId(UUID id);
+
+    // 사용자 물리삭제 시 사용
+    void deleteAllByUserId(UUID userId);
 }
