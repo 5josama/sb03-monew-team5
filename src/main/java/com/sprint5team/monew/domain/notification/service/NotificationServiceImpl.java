@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        String content = likerName + "님이 내 댓글을 좋아했습니다.";
+        String content = String.format("[%s]님이 나의 댓글을 좋아합니다.", likerName);
 
         Notification notification = Notification.builder()
                 .user(user)

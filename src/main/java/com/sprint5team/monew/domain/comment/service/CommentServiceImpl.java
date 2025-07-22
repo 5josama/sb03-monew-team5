@@ -14,18 +14,17 @@ import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
+import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +40,7 @@ public class CommentServiceImpl implements CommentService{
     private final CommentMapper commentMapper;
     private final LikeRepository likeRepository;
     private final LikeMapper likeMapper;
+    private final NotificationService notificationService;
 
     /**
      * 댓글을 생성하는 메소드
@@ -180,6 +180,10 @@ public class CommentServiceImpl implements CommentService{
         likeRepository.save(like);
         comment.update(comment.getLikeCount() + 1);
         commentRepository.save(comment);
+
+        if (!comment.getUser().getId().equals(userId)) {
+            notificationService.notifyCommentLiked(comment.getUser().getId(), comment.getId(), user.getNickname());
+        }
 
         return likeMapper.toDto(like);
     }
