@@ -17,10 +17,10 @@ public class CommentException extends BaseException {
     }
 
     @Override
-    public String getMessage() {return "알수없는 오류가 발생했습니다.";}
+    public String getMessage() {return "";}
 
     @Override
     public String getDetails() {
-        return "";
+        return "댓글에 알수없는 오류가 발생했습니다.";
     }
 }

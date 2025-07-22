@@ -10,10 +10,10 @@ public class LikeNotFoundException extends CommentException{
 
     @Override
     public String getMessage() {
-        return "좋아요 정보를 찾을 수 없습니다.";
+        return "";
     }
 
     @Override
     public String getDetails() {
-        return "";
+        return "좋아요 정보를 찾을 수 없습니다.";
     }}

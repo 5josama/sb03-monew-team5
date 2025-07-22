@@ -10,11 +10,11 @@ public class AlreadyLikedException extends CommentException {
     }
 
     @Override
-    public String getMessage() {return "이미 좋아요를 누른 댓글입니다.";}
+    public String getMessage() {return "";}
 
     @Override
     public String getDetails() {
-        return "";
+        return "이미 좋아요를 누른 댓글입니다.";
     }
 }
 
