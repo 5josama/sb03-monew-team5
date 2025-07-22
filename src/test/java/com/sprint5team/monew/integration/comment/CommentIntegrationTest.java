@@ -83,7 +83,8 @@ public class CommentIntegrationTest {
         //When && Then
         mockMvc.perform(post("/api/comments")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                .content(requestBody)
+                .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id",notNullValue()))
                 .andExpect(jsonPath("$.articleId",is(createdArticle.getId().toString())))
@@ -110,9 +111,9 @@ public class CommentIntegrationTest {
         CommentRegisterRequest request2 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'2');
         CommentRegisterRequest request3 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'3');
 
-        CommentDto commentDto1 = commentService.create(request1);
-        CommentDto commentDto2 = commentService.create(request2);
-        CommentDto commentDto3 = commentService.create(request3);
+        CommentDto commentDto1 = commentService.create(userId,request1);
+        CommentDto commentDto2 = commentService.create(userId,request2);
+        CommentDto commentDto3 = commentService.create(userId,request3);
 
         List<CommentDto> commentDtos = Arrays.asList(commentDto1, commentDto2, commentDto3);
 
@@ -150,9 +151,9 @@ public class CommentIntegrationTest {
         CommentRegisterRequest request2 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'2');
         CommentRegisterRequest request3 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'3');
 
-        CommentDto commentDto1 = commentService.create(request1);
-        CommentDto commentDto2 = commentService.create(request2);
-        CommentDto commentDto3 = commentService.create(request3);
+        CommentDto commentDto1 = commentService.create(userId,request1);
+        CommentDto commentDto2 = commentService.create(userId,request2);
+        CommentDto commentDto3 = commentService.create(userId,request3);
 
         List<CommentDto> commentDtos = Arrays.asList(commentDto1, commentDto2, commentDto3);
 
@@ -177,9 +178,9 @@ public class CommentIntegrationTest {
         CommentRegisterRequest request2 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'2');
         CommentRegisterRequest request3 = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content+'3');
 
-        CommentDto commentDto1 = commentService.create(request1);
-        CommentDto commentDto2 = commentService.create(request2);
-        CommentDto commentDto3 = commentService.create(request3);
+        CommentDto commentDto1 = commentService.create(userId,request1);
+        CommentDto commentDto2 = commentService.create(userId,request2);
+        CommentDto commentDto3 = commentService.create(userId,request3);
 
         List<CommentDto> commentDtos = Arrays.asList(commentDto1, commentDto2, commentDto3);
 
@@ -202,7 +203,7 @@ public class CommentIntegrationTest {
 
         CommentRegisterRequest request = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content);
 
-        CommentDto commentDto = commentService.create(request);
+        CommentDto commentDto = commentService.create(userId,request);
 
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("테스트 수정된 댓글");
 

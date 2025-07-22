@@ -24,9 +24,11 @@ public class CommentController implements CommentApi{
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CommentDto> create(@RequestBody @Valid CommentRegisterRequest request) {
+    public ResponseEntity<CommentDto> create(
+            @RequestBody @Valid CommentRegisterRequest request,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId) {
         log.info("댓글 생성 요청: {}",request);
-        CommentDto createdComment = commentService.create(request);
+        CommentDto createdComment = commentService.create(userId,request);
         log.debug("댓글 생성 응답: {}",createdComment);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -45,7 +47,7 @@ public class CommentController implements CommentApi{
     ) {
         log.info("댓글 조회 요청: 기사 ID={}, 요청자 ID={}, 커서={}",articleId, userId, cursor);
         Pageable pageable = PageRequest.of(0, limit+1, Sort.Direction.valueOf(direction), orderBy, "createdAt");
-        CursorPageResponseCommentDto response = commentService.find(articleId,cursor,after,pageable);
+        CursorPageResponseCommentDto response = commentService.find(articleId, userId, cursor,after,pageable);
         log.debug("댓글 조회 응답: {}",response);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -81,7 +83,7 @@ public class CommentController implements CommentApi{
             ,@RequestHeader("Monew-Request-User-ID") UUID userId
             , @Valid @RequestBody CommentUpdateRequest request) {
         log.info("댓글 수정 요청: 댓글ID = {}, 내용 = {}", commentId, request.content());
-        CommentDto response = commentService.update(commentId, request);
+        CommentDto response = commentService.update(commentId,userId, request);
         log.debug("댓글 수정 완료: 결과 = {}",response);
 
         return ResponseEntity

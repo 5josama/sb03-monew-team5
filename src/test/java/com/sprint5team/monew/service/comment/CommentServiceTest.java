@@ -73,10 +73,12 @@ public class CommentServiceTest {
     private String content;
     private CommentDto createdComment;
     private Comment comment;
+    private UUID userId;
 
     @BeforeEach
     void setUp() {
         commentId = UUID.randomUUID();
+        userId = UUID.randomUUID();
         article = new Article("Naver", "http://naver.com/testURL", "테스트 기사", "테스트 기사 내용 요약", Instant.now());
         user = new User("test@test.com", "테스트 사용자", "test1234");
         createdAt = Instant.now();
@@ -84,6 +86,7 @@ public class CommentServiceTest {
         comment = new Comment(article, user, content);
         ReflectionTestUtils.setField(comment, "id", commentId);
         ReflectionTestUtils.setField(comment, "createdAt", createdAt);
+        ReflectionTestUtils.setField(user, "id", userId);
         createdComment = new CommentDto(commentId, article.getId(), user.getId(), user.getNickname(), content, (long) 0, false, createdAt);
     }
 
@@ -94,17 +97,17 @@ public class CommentServiceTest {
         given(articleRepository.findById(article.getId())).willReturn(Optional.of(article));
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
-        given(commentMapper.toDto(any(Comment.class))).willReturn(createdComment);
+        given(commentMapper.toDto(any(UUID.class),any(Comment.class))).willReturn(createdComment);
 
         //when
-        CommentDto result = commentService.create(request);
+        CommentDto result = commentService.create(user.getId(),request);
 
         //then
         assertThat(result).isEqualTo(createdComment);
         verify(articleRepository).findById(article.getId());
         verify(userRepository).findById(user.getId());
         verify(commentRepository).save(any(Comment.class));
-        verify(commentMapper).toDto(any(Comment.class));
+        verify(commentMapper).toDto(any(UUID.class),any(Comment.class));
     }
 
     @Test
@@ -114,14 +117,14 @@ public class CommentServiceTest {
         given(articleRepository.findById(article.getId())).willReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> commentService.create(request))
+        assertThatThrownBy(() -> commentService.create(user.getId(),request))
                 .isInstanceOf(ArticleNotFoundException.class)
                 .hasMessage("뉴스 기사 데이터 없음.");
 
         verify(articleRepository).findById(article.getId());
         verify(userRepository, never()).findById(any(UUID.class));
         verify(commentRepository, never()).save(any(Comment.class));
-        verify(commentMapper, never()).toDto(any(Comment.class));
+        verify(commentMapper, never()).toDto(any(UUID.class),any(Comment.class));
     }
 
     @Test
@@ -205,11 +208,11 @@ public class CommentServiceTest {
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(createdAt.toString()), eq(createdAt), any(Pageable.class)))
                 .willReturn(firstPageComments);
-        given(commentMapper.toDto(eq(comment1))).willReturn(commentDto1);
-        given(commentMapper.toDto(eq(comment2))).willReturn(commentDto2);
+        given(commentMapper.toDto(any(UUID.class),eq(comment1))).willReturn(commentDto1);
+        given(commentMapper.toDto(any(UUID.class),eq(comment2))).willReturn(commentDto2);
 
         // when
-        CursorPageResponseCommentDto result = commentService.find(article.getId(), createdAt.toString(), createdAt, pageable);
+        CursorPageResponseCommentDto result = commentService.find(article.getId(),UUID.randomUUID(),createdAt.toString(), createdAt, pageable);
 
         // then
         assertThat(result).isEqualTo(firstPageResponse);
@@ -236,10 +239,10 @@ public class CommentServiceTest {
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()), eq(firstPageResponse.nextAfter()), any(Pageable.class)))
                 .willReturn(secondPageMessages);
-        given(commentMapper.toDto(eq(comment3))).willReturn(commentDto3);
+        given(commentMapper.toDto(any(UUID.class),eq(comment3))).willReturn(commentDto3);
 
         // when - 두 번째 페이지 요청 (첫 페이지의 커서 사용)
-        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(), message3CreatedAt.toString(), message3CreatedAt, pageable);
+        CursorPageResponseCommentDto secondResult = commentService.find(article.getId(),UUID.randomUUID(), message3CreatedAt.toString(), message3CreatedAt, pageable);
 
         // then - 두 번째 페이지 검증
         assertThat(secondResult).isEqualTo(secondPageResponse);
@@ -306,10 +309,10 @@ public class CommentServiceTest {
 
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
-        given(commentMapper.toDto(any(Comment.class))).willReturn(updatedComment);
+        given(commentMapper.toDto(any(UUID.class),any(Comment.class))).willReturn(updatedComment);
 
         //when
-        CommentDto result = commentService.update(commentId,request);
+        CommentDto result = commentService.update(commentId,UUID.randomUUID(),request);
 
         //then
         verify(commentRepository).save(any(Comment.class));
@@ -325,7 +328,7 @@ public class CommentServiceTest {
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
 
         //when && then
-        assertThatThrownBy(() -> commentService.update(commentId,request))
+        assertThatThrownBy(() -> commentService.update(commentId,UUID.randomUUID(),request))
                 .isInstanceOf(CommentNotFoundException.class);
     }
 
