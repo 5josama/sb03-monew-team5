@@ -101,4 +101,17 @@ public class CommentController implements CommentApi{
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+    @Override
+    @DeleteMapping("/{commentId}/comment-likes")
+    public ResponseEntity<Void> cancelLike(@PathVariable UUID commentId,
+                                           @RequestHeader("Monew-Request-User-ID") UUID userId) {
+        log.info("댓글 좋아요 취소 요청: 댓글 ID = {}",commentId);
+        commentService.cancelLike(commentId,userId);
+        log.debug("댓글 좋아요 취소 완료");
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
 }
