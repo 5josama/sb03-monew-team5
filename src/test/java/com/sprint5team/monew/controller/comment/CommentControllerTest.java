@@ -60,12 +60,13 @@ public class CommentControllerTest {
                 Instant.now()
         );
 
-        given(commentService.create(any(CommentRegisterRequest.class))).willReturn(createdComment);
+        given(commentService.create(eq(userId), any(CommentRegisterRequest.class))).willReturn(createdComment);
 
         //When && Then
         mockMvc.perform(post("/api/comments")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(commentRegisterRequest)))
+                .content(objectMapper.writeValueAsString(commentRegisterRequest))
+                        .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(commentId.toString()))
                 .andExpect(jsonPath("$.articleId").value(articleId.toString()))
@@ -160,7 +161,7 @@ public class CommentControllerTest {
                 false
         );
 
-        given(commentService.find(eq(articleId), any(), any() ,any(Pageable.class))).willReturn(response);
+        given(commentService.find(eq(articleId), any(), any(), any() ,any(Pageable.class))).willReturn(response);
 
         //when && then
         mockMvc.perform(get("/api/comments")
@@ -209,7 +210,7 @@ public class CommentControllerTest {
         UUID commentId = UUID.randomUUID();
         CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글 입니다.");
         CommentDto commentDto = new CommentDto(commentId,UUID.randomUUID(),UUID.randomUUID(),"name","수정된 댓글 입니다.",0L,false,Instant.now());
-        given(commentService.update(commentId,request)).willReturn(commentDto);
+        given(commentService.update(eq(commentId),any(UUID.class),eq(request))).willReturn(commentDto);
 
         //when && then
         mockMvc.perform(patch("/api/comments/{commentId}", commentId)

@@ -10,6 +10,8 @@ import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import java.util.List;
+import java.util.UUID;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +25,18 @@ public abstract class CommentMapper {
     @Autowired
     private CommentRepository commentRepository;
 
-    @Mapping(target = "articleId", source = "article.id")
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "userNickname", source = "user.nickname")
-    @Mapping(target = "likedByMe", expression = "java(getLikedByMe(comment))")
-    abstract public CommentDto toDto(Comment comment);
+    @Mapping(target = "id", source = "comment.id")
+    @Mapping(target = "articleId", source = "comment.article.id")
+    @Mapping(target = "userId", source = "comment.user.id")
+    @Mapping(target = "userNickname", source = "comment.user.nickname")
+    @Mapping(target = "likedByMe", expression = "java(getLikedByMe(nowUserId,comment))")
+    @Mapping(target = "content", source = "comment.content")
+    @Mapping(target = "likeCount", source = "comment.likeCount")
+    @Mapping(target = "createdAt", source = "comment.createdAt")
+    abstract public CommentDto toDto(UUID nowUserId,Comment comment);
 
-    protected Boolean getLikedByMe(Comment comment) {
-        return likeRepository.findByUserIdAndCommentId(comment.getUser().getId(), comment.getId()).isPresent();
+    protected Boolean getLikedByMe(UUID nowUserId, Comment comment) {
+        return likeRepository.findByUserIdAndCommentId(nowUserId, comment.getId()).isPresent();
     }
 
     @Mapping(target = "id", source = "like.id")

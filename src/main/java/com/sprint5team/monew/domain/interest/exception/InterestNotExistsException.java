@@ -11,7 +11,7 @@ import java.time.Instant;
  * Author       : dounguk
  * Date         : 2025. 7. 16.
  */
-public class InterestNotExistException extends BaseException {
+public class InterestNotExistsException extends BaseException {
   @Override
   public Instant getTimestamp() {
     return Instant.now();

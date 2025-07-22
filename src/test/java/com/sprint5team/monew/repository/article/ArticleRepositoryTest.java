@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +70,7 @@ public class ArticleRepositoryTest {
         // given
         Instant article1Time = Instant.parse("2025-07-12T20:00:00Z");
         Instant article2Time = Instant.parse("2025-07-12T21:00:00Z");
-        Instant article3Time = Instant.parse("2025-07-12T22:00:00Z");
+        Instant article3Time = article2Time.plusSeconds(10);
 
         Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, article1Time, article1Time, new ArrayList<>());
         Article article2 = new Article("NAVER", "https://...2", "AI2", "경제2", false, article2Time, article2Time, new ArrayList<>());
@@ -80,12 +80,14 @@ public class ArticleRepositoryTest {
         em.persist(article3);
         em.flush();
 
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+
         CursorPageFilter filter = new CursorPageFilter(
-                "AI",
+                null,
                 interest.getId(),
                 Arrays.asList("NAVER"),
-                LocalDateTime.parse("2025-07-12T00:00:00"),
-                LocalDateTime.parse("2025-07-13T00:00:00"),
+                article1Time.atZone(zone).toLocalDateTime(),
+                article3Time.atZone(zone).toLocalDateTime(),
                 "publishDate",
                 "ASC",
                 null,
@@ -93,7 +95,7 @@ public class ArticleRepositoryTest {
                 10
         );
 
-        List<String> keywordList = keywords.stream().map(Keyword::getName).toList();
+        List<String> keywordList = List.of();
 
         // when
         List<Article> result = articleRepository.findByCursorFilter(filter, keywordList);

@@ -33,7 +33,7 @@ logging:
   level:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: trace
-    root: debug
+    root: info
 
 aws:
   s3:

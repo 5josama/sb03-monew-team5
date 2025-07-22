@@ -1,6 +1,6 @@
 package com.sprint5team.monew.domain.interest.service;
 
-import com.sprint5team.monew.domain.interest.exception.InterestNotExistException;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
@@ -139,7 +139,7 @@ public class InterestServiceImpl implements InterestService{
     @Override
     public void deleteInterest(UUID interestId) {
         log.info("관심사 삭제");
-        if(!interestRepository.existsById(interestId)) throw new InterestNotExistException();
+        if(!interestRepository.existsById(interestId)) throw new InterestNotExistsException();
 
         interestRepository.deleteById(interestId);
     }
@@ -149,7 +149,7 @@ public class InterestServiceImpl implements InterestService{
     public InterestDto updateInterest(UUID interestId, InterestUpdateRequest request, UUID userId) {
         log.info("1. 관심사 탐색");
         Interest interest = interestRepository.findById(interestId)
-            .orElseThrow(InterestNotExistException::new);
+            .orElseThrow(InterestNotExistsException::new);
 
         log.info("2. 추가할 키워드 있는지 조회 및 비교");
         List<String> newKeywordNames = request.keywords();

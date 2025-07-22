@@ -13,4 +13,6 @@ import java.util.UUID;
 public interface UserInterestService {
 
     SubscriptionDto registerSubscription(UUID interestId, UUID userId);
+
+    void unsubscribeInterest(UUID interestId, UUID userId);
 }

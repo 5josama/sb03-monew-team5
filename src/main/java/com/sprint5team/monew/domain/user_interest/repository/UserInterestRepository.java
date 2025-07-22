@@ -2,14 +2,14 @@ package com.sprint5team.monew.domain.user_interest.repository;
 
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
-
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.Optional;
 
 /**
  * PackageName  : com.sprint5team.monew.domain.user_interest.repository
@@ -31,4 +31,6 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, UUID
 
     // 사용자 물리삭제 시 사용
     void deleteAllByUserId(UUID userId);
+
+    Optional<UserInterest> findByUserIdAndInterestId(UUID userId, UUID interestId);
 }

@@ -14,18 +14,17 @@ import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
+import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,14 +40,16 @@ public class CommentServiceImpl implements CommentService{
     private final CommentMapper commentMapper;
     private final LikeRepository likeRepository;
     private final LikeMapper likeMapper;
+    private final NotificationService notificationService;
 
     /**
      * 댓글을 생성하는 메소드
+     * @param userId 댓글 생성 요청한 유저 ID
      * @param request 댓글 생성 요청
      * @return 댓글 생성 결과 CommentDto
      */
     @Override
-    public CommentDto create(CommentRegisterRequest request) {
+    public CommentDto create(UUID userId, CommentRegisterRequest request) {
         log.debug("댓글 생성 시작: articleId={}, userId={}, content={}",request.articleId(),request.userId(),request.content());
 
         Article article = articleRepository.findById(request.articleId()) // Article이 없을경우 예외발생
@@ -61,11 +62,12 @@ public class CommentServiceImpl implements CommentService{
         Comment createdComment = commentRepository.save(comment);
 
         log.info("댓글 생성 완료: commentId={}, content={}",createdComment.getId(),createdComment.getContent());
-        return commentMapper.toDto(createdComment);
+        return commentMapper.toDto(userId, createdComment);
     }
 
     /**
      * 댓글을 커서에 따라 조회하는 메서드
+     * @param userId 조회 요청한 유저 ID
      * @param articleId 조회하고자 하는 기사 ID
      * @param cursor 참고할 커서 (createdAt or likeCount)
      * @param after 보조로 참고할 커서 (createdAt)
@@ -73,7 +75,7 @@ public class CommentServiceImpl implements CommentService{
      * @return 조회결과 CursorPageResponseCommentDto
      */
     @Override
-    public CursorPageResponseCommentDto find(UUID articleId, String cursor, Instant after, Pageable pageable) {
+    public CursorPageResponseCommentDto find(UUID articleId, UUID userId, String cursor, Instant after, Pageable pageable) {
         //커서페이지네이션 수행
         List<Comment> commentList = new ArrayList<>(commentRepository.findCommentsWithCursor(articleId, cursor, after, pageable));      //굳이 이렇게 하는이유는 불변 List를 가변 List로 바꾸기위함 (밑에서 remove 써야함.)
 
@@ -113,7 +115,7 @@ public class CommentServiceImpl implements CommentService{
         }
 
         List<CommentDto> list = commentList.stream()
-                .map(commentMapper::toDto)
+                .map(comment->commentMapper.toDto(userId,comment))
                 .toList();
 
         return new CursorPageResponseCommentDto(
@@ -129,15 +131,16 @@ public class CommentServiceImpl implements CommentService{
     /**
      * 댓글 정보 수정 메서드
      * @param commentId 수정하고자 하는 댓글ID
+     * @param userId 수정하고자 하는 유저ID
      * @param request 바꾸고싶은 내용
      * @return 바꾼 결과 Dto
      */
     @Override
-    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+    public CommentDto update(UUID commentId,UUID userId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         comment.update(request.content());
         commentRepository.save(comment);
-        return commentMapper.toDto(comment);
+        return commentMapper.toDto(userId, comment);
     }
 
     /**
@@ -180,6 +183,10 @@ public class CommentServiceImpl implements CommentService{
         likeRepository.save(like);
         comment.update(comment.getLikeCount() + 1);
         commentRepository.save(comment);
+
+        if (!comment.getUser().getId().equals(userId)) {
+            notificationService.notifyCommentLiked(comment.getUser().getId(), comment.getId(), user.getNickname());
+        }
 
         return likeMapper.toDto(like);
     }

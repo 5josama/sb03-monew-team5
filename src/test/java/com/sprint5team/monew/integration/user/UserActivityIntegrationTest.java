@@ -110,7 +110,7 @@ public class UserActivityIntegrationTest {
     entityManager.flush();
 
     Interest interest = new Interest("스포츠");
-    interest.subscribed();
+    interest.subscribe();
     interestRepository.save(interest);
     entityManager.flush();
 

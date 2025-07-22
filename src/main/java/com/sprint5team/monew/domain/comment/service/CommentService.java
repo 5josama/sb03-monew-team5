@@ -9,15 +9,15 @@ import java.util.UUID;
 
 public interface CommentService {
 
-    CommentDto create(CommentRegisterRequest request);
+    CommentDto create(UUID userId,CommentRegisterRequest request);
 
-    CursorPageResponseCommentDto find(UUID articleId, String cursor, Instant after, Pageable pageable);
+    CursorPageResponseCommentDto find(UUID articleId, UUID userId, String cursor, Instant after, Pageable pageable);
 
     void softDelete(UUID commentId);
 
     void hardDelete(UUID commentId);
 
-    CommentDto update(UUID commentId, CommentUpdateRequest request);
+    CommentDto update(UUID commentId, UUID userId, CommentUpdateRequest request);
 
     CommentLikeDto like(UUID commentId, UUID userId);
 

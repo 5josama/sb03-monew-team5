@@ -28,4 +28,13 @@ public class UserInterestController {
     ) {
         return ResponseEntity.ok().body(userInterestService.registerSubscription(interestId, userId));
     }
+
+    @DeleteMapping("/{interestId}/subscriptions")
+    public ResponseEntity<Void> unfollowInterest(
+        @PathVariable UUID interestId,
+        @RequestHeader(name = "Monew-Request-User-ID") UUID userId
+    ) {
+        userInterestService.unsubscribeInterest(interestId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -30,7 +30,8 @@ public interface CommentApi {
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
     })
     ResponseEntity<CommentDto> create(
-            @Parameter(description = "댓글 정보") CommentRegisterRequest request
+            @Parameter(description = "댓글 정보") CommentRegisterRequest request,
+            @Parameter(description = "요청자 ID") UUID userId
     );
 
     @Operation(summary = "댓글 조회")
