@@ -1,6 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint5team.monew.base.util.ArticleConsumer;
+import com.sprint5team.monew.base.util.ArticleQueueManager;
 import com.sprint5team.monew.base.util.InterestMatcher;
 import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +48,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final ObjectMapper objectMapper;
     private final CommentRepository commentRepository;
     private final InterestMatcher interestMatcher;
+    private final ArticleQueueManager  articleQueueManager;
+    private final ArticleConsumer  articleConsumer;
 
     @Override
     public ArticleViewDto saveArticleView(UUID articleId, UUID userId) {
@@ -151,15 +156,29 @@ public class ArticleServiceImpl implements ArticleService {
                 .distinct()
                 .toList();
 
-        Set<String> existingSourceUrls = new HashSet<>();
         for (int i = 0; i < sourceUrls.size(); i += 500) {
             List<String> chunk = sourceUrls.subList(i, Math.min(i + 500, sourceUrls.size()));
-            List<Article> existingArticles = articleRepository.findAllBySourceUrlIn(chunk);
-            existingSourceUrls.addAll(existingArticles.stream().map(Article::getSourceUrl).toList());
+            articleQueueManager.enqueue(chunk);
         }
 
+        // CountDownLatch로 병렬 처리 완료 대기
+        int threadCount = 5;
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        articleConsumer.consume(threadCount, latch);
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("큐 소비 중 오류 발생", e);
+        }
+
+        Set<String> existingSourceUrls = articleQueueManager.getExistingUrls();
+        Set<String> seen = new HashSet<>();
         List<Article> lostArticles = restoredArticles.stream()
                 .filter(article -> !existingSourceUrls.contains(article.getSourceUrl()))
+                .filter(article -> seen.add(article.getSourceUrl()))
                 .map(article -> new Article(
                         article.getSource(),
                         article.getSourceUrl(),

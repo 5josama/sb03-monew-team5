@@ -1,6 +1,7 @@
 package com.sprint5team.monew.base.util;
 
 import com.google.common.util.concurrent.RateLimiter;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,5 +36,10 @@ public class KeywordConsumer {
                 }
             });
         }
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        executor.shutdown();
     }
 }
