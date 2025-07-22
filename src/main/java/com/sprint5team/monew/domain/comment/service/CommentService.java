@@ -21,4 +21,5 @@ public interface CommentService {
 
     CommentLikeDto like(UUID commentId, UUID userId);
 
+    void cancelLike(UUID commentId, UUID userId);
 }
