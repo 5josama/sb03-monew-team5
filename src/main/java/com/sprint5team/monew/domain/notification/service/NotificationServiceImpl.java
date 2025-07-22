@@ -110,7 +110,7 @@ public class NotificationServiceImpl implements NotificationService {
                 dtoList,
                 nextCursor,
                 nextAfter,
-                dtoList.size(),
+                limit,
                 totalElements,
                 hasNext
         );

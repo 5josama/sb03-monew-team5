@@ -22,7 +22,7 @@ public class NotificationController {
     public ResponseEntity<CursorPageResponseNotificationDto> findAllNotConfirmed(
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Instant after,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam Integer limit,
             @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
         CursorPageResponseNotificationDto response =  notificationService.getAllNotifications(userId, cursor, after, limit);
