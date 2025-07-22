@@ -2,6 +2,7 @@ package com.sprint5team.monew.base.util;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import com.sprint5team.monew.domain.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ public class NaverNewsApiClient {
 
     private final RestTemplate restTemplate;
     private final ArticleRepository articleRepository;
+    private final ArticleService articleService;
 
     @Value("${naver.client_id}")
     private String clientId;
@@ -104,7 +106,9 @@ public class NaverNewsApiClient {
             }
 
             if (!articles.isEmpty()) {
-                articleRepository.saveAll(articles);
+                for (Article article : articles) {
+                    articleService.saveArticle(article);
+                }
             }
 
         } catch (Exception e) {

@@ -127,9 +127,9 @@ public class ArticleServiceTest {
         );
 
         List<Article> articles = List.of(
-                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", false, Instant.now(), Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", false, Instant.now(), Instant.now()),
-                new Article("NAVER", "https://naver.com/news/12333", "test", "test", false, Instant.now(), Instant.now())
+                new Article("NAVER", "https://naver.com/news/12333", "AI투자", "경제", false, Instant.now(), Instant.now(), new ArrayList<>()),
+                new Article("NAVER", "https://naver.com/news/12333", "AI로봇", "AI 기술", false, Instant.now(), Instant.now(), new ArrayList<>()),
+                new Article("NAVER", "https://naver.com/news/12333", "test", "test", false, Instant.now(), Instant.now(), new ArrayList<>())
         );
         ReflectionTestUtils.setField(articles.get(0), "id", UUID.randomUUID());
         ReflectionTestUtils.setField(articles.get(1), "id", UUID.randomUUID());
@@ -194,8 +194,8 @@ public class ArticleServiceTest {
         Instant to = Instant.parse("2025-07-13T23:59:59Z");
 
         List<Article> backupArticles = List.of(
-                new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now()),
-                new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now())
+                new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now(), new ArrayList<>()),
+                new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now(), new ArrayList<>())
         );
         UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
         UUID id2 = UUID.fromString("ba4b516e-3ab3-44ae-aa9d-713d29911e50");
@@ -243,8 +243,8 @@ public class ArticleServiceTest {
     @Test
     void 주어진_뉴스기사_ID로_뉴스기사를_논리삭제_할_수_있다() {
         // given
-        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
-        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now());
+        Article article1 = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article2 = new Article("한국경제", "https://...2", "AI2", "경제2", false, Instant.now(), Instant.now(), new ArrayList<>());
         UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
         UUID id2 = UUID.fromString("ba4b516e-3ab3-44ae-aa9d-713d29911e50");
         ReflectionTestUtils.setField(article1, "id", id1);
@@ -263,7 +263,7 @@ public class ArticleServiceTest {
     @Test
     void 주어진_뉴스기사_ID로_뉴스기사를_물리삭제_할_수_있다() {
         // given
-        Article article = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now());
+        Article article = new Article("NAVER", "https://...1", "AI", "경제", false, Instant.now(), Instant.now(), new ArrayList<>());
         UUID id1 = UUID.fromString("3b98b117-369e-4c36-a44d-7eef0a341d67");
         ReflectionTestUtils.setField(article, "id", id1);
 
