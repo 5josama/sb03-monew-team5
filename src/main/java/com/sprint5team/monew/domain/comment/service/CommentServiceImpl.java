@@ -7,7 +7,9 @@ import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
+import com.sprint5team.monew.domain.comment.exception.AlreadyLikedException;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
+import com.sprint5team.monew.domain.comment.exception.LikeNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
@@ -17,6 +19,7 @@ import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -159,11 +162,19 @@ public class CommentServiceImpl implements CommentService{
     }
 
 
+    /**
+     * 댓글 좋아요 메서드
+     * @param commentId 좋아요 누르고싶은 댓글 ID
+     * @param userId 좋아요 누른 계정 ID
+     * @return 좋아요 요청 결과
+     */
     @Override
     public CommentLikeDto like(UUID commentId, UUID userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
-
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
+        if(likeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {                                 // 이미 좋아요 한 댓글이라면
+            throw new AlreadyLikedException();
+        }
 
         Like like = new Like(comment, user);
         likeRepository.save(like);
@@ -171,5 +182,24 @@ public class CommentServiceImpl implements CommentService{
         commentRepository.save(comment);
 
         return likeMapper.toDto(like);
+    }
+
+    /**
+     * 댓글 좋아요 취소 메서드
+     * @param commentId 좋아요 취소하고 싶은 댓글 ID
+     * @param userId 좋아요 취소를 요청한 유저 ID
+     */
+    @Override
+    public void cancelLike(UUID commentId, UUID userId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
+
+        Like like = likeRepository.findByUserIdAndCommentId(userId, commentId)
+                .orElseThrow(LikeNotFoundException::new);
+
+        likeRepository.deleteById(like.getId());
+        comment.update(comment.getLikeCount() - 1);
+        commentRepository.save(comment);
+
     }
 }

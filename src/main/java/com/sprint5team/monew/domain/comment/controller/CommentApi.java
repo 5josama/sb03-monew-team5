@@ -90,7 +90,7 @@ public interface CommentApi {
             @RequestBody(required = true, description = "수정할 댓글 정보") CommentUpdateRequest request
     );
 
-    @Operation(summary = "관심사 댓글 좋아요")
+    @Operation(summary = "댓글 좋아요")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "댓글 좋아요 성공",
                     content = @Content(schema = @Schema(implementation = CommentLikeDto.class))),
@@ -100,6 +100,20 @@ public interface CommentApi {
                     content = @Content(schema = @Schema(implementation = CommentLikeDto.class)))
     })
     ResponseEntity<CommentLikeDto> like(
+            @Parameter(required = true, description = "댓글 ID") UUID commentId,
+            @Parameter(required = true, description = "요청자 ID") UUID userId
+    );
+
+    @Operation(summary = "댓글 좋아요 취소")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "댓글 좋아요 취소 성공",
+                    content = @Content(schema = @Schema(implementation = CommentLikeDto.class))),
+            @ApiResponse(responseCode = "404", description = "댓글 정보 없음",
+                    content = @Content(schema = @Schema(implementation = CommentLikeDto.class))),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(schema = @Schema(implementation = CommentLikeDto.class)))
+    })
+    ResponseEntity<Void> cancelLike(
             @Parameter(required = true, description = "댓글 ID") UUID commentId,
             @Parameter(required = true, description = "요청자 ID") UUID userId
     );

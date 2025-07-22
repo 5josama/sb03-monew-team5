@@ -8,7 +8,9 @@ import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
 import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -57,6 +59,9 @@ public class CommentIntegrationTest {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
 
     @Test
@@ -239,6 +244,30 @@ public class CommentIntegrationTest {
                 .andExpect(jsonPath("$.commentContent").value(content))
                 .andExpect(jsonPath("$.commentLikeCount").value(1L))
                 .andExpect(jsonPath("$.commentCreatedAt").value(comment.getCreatedAt().toString()));
+    }
+
+
+    @Test
+    void 유저가_좋아요가_눌러져있는_버튼을_한번_더_누르면_좋아요가_취소_된다() throws Exception {
+        //given
+        String content = "테스트 댓글 입니다.";
+
+        User user = new User("test@naver.com", "testname", "password1234");
+        User createdUser = userRepository.save(user);
+
+        Article article = new Article("Naver", "http://naver.com", "테스트 뉴스제목", "뉴스요약", Instant.now());
+        Article createdArticle = articleRepository.save(article);
+
+        Comment comment = new Comment(createdArticle, createdUser, content);
+        Comment createdComment = commentRepsotory.save(comment);
+
+        Like like = new Like(createdComment, createdUser);
+        like = likeRepository.save(like);
+
+        //when && then
+        mockMvc.perform(delete("/api/comments/{commentId}/comment-likes", createdComment.getId())
+                        .header("MoNew-Request-User-ID", createdUser.getId().toString()))
+                .andExpect(status().isOk());
     }
 
 

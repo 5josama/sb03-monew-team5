@@ -1,15 +1,8 @@
 package com.sprint5team.monew.domain.comment.exception;
 
-import com.sprint5team.monew.base.exception.BaseException;
 import org.springframework.http.HttpStatus;
 
-import java.time.Instant;
-
-public class CommentNotFoundException extends BaseException {
-  @Override
-  public Instant getTimestamp() {
-    return Instant.now();
-  }
+public class CommentNotFoundException extends CommentException {
 
   @Override
   public HttpStatus getHttpStatus() {
