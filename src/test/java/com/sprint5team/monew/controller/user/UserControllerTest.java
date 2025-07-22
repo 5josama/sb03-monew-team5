@@ -3,6 +3,7 @@ package com.sprint5team.monew.controller.user;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -191,23 +192,29 @@ class UserControllerTest {
   void 사용자_정보_삭제_성공() throws Exception {
     // given
     UUID userId = UUID.randomUUID();
-    willDoNothing().given(userService).softDelete(any(UUID.class));
+    String email = "test@test.kr";
+    String nickname = "test";
+    UserDto userDto = new UserDto(userId, email, nickname, Instant.now());
+    willDoNothing().given(userService).softDelete(userId);
 
     // when and then
     mockMvc.perform(delete("/api/users/{userId}", userId)
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent())
-        .andExpect(content().string(userId +" is deleted."));
+        .andExpect(status().isNoContent());
   }
 
   @Test
   void 사용자_정보_삭제_실패_존재하지_않는_사용자() throws Exception {
     // given
+    UUID notFoundUser = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
-    willDoNothing().given(userService).softDelete(any(UUID.class));
+    String email = "test@test.kr";
+    String nickname = "test";
+    UserDto userDto = new UserDto(userId, email, nickname, Instant.now());
+    willThrow(new UserNotFoundException()).given(userService).softDelete(notFoundUser);
 
     // when and then
-    mockMvc.perform(delete("/api/users/{userId}", userId)
+    mockMvc.perform(delete("/api/users/{userId}", notFoundUser)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
