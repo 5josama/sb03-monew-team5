@@ -2,6 +2,7 @@ package com.sprint5team.monew.base.util;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,5 +33,10 @@ public class ArticleConsumer {
                 }
             });
         }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        executor.shutdown();
     }
 }
