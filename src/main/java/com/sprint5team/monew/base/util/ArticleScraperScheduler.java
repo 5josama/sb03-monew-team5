@@ -17,7 +17,7 @@ public class ArticleScraperScheduler {
     private final JobLauncher jobLauncher;
     private final Job articleScraperJob;
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     public void runArticleScraperJob() {
         try {
             JobParameters params = new JobParametersBuilder()
