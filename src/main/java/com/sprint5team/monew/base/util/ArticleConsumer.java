@@ -2,7 +2,6 @@ package com.sprint5team.monew.base.util;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +16,10 @@ public class ArticleConsumer {
 
     private final ArticleRepository articleRepository;
     private final ArticleQueueManager articleQueueManager;
-    private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public void consume(int threadCount, CountDownLatch latch) {
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 try {
@@ -29,14 +29,11 @@ public class ArticleConsumer {
                         articleQueueManager.addAll(existingArticles.stream().map(Article::getSourceUrl).toList());
                     }
                 } finally {
-                    latch.countDown(); // 스레드 작업 완료 시 카운트 감소
+                    latch.countDown();
                 }
             });
         }
-    }
 
-    @PreDestroy
-    public void destroy() {
         executor.shutdown();
     }
 }
