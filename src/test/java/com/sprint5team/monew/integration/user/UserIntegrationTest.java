@@ -160,7 +160,7 @@ class UserIntegrationTest {
     mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginRequest)))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -207,8 +207,7 @@ class UserIntegrationTest {
 
     // when and then
     mockMvc.perform(delete("/api/users/{userId}", userDto.id()))
-        .andExpect(status().isNoContent())
-        .andExpect(jsonPath("$.id").value(userDto.id().toString()));
+        .andExpect(status().isNoContent());
   }
 
   @Test
@@ -227,6 +226,6 @@ class UserIntegrationTest {
 
     // when and then
     mockMvc.perform(delete("/api/users/{userId}", UUID.randomUUID()))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isNotFound());
   }
 }
