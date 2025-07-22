@@ -17,4 +17,3 @@ public class LikeNotFoundException extends CommentException{
     public String getDetails() {
         return "";
     }}
-}
