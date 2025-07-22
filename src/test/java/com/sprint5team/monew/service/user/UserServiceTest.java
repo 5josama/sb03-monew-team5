@@ -180,23 +180,23 @@ class UserServiceTest {
   @Test
   void 사용자_물리삭제_성공() {
     // given
-    willDoNothing().given(userRepository).deleteById(id);
     willDoNothing().given(articleCountRepository).deleteAllByUserId(id);
     willDoNothing().given(commentRepository).deleteAllByUserId(id);
     willDoNothing().given(likeRepository).deleteAllByUserId(id);
     willDoNothing().given(userInterestRepository).deleteAllByUserId(id);
     willDoNothing().given(notificationRepository).deleteAllByUserId(id);
+    willDoNothing().given(userRepository).deleteById(id);
 
     // when
     userService.hardDelete(id);
 
     // then
-    then(userRepository).should(times(1)).deleteById(id);
     then(articleCountRepository).should(times(1)).deleteAllByUserId(id);
     then(commentRepository).should(times(1)).deleteAllByUserId(id);
     then(likeRepository).should(times(1)).deleteAllByUserId(id);
     then(userInterestRepository).should(times(1)).deleteAllByUserId(id);
     then(notificationRepository).should(times(1)).deleteAllByUserId(id);
+    then(userRepository).should(times(1)).deleteById(id);
   }
 
   @Test

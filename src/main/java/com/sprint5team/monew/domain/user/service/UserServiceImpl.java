@@ -85,15 +85,15 @@ public class UserServiceImpl implements UserService{
   public void hardDelete(UUID userId) {
     userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-    // 사용자 정보 삭제
-    userRepository.deleteById(userId);
-
     // 사용자 관련 데이터 삭제
     articleCountRepository.deleteAllByUserId(userId);
     commentRepository.deleteAllByUserId(userId);
     likeRepository.deleteAllByUserId(userId);
     userInterestRepository.deleteAllByUserId(userId);
     notificationRepository.deleteAllByUserId(userId);
+
+    // 사용자 정보 삭제
+    userRepository.deleteById(userId);
   }
 
   @Override
