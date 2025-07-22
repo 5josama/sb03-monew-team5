@@ -1,19 +1,17 @@
 package com.sprint5team.monew.integration.comment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint5team.monew.domain.article.dto.ArticleViewDto;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.article.service.ArticleService;
 import com.sprint5team.monew.domain.comment.dto.CommentDto;
+import com.sprint5team.monew.domain.comment.dto.CommentLikeDto;
 import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
+import com.sprint5team.monew.domain.comment.dto.CommentUpdateRequest;
+import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.service.CommentService;
-import com.sprint5team.monew.domain.user.dto.UserDto;
-import com.sprint5team.monew.domain.user.dto.UserRegisterRequest;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import com.sprint5team.monew.domain.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +51,10 @@ public class CommentIntegrationTest {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @Autowired
+    private CommentRepository commentRepsotory;
+
     @Autowired
     private CommentService commentService;
 
@@ -179,6 +181,64 @@ public class CommentIntegrationTest {
         //When && Then
         mockMvc.perform(delete("/api/comments/{commentId}/hard",commentDto1.id()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 유저가_댓글을_수정할_수_있어야_한다()throws Exception{
+        //Given
+        UUID userId = UUID.randomUUID();
+        String content = "테스트 댓글 입니다.";
+
+        User user = new User("test@naver.com", "testname", "password1234");
+        User createdUser = userRepository.save(user);
+
+        Article article = new Article("Naver", "http://naver.com", "테스트 뉴스제목", "뉴스요약", Instant.now());
+        Article createdArticle = articleRepository.save(article);
+
+        CommentRegisterRequest request = new CommentRegisterRequest(createdArticle.getId(), createdUser.getId(), content);
+
+        CommentDto commentDto = commentService.create(request);
+
+        CommentUpdateRequest updateRequest = new CommentUpdateRequest("테스트 수정된 댓글");
+
+        //When && Then
+        mockMvc.perform(patch("/api/comments/{commentId}", commentDto.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest))
+                        .header("MoNew-Request-User-ID", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("테스트 수정된 댓글"));
+
+    }
+
+    @Test
+    void 유저가_좋아요_버튼을_누르면_Count가_1_증가한다() throws Exception {
+        //given
+        String content = "테스트 댓글 입니다.";
+
+        User user = new User("test@naver.com", "testname", "password1234");
+        User createdUser = userRepository.save(user);
+
+        Article article = new Article("Naver", "http://naver.com", "테스트 뉴스제목", "뉴스요약", Instant.now());
+        Article createdArticle = articleRepository.save(article);
+
+        Comment comment = new Comment(createdArticle, createdUser, content);
+        Comment createdComment = commentRepsotory.save(comment);
+
+        CommentLikeDto commentLikeDto = new CommentLikeDto(UUID.randomUUID(), createdUser.getId(), Instant.now(), createdComment.getId(), createdArticle.getId(), createdUser.getId(), comment.getUser().getNickname(), comment.getContent(), comment.getLikeCount() + 1, comment.getCreatedAt());
+
+        //when && then
+        mockMvc.perform(post("/api/comments/{commentId}/comment-likes", createdComment.getId())
+                        .header("MoNew-Request-User-ID", createdUser.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.likedBy").value(createdUser.getId().toString()))
+                .andExpect(jsonPath("$.commentId").value(createdComment.getId().toString()))
+                .andExpect(jsonPath("$.articleId").value(createdArticle.getId().toString()))
+                .andExpect(jsonPath("$.commentUserId").value(createdUser.getId().toString()))
+                .andExpect(jsonPath("$.commentUserNickname").value(createdUser.getNickname()))
+                .andExpect(jsonPath("$.commentContent").value(content))
+                .andExpect(jsonPath("$.commentLikeCount").value(1L))
+                .andExpect(jsonPath("$.commentCreatedAt").value(comment.getCreatedAt().toString()));
     }
 
 

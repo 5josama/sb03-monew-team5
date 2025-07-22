@@ -15,4 +15,10 @@ public interface ArticleCountRepository extends JpaRepository<ArticleCount, UUID
     List<ArticleCount> findAllByUserIdAndArticleId(UUID id, UUID id1);
 
     List<ArticleCount> findByArticleId(UUID articleId);
+
+    // 사용자 활동 내역 조회 시 사용
+    List<ArticleCount> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    // 사용자 활동 내역 조회 시 사용
+    long countViewByArticleId(UUID id);
 }

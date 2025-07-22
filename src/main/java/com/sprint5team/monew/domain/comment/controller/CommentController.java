@@ -1,8 +1,6 @@
 package com.sprint5team.monew.domain.comment.controller;
 
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -74,5 +72,33 @@ public class CommentController implements CommentApi{
         log.debug("댓글 물리 삭제 완료");
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build() ;
+    }
+
+    @Override
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<CommentDto> update(
+            @PathVariable UUID commentId
+            ,@RequestHeader("Monew-Request-User-ID") UUID userId
+            , @Valid @RequestBody CommentUpdateRequest request) {
+        log.info("댓글 수정 요청: 댓글ID = {}, 내용 = {}", commentId, request.content());
+        CommentDto response = commentService.update(commentId, request);
+        log.debug("댓글 수정 완료: 결과 = {}",response);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @Override
+    @PostMapping("/{commentId}/comment-likes")
+    public ResponseEntity<CommentLikeDto> like(@PathVariable UUID commentId,
+                                               @RequestHeader("Monew-Request-User-ID") UUID userId) {
+        log.info("댓글 좋아요 요청: 댓글 ID = {}",commentId);
+        CommentLikeDto response = commentService.like(commentId,userId);
+        log.debug("댓글 좋아요 완료: 결과 = {}",response);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 }

@@ -4,19 +4,21 @@ package com.sprint5team.monew.domain.comment.service;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
+import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -34,6 +36,8 @@ public class CommentServiceImpl implements CommentService{
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
+    private final LikeRepository likeRepository;
+    private final LikeMapper likeMapper;
 
     /**
      * 댓글을 생성하는 메소드
@@ -83,15 +87,19 @@ public class CommentServiceImpl implements CommentService{
         String nextCursor = null;
         Instant afterCursor = null;
 
+        Sort.Order sortOrder = pageable.getSort().iterator().next();
+        String property = sortOrder.getProperty();
+
         //hasNext 판단 로직
         boolean hasNext = false;
         if(commentList.size() == pageable.getPageSize()) {
             hasNext = true;
             afterCursor = lastIndex.getCreatedAt();
+
             //lastIndex의 커서를 확인하는 로직(hasNext가 존재할경우만 판단)
-            if(isInstantCursor(cursor)){
+            if(property.equals("createdAt")){
                 nextCursor = lastIndex.getCreatedAt().toString();
-            }else if (isLongCursor(cursor)){
+            }else if (property.equals("likeCount")){
                 nextCursor = lastIndex.getLikeCount().toString();
             }
         }
@@ -116,6 +124,20 @@ public class CommentServiceImpl implements CommentService{
     }
 
     /**
+     * 댓글 정보 수정 메서드
+     * @param commentId 수정하고자 하는 댓글ID
+     * @param request 바꾸고싶은 내용
+     * @return 바꾼 결과 Dto
+     */
+    @Override
+    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        comment.update(request.content());
+        commentRepository.save(comment);
+        return commentMapper.toDto(comment);
+    }
+
+    /**
      * 댓글 논리 삭제 메서드
      * @param commentId 삭제하길 원하는 댓글 ID
      */
@@ -136,31 +158,18 @@ public class CommentServiceImpl implements CommentService{
         commentRepository.deleteById(commentId);
     }
 
-    /**
-     * Cursor가 CreatedAt(Instant)인지 판단하는 로직
-     * @param cursor 커서
-     * @return true: Instant, false: Long
-     */
-    private boolean isInstantCursor(String cursor) {
-        try {
-            Instant.parse(cursor);  // ISO-8601 형태 파싱 시도
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
 
-    /**
-     * Cursor가 likeCount(Long)인지 판단하는 로직
-     * @param cursor 커서
-     * @return true: Long, false: Instant
-     */
-    private boolean isLongCursor(String cursor) {
-        try {
-            Long.parseLong(cursor);  // 숫자 파싱 시도
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    @Override
+    public CommentLikeDto like(UUID commentId, UUID userId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
+
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
+
+        Like like = new Like(comment, user);
+        likeRepository.save(like);
+        comment.update(comment.getLikeCount() + 1);
+        commentRepository.save(comment);
+
+        return likeMapper.toDto(like);
     }
 }

@@ -60,7 +60,8 @@ public class ArticleIntegrationTest {
                 "요약",
                 false,
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                new ArrayList<>()
         );
         articleRepository.save(article);
     }
@@ -110,9 +111,9 @@ public class ArticleIntegrationTest {
         Instant time2 = createdAt.minusSeconds(20);
         Instant time3 = createdAt.minusSeconds(30);
 
-        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, time1, time1);
-        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, time2, time2);
-        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, time3, time3);
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, time1, time1, new ArrayList<>());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, time2, time2, new ArrayList<>());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, time3, time3, new ArrayList<>());
 
         articleRepository.save(article1);
         articleRepository.save(article2);
@@ -146,9 +147,9 @@ public class ArticleIntegrationTest {
     @Test
     void 뉴스기사_출처_목록을_조회할_수_있다() {
         // given
-        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
-        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
-        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now(), new ArrayList<>());
 
         articleRepository.save(article1);
         articleRepository.save(article2);
@@ -166,9 +167,9 @@ public class ArticleIntegrationTest {
     @Test
     void 주어진_ID로_뉴스기사를_논리_삭제_할_수_있다() {
         // given
-        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
-        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
-        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now(), new ArrayList<>());
 
         articleRepository.save(article1);
         articleRepository.save(article2);
@@ -186,9 +187,9 @@ public class ArticleIntegrationTest {
     @Test
     void 주어진_ID로_뉴스기사를_물리_삭제_할_수_있다() {
         // given
-        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now());
-        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now());
-        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now());
+        Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, Instant.now(), Instant.now(), new ArrayList<>());
+        Article article3 = new Article("한국경제", "https://c.com", "일반 뉴스", "정치 이슈", false, Instant.now(), Instant.now(), new ArrayList<>());
 
         articleRepository.save(article1);
         articleRepository.save(article2);

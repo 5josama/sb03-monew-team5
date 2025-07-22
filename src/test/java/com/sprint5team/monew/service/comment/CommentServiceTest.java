@@ -4,13 +4,14 @@ package com.sprint5team.monew.service.comment;
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.exception.ArticleNotFoundException;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
-import com.sprint5team.monew.domain.comment.dto.CommentDto;
-import com.sprint5team.monew.domain.comment.dto.CommentRegisterRequest;
-import com.sprint5team.monew.domain.comment.dto.CursorPageResponseCommentDto;
+import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.entity.Like;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
+import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
+import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
@@ -47,6 +48,9 @@ public class CommentServiceTest {
     private CommentRepository commentRepository;
 
     @Mock
+    private LikeRepository likeRepository;
+
+    @Mock
     private ArticleRepository articleRepository;
 
     @Mock
@@ -54,6 +58,9 @@ public class CommentServiceTest {
 
     @Mock
     private CommentMapper commentMapper;
+
+    @Mock
+    private LikeMapper likeMapper;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -279,7 +286,6 @@ public class CommentServiceTest {
         verify(commentRepository).deleteById(eq(commentId));
     }
 
-
     @Test
     void 댓글_물리_삭제_실패_존재하지않는_댓글_ID(){
         //given
@@ -289,6 +295,66 @@ public class CommentServiceTest {
         assertThatThrownBy(() -> commentService.hardDelete(commentId))
                 .isInstanceOf(CommentNotFoundException.class);
 
+    }
+
+    @Test
+    void 댓글_수정_성공(){
+        //given
+        CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글");
+        CommentDto updatedComment = new CommentDto(commentId,article.getId(),user.getId(),user.getNickname(),"수정된 댓글",0L,false,createdAt);
+
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+        given(commentMapper.toDto(any(Comment.class))).willReturn(updatedComment);
+
+        //when
+        CommentDto result = commentService.update(commentId,request);
+
+        //then
+        verify(commentRepository).save(any(Comment.class));
+        assertThat(result.content()).isEqualTo("수정된 댓글");
+    }
+
+    @Test
+    void 댓글_수정_실패_존재하지않는_댓글_ID(){
+        //given
+        CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글");
+        CommentDto updatedComment = new CommentDto(commentId,article.getId(),user.getId(),user.getNickname(),"수정된 댓글",0L,false,createdAt);
+
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.empty());
+
+        //when && then
+        assertThatThrownBy(() -> commentService.update(commentId,request))
+                .isInstanceOf(CommentNotFoundException.class);
+    }
+
+    @Test
+    void 댓글_좋아요_성공(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        CommentLikeDto commentLikeDto = new CommentLikeDto(UUID.randomUUID(),userId,Instant.now(),commentId,UUID.randomUUID(),UUID.randomUUID(),"nickName","댓글내용",1L,Instant.now());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+
+        comment.update(comment.getLikeCount() + 1);
+
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+        given(likeRepository.save(any(Like.class))).willReturn(like);
+        given(likeMapper.toDto(any(Like.class))).willReturn(commentLikeDto);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+
+
+        //when
+        CommentLikeDto likeDto = commentService.like(commentId,userId);
+
+        //then
+        assertThat(likeDto).isEqualTo(commentLikeDto);
+        verify(likeRepository).save(any(Like.class));
+        verify(commentRepository).save(any(Comment.class));
+        verify(likeMapper).toDto(any(Like.class));
+        verify(commentRepository).findById(eq(commentId));
+        verify(userRepository).findById(eq(userId));
     }
 
 

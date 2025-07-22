@@ -70,6 +70,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // 외부 API 호출 제한
+    implementation 'com.google.guava:guava:32.1.3-jre'
 }
 // QueryDsl : 자동 생성 소스 파일 저장 위치
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
