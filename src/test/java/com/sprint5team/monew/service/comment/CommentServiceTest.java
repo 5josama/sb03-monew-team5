@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -362,21 +363,24 @@ public class CommentServiceTest {
         //given
         UUID userId = UUID.randomUUID();
         Like like = new Like(comment, user);
-        comment.update(comment.getLikeCount() + 1);
-        comment = commentRepository.save(comment);
-        like = likeRepository.save(like);
-        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+
+        comment.update(comment.getLikeCount() - 1);
+        given(commentRepository.findById(eq(comment.getId()))).willReturn(Optional.of(comment));
         given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+        given(likeRepository.findAllByUserIdAndCommentId(userId,commentId)).willReturn(List.of(like));
+        willDoNothing().given(likeRepository).deleteById(eq(like.getId()));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
         //when
-        commentService.cencelLike(commentId,userId);
+        commentService.cancelLike(commentId,userId);
 
         //then
-        verify(likeRepository).save(any(Like.class));
+        verify(likeRepository).deleteById(like.getId());
         verify(commentRepository).save(any(Comment.class));
         verify(commentRepository).findById(eq(commentId));
         verify(userRepository).findById(eq(userId));
-        verify(likeRepository).findById(eq(like.getId()));
+        verify(likeRepository).findAllByUserIdAndCommentId(eq(userId),eq(commentId));
     }
 
 

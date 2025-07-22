@@ -242,7 +242,7 @@ public class CommentControllerTest {
         //given
         UUID commentId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        given(commentService.cancelLike(commentId,userId)).willReturn(null);
+        willDoNothing().given(commentService).cancelLike(eq(commentId),eq(userId));
 
         //when && then
         mockMvc.perform(delete("/api/comments/{commentId}/comment-likes", commentId)
