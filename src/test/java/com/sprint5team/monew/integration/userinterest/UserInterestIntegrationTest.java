@@ -9,10 +9,13 @@ import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.user_interest.exception.InvalidSubscriptionRequestException;
 import com.sprint5team.monew.domain.user_interest.dto.SubscriptionDto;
+import com.sprint5team.monew.domain.user_interest.exception.SubscriberNotMatchesException;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import com.sprint5team.monew.domain.user_interest.service.UserInterestService;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -34,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Date         : 2025. 7. 18.
  */
 
+@Transactional
 @DisplayName("User Interest 통합 테스트")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -55,6 +60,9 @@ public class UserInterestIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private UserInterestService userInterestService;
@@ -107,7 +115,7 @@ public class UserInterestIntegrationTest {
     }
 
     @Test
-    void 사용자가_유효하지_않을경우_UserNotFoundException_404_를_반환한다() throws Exception {
+    void 구독_시도시_사용자가_유효하지_않을경우_UserNotFoundException_404_를_반환한다() throws Exception {
         // given
         UUID invalidUserId = UUID.randomUUID();
 
@@ -118,7 +126,7 @@ public class UserInterestIntegrationTest {
     }
 
     @Test
-    void 관심사가_유효하지_않을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
+    void 구독_시도시_관심사가_유효하지_않을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
         // given
         UUID invalidUserId = UUID.randomUUID();
 
@@ -142,49 +150,38 @@ public class UserInterestIntegrationTest {
     @Test
     void 구독을_정상적으로_취소한다() throws Exception {
         // given
+        UserInterest userInterest = UserInterest.builder()
+            .createdAt(baseTime)
+            .interest(globalInterest)
+            .user(globalUser)
+            .build();
+        userInterestRepository.save(userInterest);
+        entityManager.flush();
+
+        globalInterest.subscribe();
+        interestRepository.save(globalInterest);
 
         // when
+        userInterestService.unsubscribeInterest(globalInterest.getId(), globalUser.getId());
 
         // then
-
-    }
-    @Test
-    void 요청자_정보가_없을경우_UserNotFoundException_404_를_반환한다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
-    @Test
-    void 관심사_정보가_없을경우_InterestNotExistsException_404_를_반환한다() throws Exception {
-        // given
-
-        // when
-
-        // then
-
+        assertThat(userInterestRepository.findByUserId(userInterest.getId())).isEmpty();
+        assertThat(userInterestRepository.count()).isEqualTo(0);
     }
 
     @Test
-    void 관심사_구독한_사용자_수에_문제가_있을경우_SubscriberNotMatchesException_409_를_반환한다() throws Exception {
+    void 구독_취소_요청시_관심사_구독한_사용자_수에_문제가_있을경우_SubscriberNotMatchesException_409_를_반환한다() throws Exception {
         // given
+        UserInterest userInterest = UserInterest.builder()
+            .createdAt(baseTime)
+            .interest(globalInterest)
+            .user(globalUser)
+            .build();
+        userInterestRepository.save(userInterest);
 
-        // when
-
-        // then
-
+        // when n then
+        assertThatThrownBy(() -> userInterestService.unsubscribeInterest(globalInterest.getId(), globalUser.getId()))
+            .isInstanceOf(SubscriberNotMatchesException.class)
+            .hasMessageContaining("구독자 수 불일치");
     }
-    @Test
-    void 요청자가_() throws Exception {
-        // given
-
-        // when
-
-        // then
-
-    }
-
 }

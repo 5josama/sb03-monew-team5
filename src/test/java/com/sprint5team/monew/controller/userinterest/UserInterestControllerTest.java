@@ -112,7 +112,7 @@ public class UserInterestControllerTest {
     }
 
     @Test
-    void 요청자가_구독중이_아닐때_취소_요청시_UserInterestAlreadyExistsException_400_를_반환한다() throws Exception {
+    void 요청자가_구독중이_아닐때_취소_요청시_InvalidSubscriptionRequestException_400_를_반환한다() throws Exception {
         UUID interestId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -125,7 +125,7 @@ public class UserInterestControllerTest {
                 .header("Monew-Request-User-ID", userId))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.details").value("사용자는 이미 관심사를 구독중입니다."))
+            .andExpect(jsonPath("$.details").value("잘못된 구독요청 입니다"))
             .andReturn();
 
         Exception exception = result.getResolvedException();
