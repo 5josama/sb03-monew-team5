@@ -1,5 +1,6 @@
 package com.sprint5team.monew.base.util;
 
+import com.sprint5team.monew.base.service.BatchMetadataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -9,17 +10,23 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleBackUpScheduler {
     private final JobLauncher jobLauncher;
     private final Job articleBackupJob;
+    private final BatchMetadataService  batchMetadataService;
 
     @Scheduled(cron = "0 0 2 * * ?")
     public void runArticleBackupJob() {
+        Instant lastExecutedAt = batchMetadataService.findLastSuccessExecutionTime("articleBackupJob").orElse(Instant.EPOCH);
+
         try {
             JobParameters params = new JobParametersBuilder()
+                    .addString("lastExecutedAt", lastExecutedAt.toString())
                     .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters();
 
