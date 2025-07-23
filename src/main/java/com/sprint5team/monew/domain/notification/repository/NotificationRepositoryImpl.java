@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.QNotification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationRepositoryImpl implements NotificationRepositoryCustom {
 
     private final JPAQueryFactory query;
@@ -28,6 +30,8 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
         if (after != null) {
             builder.and(notification.createdAt.gt(after));
         }
+
+        log.debug("알림 커서 기반 페이징 쿼리 실행: userId={}, cursor={}, after={}, limit={}", userId, cursor, after, limit);
 
         return query.selectFrom(notification)
                 .where(builder)
