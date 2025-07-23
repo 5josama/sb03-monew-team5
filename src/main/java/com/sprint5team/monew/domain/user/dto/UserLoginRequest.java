@@ -1,17 +1,16 @@
 package com.sprint5team.monew.domain.user.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
+@Schema(description = "로그인 정보")
 public record UserLoginRequest(
 
-    @NotBlank(message = "이메일을 입력해 주세요.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @Email(message = "잘못된 이메일 형식입니다.")
+    @Schema(description = "로그인 이메일", requiredMode = Schema.RequiredMode.REQUIRED)
     String email,
 
-    @NotBlank(message = "비밀번호를 입력해 주세요.")
-    @Size(min = 6, max = 20, message = "비밀번호는 6자 이상 20자 이하로 입력해 주세요.")
+    @Schema(description = "로그인 비밀번호", requiredMode = Schema.RequiredMode.REQUIRED)
     String password
 ) {
 }
