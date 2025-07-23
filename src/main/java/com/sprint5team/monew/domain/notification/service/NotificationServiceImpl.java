@@ -2,19 +2,23 @@ package com.sprint5team.monew.domain.notification.service;
 
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
+import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
+import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificationDto;
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
+import com.sprint5team.monew.domain.notification.exception.InvalidRequestParameterException;
+import com.sprint5team.monew.domain.notification.exception.NotificationNotFoundException;
 import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,10 +46,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDto notifyArticleForInterest(UUID userId, UUID interestId, String interestName, long articleCount) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         Interest interest = interestRepository.findById(interestId)
-                .orElseThrow(() -> new IllegalArgumentException("관심사를 찾을 수 없습니다."));
+                .orElseThrow(InterestNotExistsException::new);
 
         String content = String.format("[%s]와 관련된 기사가 %d건 등록되었습니다.", interestName, articleCount);
 
@@ -64,10 +68,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDto notifyCommentLiked(UUID userId, UUID commentId, String likerName) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(CommentNotFoundException::new);
 
         String content = String.format("[%s]님이 나의 댓글을 좋아합니다.", likerName);
 
@@ -85,6 +89,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public CursorPageResponseNotificationDto getAllNotifications(UUID userId, String cursor, Instant after, int limit) {
+        if (userId == null) {
+            throw new InvalidRequestParameterException();
+        }
+
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
+        }
+
         List<Notification> results = notificationRepository
                 .findUnconfirmedNotificationsWithCursorPaging(userId, cursor, after, limit);
 
@@ -119,7 +131,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void confirmNotification(UUID notificationId, UUID userId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new EntityNotFoundException("알림을 찾을 수 없습니다."));
+                .orElseThrow(NotificationNotFoundException::new);
 
         notification.confirm();
     }
