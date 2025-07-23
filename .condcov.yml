@@ -5,10 +5,9 @@
 coverage:
   status:
     project:
-      default:
+      dev-check:
         target: auto
-
+#          only_pulls: true
         branches:
-#          - main
-#          - dev
-          - feature/add-ci
+          - dev
+          - feature/continuous-integration
