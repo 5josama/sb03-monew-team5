@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * 알림 관련 API를 제공하는 컨트롤러
+ * 알림 목록 조회
+ * 알림 확인
+ * 전체 알림 확인
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
@@ -20,6 +26,15 @@ public class NotificationController implements NotificationApi{
 
     private final NotificationService notificationService;
 
+    /**
+     * 미확인 알림 목록을 시간순정렬(ASC) 커서 기반으로 조회한다
+     *
+     * @param cursor 마지막으로 받은 알림의 커서 (nullable)
+     * @param after 특정 시간 이후의 알림만 조회 (nullable)
+     * @param limit 한 번에 조회할 최대 알림 수
+     * @param userId 요청 유저의 ID (헤더)
+     * @return 페이징된 알림 목록
+     */
     @Override
     @GetMapping
     public ResponseEntity<CursorPageResponseNotificationDto> findAllNotConfirmed(
@@ -37,6 +52,14 @@ public class NotificationController implements NotificationApi{
                 .body(response);
     }
 
+    /**
+     * 특정 알림을 확인한다
+     * 알림 ID와 사용자 ID를 기반으로 해당 알림을 읽음 처리(confirmed = true)
+     *
+     * @param notificationId 확인할 알림의 ID (PathVariable)
+     * @param userId 요청 사용자 ID (헤더: Monew-Request-User-ID)
+     * @return HTTP 204 No Content (성공 시 본문 없음)
+     */
     @Override
     @PatchMapping("/{notificationId}")
     public ResponseEntity<Void> confirmNotification(
@@ -52,6 +75,13 @@ public class NotificationController implements NotificationApi{
                 .build();
     }
 
+    /**
+     * 해당 사용자의 모든 미확인 알림을 일괄 확인한다
+     * confirmed = false 상태인 알림들을 모두 true로 업데이트
+     *
+     * @param userId 요청 사용자 ID (헤더: Monew-Request-User-ID)
+     * @return HTTP 204 No Content (성공 시 본문 없음)
+     */
     @Override
     @PatchMapping()
     public ResponseEntity<Void> confirmAllNotifications(

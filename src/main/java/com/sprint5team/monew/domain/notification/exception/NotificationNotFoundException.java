@@ -5,6 +5,10 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
+/**
+ * 요청한 알림 ID에 해당하는 알림이 존재하지 않을 때 발생하는 예외
+ * 사용자가 확인하려는 알림이 삭제되었거나 존재하지 않을 경우에 발생한다
+ */
 public class NotificationNotFoundException extends BaseException {
 
     @Override
