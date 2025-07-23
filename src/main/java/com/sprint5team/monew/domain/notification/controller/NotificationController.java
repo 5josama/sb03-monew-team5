@@ -16,10 +16,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
 @Slf4j
-public class NotificationController {
+public class NotificationController implements NotificationApi{
 
     private final NotificationService notificationService;
 
+    @Override
     @GetMapping
     public ResponseEntity<CursorPageResponseNotificationDto> findAllNotConfirmed(
             @RequestParam(required = false) String cursor,
@@ -36,6 +37,7 @@ public class NotificationController {
                 .body(response);
     }
 
+    @Override
     @PatchMapping("/{notificationId}")
     public ResponseEntity<Void> confirmNotification(
             @PathVariable UUID notificationId,
@@ -50,6 +52,7 @@ public class NotificationController {
                 .build();
     }
 
+    @Override
     @PatchMapping()
     public ResponseEntity<Void> confirmAllNotifications(
             @RequestHeader("Monew-Request-User-ID") UUID userId) {
