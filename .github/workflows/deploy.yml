@@ -1,7 +1,7 @@
 name: Deploy to AWS ECS(CD)
 on:
   push:
-    branches: [ feature/continuous-deploy ]
+    branches: [ feature/continuous-deploy, main ]
 
 env:
   AWS_REGION: ap-northeast-2
