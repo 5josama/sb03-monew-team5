@@ -10,4 +10,3 @@ coverage:
 #          only_pulls: true
         branches:
           - dev
-          - feature/continuous-integration
