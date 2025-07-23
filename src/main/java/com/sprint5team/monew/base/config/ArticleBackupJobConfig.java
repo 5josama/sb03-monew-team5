@@ -8,17 +8,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +47,7 @@ public class ArticleBackupJobConfig {
                                        PlatformTransactionManager transactionManager) {
         return new StepBuilder("articleBackupChunkStep", jobRepository)
                 .<Article, String>chunk(100, transactionManager)
-                .reader(articleReader())
+                .reader(articleReader(null))
                 .processor(articleToJsonProcessor())
                 .writer(articleJsonBatchWriter)
                 .listener(articleJsonBatchWriter)
@@ -52,15 +55,18 @@ public class ArticleBackupJobConfig {
     }
 
     @Bean
-    public RepositoryItemReader<Article> articleReader() {
+    @StepScope
+    public RepositoryItemReader<Article> articleReader(@Value("#{jobParameters['lastExecutedAt']}") String lastExecutedAt) {
+        Instant from = Instant.parse(lastExecutedAt);
+
         Map<String, Sort.Direction> sorts = new HashMap<>();
         sorts.put("id", Sort.Direction.ASC);
 
         return new RepositoryItemReaderBuilder<Article>()
                 .name("articleReader")
                 .repository(articleRepository)
-                .methodName("findAllByOrderByIdAsc")
-                .arguments(List.of())
+                .methodName("findByCreatedAtAfterOrderByIdAsc")
+                .arguments(List.of(from))
                 .pageSize(100)
                 .sorts(sorts)
                 .build();

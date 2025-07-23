@@ -1,8 +1,11 @@
 package com.sprint5team.monew.domain.article.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -20,6 +23,7 @@ public class ArticleKeyword {
 
     @ManyToOne
     @JoinColumn(name = "article_id")
+    @JsonIgnore
     private Article article;
 
     @ManyToOne

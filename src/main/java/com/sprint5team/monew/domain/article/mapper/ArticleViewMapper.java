@@ -16,7 +16,7 @@ public interface ArticleViewMapper {
     @Mapping(source = "article.summary", target = "articleSummary")
     @Mapping(source = "article.source", target = "source")
     @Mapping(source = "article.sourceUrl", target = "sourceUrl")
-    @Mapping(source = "article.originalDateTime", target = "articlePublishDate")
+    @Mapping(source = "article.originalDateTime", target = "articlePublishedDate")
     @Mapping(source = "articleCount.createdAt", target = "createdAt")
     @Mapping(source = "articleCount.id", target = "id")
     @Mapping(source = "viewedCount", target = "articleViewCount")

@@ -1,6 +1,7 @@
 package com.sprint5team.monew.base.util;
 
 import com.sprint5team.monew.domain.article.service.ArticleScraper;
+import com.sprint5team.monew.domain.article.util.KeywordQueueManager;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import lombok.RequiredArgsConstructor;
