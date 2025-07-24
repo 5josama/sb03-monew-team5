@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -74,6 +75,7 @@ class NotificationServiceTest {
     }
 
     @Test
+    @Transactional
     void 구독_중인_관심사와_관련된_기사가_등록되면_알림이_생성된다() {
         // given
         String interestName = "축구";
@@ -111,6 +113,7 @@ class NotificationServiceTest {
     }
 
     @Test
+    @Transactional
     void 내_댓글에_좋아요가_눌리면_알림이_생성된다() {
         // given
         String likerName = "홍길동";
@@ -150,6 +153,7 @@ class NotificationServiceTest {
     }
 
     @Test
+    @Transactional
     void 알림_목록_커서_기반_조회() {
         // given
         Instant createdAt = Instant.now();
@@ -201,6 +205,7 @@ class NotificationServiceTest {
     }
 
     @Test
+    @Transactional
     void 단일_알림_확인_요청시_알림이_확인된다() {
         // given
         UUID notificationId = UUID.randomUUID();
@@ -223,6 +228,7 @@ class NotificationServiceTest {
     }
 
     @Test
+    @Transactional
     void 전체_알림_확인_요청시_모든_알림이_확인된다() {
         // given
         Notification noti1 = Notification.builder()
