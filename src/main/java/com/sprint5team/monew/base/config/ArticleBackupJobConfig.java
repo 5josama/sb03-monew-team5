@@ -13,8 +13,10 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,10 +46,11 @@ public class ArticleBackupJobConfig {
 
     @Bean
     public Step articleBackupChunkStep(JobRepository jobRepository,
-                                       PlatformTransactionManager transactionManager) {
+                                       PlatformTransactionManager transactionManager,
+                                       @Qualifier("articleReader") ItemReader<Article> articleReader) {
         return new StepBuilder("articleBackupChunkStep", jobRepository)
                 .<Article, String>chunk(100, transactionManager)
-                .reader(articleReader(null))
+                .reader(articleReader)
                 .processor(articleToJsonProcessor())
                 .writer(articleJsonBatchWriter)
                 .listener(articleJsonBatchWriter)
@@ -65,7 +68,7 @@ public class ArticleBackupJobConfig {
         return new RepositoryItemReaderBuilder<Article>()
                 .name("articleReader")
                 .repository(articleRepository)
-                .methodName("findByCreatedAtAfterOrderByIdAsc")
+                .methodName("findByCreatedAtAfterOrderByCreatedAtAsc")
                 .arguments(List.of(from))
                 .pageSize(100)
                 .sorts(sorts)
