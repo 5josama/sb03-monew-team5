@@ -1,0 +1,71 @@
+package com.sprint5team.monew.domain.comment.entity;
+
+import com.sprint5team.monew.base.entity.BaseUpdatableEntity;
+import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.user.entity.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
+
+@Entity
+@Table(name = "tbl_comment")
+@NoArgsConstructor
+@Getter
+public class Comment extends BaseUpdatableEntity {
+
+    @CreatedDate
+    @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
+    private Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
+    private Article article;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "like_count")
+    private Long likeCount;
+
+    public Comment(Article article, User user, String content) {
+        this.article = article;
+        this.user = user;
+        this.content = content;
+        this.isDeleted = false;
+        this.likeCount = (long) 0;
+    }
+
+    public void update(String content) {
+        this.content = content;
+    }
+
+    public void update(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public void softDelete(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "createdAt=" + createdAt +
+                ", article=" + article +
+                ", user=" + user +
+                ", content='" + content + '\'' +
+                ", isDeleted=" + isDeleted +
+                ", likeCount=" + likeCount +
+                "} " + super.toString();
+    }
+}
