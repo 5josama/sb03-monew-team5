@@ -27,7 +27,7 @@ import java.util.UUID;
 @RestController
 @Validated
 @RequestMapping("api/interests")
-public class InterestController {
+public class InterestController implements InterestApi {
 
     private final InterestService interestService;
 
@@ -59,9 +59,8 @@ public class InterestController {
     @PatchMapping("/{interestId}")
     public ResponseEntity<InterestDto> updateInterest(
         @PathVariable UUID interestId,
-        @RequestBody InterestUpdateRequest request,
-        @RequestHeader(name = "Monew-Request-User-ID") UUID userId
+        @RequestBody InterestUpdateRequest request
     ){
-        return ResponseEntity.ok(interestService.updateInterest(interestId, request, userId));
+        return ResponseEntity.ok(interestService.updateInterest(interestId, request));
     }
 }
