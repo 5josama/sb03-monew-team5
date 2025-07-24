@@ -14,18 +14,23 @@ import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
-import com.sprint5team.monew.domain.notification.service.NotificationService;
+import com.sprint5team.monew.domain.comment.util.CommentLikedEvent;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,7 +44,7 @@ public class CommentServiceImpl implements CommentService{
     private final CommentMapper commentMapper;
     private final LikeRepository likeRepository;
     private final LikeMapper likeMapper;
-    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 댓글을 생성하는 메소드
@@ -48,6 +53,7 @@ public class CommentServiceImpl implements CommentService{
      * @return 댓글 생성 결과 CommentDto
      */
     @Override
+    @Transactional
     public CommentDto create(UUID userId, CommentRegisterRequest request) {
         log.debug("댓글 생성 시작: articleId={}, userId={}, content={}",request.articleId(),request.userId(),request.content());
 
@@ -74,6 +80,7 @@ public class CommentServiceImpl implements CommentService{
      * @return 조회결과 CursorPageResponseCommentDto
      */
     @Override
+    @Transactional(readOnly = true)
     public CursorPageResponseCommentDto find(UUID articleId, UUID userId, String cursor, Instant after, Pageable pageable) {
         //커서페이지네이션 수행
         List<Comment> commentList = new ArrayList<>(commentRepository.findCommentsWithCursor(articleId, cursor, after, pageable));      //굳이 이렇게 하는이유는 불변 List를 가변 List로 바꾸기위함 (밑에서 remove 써야함.)
@@ -149,6 +156,7 @@ public class CommentServiceImpl implements CommentService{
      * @return 바꾼 결과 Dto
      */
     @Override
+    @Transactional
     public CommentDto update(UUID commentId,UUID userId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         comment.update(request.content());
@@ -162,6 +170,7 @@ public class CommentServiceImpl implements CommentService{
      * @param commentId 삭제하길 원하는 댓글 ID
      */
     @Override
+    @Transactional
     public void softDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
         comment.softDelete(true);                                                                               // 논리 삭제됨
@@ -186,6 +195,7 @@ public class CommentServiceImpl implements CommentService{
      * @return 좋아요 요청 결과
      */
     @Override
+    @Transactional
     public CommentLikeDto like(UUID commentId, UUID userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
@@ -198,8 +208,15 @@ public class CommentServiceImpl implements CommentService{
         comment.update(comment.getLikeCount() + 1);
         commentRepository.save(comment);
 
+        // 자신의 댓글이 아닌 경우에만 이벤트 알림 발행
         if (!comment.getUser().getId().equals(userId)) {
-            notificationService.notifyCommentLiked(comment.getUser().getId(), comment.getId(), user.getNickname());
+            eventPublisher.publishEvent(
+                    new CommentLikedEvent(
+                            comment.getUser().getId(),
+                            comment.getId(),
+                            user.getNickname()
+                    )
+            );
         }
 
         return likeMapper.toDto(like);
@@ -211,6 +228,7 @@ public class CommentServiceImpl implements CommentService{
      * @param userId 좋아요 취소를 요청한 유저 ID
      */
     @Override
+    @Transactional
     public void cancelLike(UUID commentId, UUID userId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);          // 댓글 찾기, 없으면 NotfoundException
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);                         // 유저 찾기, 없으면 NotfoundException
