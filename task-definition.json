@@ -1,0 +1,50 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "monew",
+      "image": "public.ecr.aws/o7a9r0l4/ohjosama:latest",
+      "cpu": 256,
+      "memory": 512,
+      "memoryReservation": 256,
+      "portMappings": [
+        {
+          "name": "monew-80-tcp",
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [
+        {
+          "value": "arn:aws:s3:::5josama/monew.env",
+          "type": "s3"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:80/actuator/health || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 20,
+        "retries": 3,
+        "startPeriod": 120
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "ohjosama-task",
+  "executionRoleArn": "arn:aws:iam::775405889184:role/ecsTaskExecutionRole",
+  "networkMode": "bridge",
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

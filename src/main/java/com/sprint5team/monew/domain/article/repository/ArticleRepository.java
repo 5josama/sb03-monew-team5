@@ -31,4 +31,6 @@ public interface ArticleRepository extends JpaRepository<Article, UUID>, Article
       AND a.createdAt >= :since
     """)
     long countRecentArticlesByInterestId(@Param("interestId") UUID interestId, @Param("since") Instant since);
+
+    Page<Article> findByCreatedAtAfterOrderByIdAsc(Instant createdAt, Pageable pageable);
 }

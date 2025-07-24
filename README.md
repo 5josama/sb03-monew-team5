@@ -1,8 +1,13 @@
 # sb03-monew-team5
 modu's news
 
-## Jacoco 커버리지 확인 기능 추가
-./gradlew clean test jacocoTestReport
+[![codecov](https://codecov.io/gh/5josama/sb03-monew-team5/graphs/tree.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
+
+[![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graphs/sunburst.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
+
+[![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graphs/icicle.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
+
+[![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graph/badge.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
 
 ## prod 환경 실행
 docker compose up --build

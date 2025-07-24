@@ -11,7 +11,7 @@ import java.util.UUID;
  * @param source 출처
  * @param sourceUrl 원본 기사 URL
  * @param articleTitle 제목
- * @param articlePublishDate 기사 날짜
+ * @param articlePublishedDate 기사 날짜
  * @param articleSummary 요약
  * @param articleCommentCount 댓글 수
  * @param articleViewCount 조회 수
@@ -24,7 +24,7 @@ public record ArticleViewDto(
         String source,
         String sourceUrl,
         String articleTitle,
-        Instant articlePublishDate,
+        Instant articlePublishedDate,
         String articleSummary,
         long articleCommentCount,
         long articleViewCount

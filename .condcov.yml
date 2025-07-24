@@ -1,0 +1,12 @@
+#codecov:
+#  require_ci_to_pass: yes
+
+# 커버리지 상태 관련 설정
+coverage:
+  status:
+    project:
+      dev-check:
+        target: auto
+#          only_pulls: true
+        branches:
+          - dev

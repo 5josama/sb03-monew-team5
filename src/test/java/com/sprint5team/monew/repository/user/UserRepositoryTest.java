@@ -2,7 +2,6 @@ package com.sprint5team.monew.repository.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 
 import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.user.entity.User;
@@ -128,4 +127,35 @@ class UserRepositoryTest {
     assertThat(userRepository.findById(user.getId()).get().getNickname()).isEqualTo(newNickname);
   }
 
+  @Test
+  void 사용자_논리삭제_성공() {
+    // given
+    String email = "test@test.kr";
+    String nickname = "test";
+    String password = "test1234";
+    User user = userRepository.save(createTestUser(email, nickname, password));
+
+    // when
+    user.softDelete();
+    userRepository.save(user);
+
+    // then
+    assertThat(userRepository.findById(user.getId()).get().getIsDeleted()).isEqualTo(true);
+  }
+
+  @Test
+  void 사용자_물리삭제_성공() {
+    // given
+    String email = "test@test.kr";
+    String nickname = "test";
+    String password = "test1234";
+    User user = userRepository.save(createTestUser(email, nickname, password));
+
+    // when
+    userRepository.deleteById(user.getId());
+
+    // then
+    assertThat(userRepository.findById(user.getId())).isEmpty();
+    assertThat(userRepository.findAll()).hasSize(0);
+  }
 }

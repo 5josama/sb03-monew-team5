@@ -3,6 +3,8 @@ package com.sprint5team.monew.service.article;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sprint5team.monew.domain.article.util.ArticleConsumer;
+import com.sprint5team.monew.domain.article.util.ArticleQueueManager;
 import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
 import com.sprint5team.monew.domain.article.entity.Article;
@@ -32,14 +34,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ArticleService 단위 테스트")
@@ -54,6 +56,8 @@ public class ArticleServiceTest {
     @Mock ArticleMapper articleMapper;
     @Mock S3Storage s3Storage;
     @Mock CommentRepository commentRepository;
+    @Mock ArticleQueueManager articleQueueManager;
+    @Mock ArticleConsumer articleConsumer;
 
     @InjectMocks private ArticleServiceImpl articleService;
 
@@ -63,7 +67,9 @@ public class ArticleServiceTest {
     @BeforeEach
     void setUp() {
         user = new User("test@naver.com", "test", "0000");
+        ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
         article = new Article();
+        ReflectionTestUtils.setField(article, "id", UUID.randomUUID());
 
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
@@ -95,6 +101,19 @@ public class ArticleServiceTest {
         given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
         given(articleCountRepository.findByUserIdAndArticleId(userId, articleId)).willReturn(Optional.empty());
         given(articleViewMapper.toDto(any(), any(), any(), any(), any())).willReturn(articleViewDto);
+        given(commentRepository.countByArticleIds(List.of(articleId)))
+                .willReturn(List.of(new ArticleCommentCount() {
+                    @Override
+                    public UUID getArticleId() {
+                        return articleId;
+                    }
+
+                    @Override
+                    public Long getCount() {
+                        return 0L;
+                    }
+                }));
+
 
         // when
         ArticleViewDto result = articleService.saveArticleView(articleId, userId);
@@ -229,6 +248,14 @@ public class ArticleServiceTest {
 
         given(s3Storage.readArticlesFromBackup(from, to)).willReturn(backupJsons);
         given(articleRepository.saveAll(anyList())).willReturn(backupArticles);
+        doAnswer(invocation -> {
+            int threadCount = (int) invocation.getArgument(0);
+            CountDownLatch latch = invocation.getArgument(1);
+            for (int i = 0; i < threadCount; i++) {
+                latch.countDown();
+            }
+            return null;
+        }).when(articleConsumer).consume(anyInt(), any(CountDownLatch.class));
 
         // when
         ArticleRestoreResultDto result = articleService.restoreArticle(from, to);

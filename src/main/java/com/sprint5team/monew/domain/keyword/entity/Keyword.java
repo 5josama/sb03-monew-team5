@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.keyword.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sprint5team.monew.base.entity.BaseEntity;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import jakarta.persistence.*;
@@ -39,6 +40,7 @@ public class Keyword extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interest_id", nullable = false)
+    @JsonIgnore
     private Interest interest;
 
     public Keyword(String name, Interest interest) {

@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -106,10 +106,10 @@ public class ArticleIntegrationTest {
         keywordRepository.save(keyword1);
         keywordRepository.save(keyword2);
 
-        Instant createdAt = Instant.now();
-        Instant time1 = createdAt.minusSeconds(10);
-        Instant time2 = createdAt.minusSeconds(20);
-        Instant time3 = createdAt.minusSeconds(30);
+        Instant now = Instant.now();
+        Instant time1 = now.minusSeconds(10);
+        Instant time2 = now.minusSeconds(20);
+        Instant time3 = now.minusSeconds(30);
 
         Article article1 = new Article("NAVER", "https://a.com", "AI 혁신", "미래 변화", false, time1, time1, new ArrayList<>());
         Article article2 = new Article("NAVER", "https://b.com", "블록체인과 사회", "IT 기술", false, time2, time2, new ArrayList<>());
@@ -122,12 +122,17 @@ public class ArticleIntegrationTest {
 
         List<String> keywords = List.of("AI", "블록체인");
 
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+
+        Instant fromInstant = now.minusSeconds(60); // 충분히 넓게
+        Instant toInstant = now.plusSeconds(60);
+
         CursorPageFilter filter = new CursorPageFilter(
                 null,
                 interest.getId(),
                 Arrays.asList("NAVER"),
-                LocalDateTime.parse("2025-07-01T00:00:00"),
-                LocalDateTime.parse("2025-07-16T00:00:00"),
+                fromInstant.atZone(zone).toLocalDateTime(),
+                toInstant.atZone(zone).toLocalDateTime(),
                 "publishDate",
                 "DESC",
                 null,

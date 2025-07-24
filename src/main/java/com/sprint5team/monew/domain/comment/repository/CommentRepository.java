@@ -26,4 +26,7 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, Comment
 
     // 사용자 활동 내역 조회 시 사용
     long countByArticleId(UUID id);
+
+    // 사용자 물리삭제 시 사용
+    void deleteAllByUserId(UUID userId);
 }

@@ -1,8 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint5team.monew.base.util.ArticleConsumer;
-import com.sprint5team.monew.base.util.ArticleQueueManager;
+import com.sprint5team.monew.domain.article.util.ArticleConsumer;
+import com.sprint5team.monew.domain.article.util.ArticleQueueManager;
 import com.sprint5team.monew.base.util.InterestMatcher;
 import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;
@@ -64,7 +64,11 @@ public class ArticleServiceImpl implements ArticleService {
             articleCountRepository.save(new ArticleCount(article,  user));
         }
         Map<UUID, Long> viewCount = articleCountRepository.countViewByArticleIds(List.of(articleId));
-        Map<UUID, Long> commentCount = commentRepository.countByArticleIds(List.of(articleId)).stream()
+        List<ArticleCommentCount> counts = Optional.ofNullable(
+                commentRepository.countByArticleIds(List.of(articleId))
+        ).orElse(Collections.emptyList());
+
+        Map<UUID, Long> commentCount = counts.stream()
                 .collect(Collectors.toMap(ArticleCommentCount::getArticleId, ArticleCommentCount::getCount));
         return articleViewMapper.toDto(article, user, articleCount.orElse(null), viewCount.getOrDefault(articleId, 0L), commentCount.getOrDefault(articleId, 0L));
     }

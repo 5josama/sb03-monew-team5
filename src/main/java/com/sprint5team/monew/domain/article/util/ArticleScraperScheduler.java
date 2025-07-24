@@ -1,4 +1,4 @@
-package com.sprint5team.monew.base.util;
+package com.sprint5team.monew.domain.article.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
