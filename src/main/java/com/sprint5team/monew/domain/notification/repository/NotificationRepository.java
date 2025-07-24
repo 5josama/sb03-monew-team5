@@ -33,7 +33,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
      *
      * @param before 삭제 기준 시각
      */
-    void deleteByConfirmedIsTrueAndCreatedAtBefore(Instant before);
+    void deleteByConfirmedIsTrueAndUpdatedAtBefore(Instant before);
 
     /**
      * 특정 사용자에 대해, 최근 1시간 이내에 동일한 관심사 기반 알림이 존재하는지 확인

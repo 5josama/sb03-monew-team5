@@ -9,7 +9,6 @@ import com.sprint5team.monew.domain.notification.service.NotificationScheduler;
 import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,14 +45,12 @@ class NotificationSchedulerIntegrationTest {
                 user.getId(), interest.getId(), interest.getName(), 9);
 
         Notification notification = notificationRepository.findById(notificationDto.id()).orElseThrow();
-        Instant modifiedCreatedAt = Instant.now().minus(12,ChronoUnit.DAYS);
 
-        ReflectionTestUtils.setField(notification, "createdAt", modifiedCreatedAt);
         ReflectionTestUtils.setField(notification, "confirmed", true);
         notificationRepository.save(notification);
 
         // when
-        notificationScheduler.deleteConfirmedNotifications();
+        notificationScheduler.deleteConfirmedNotifications(Instant.now().plus(7, ChronoUnit.DAYS));
 
         // then
         List<Notification> remaining = notificationRepository.findAll();
