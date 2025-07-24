@@ -7,7 +7,9 @@ import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.dto.*;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.Like;
+import com.sprint5team.monew.domain.comment.exception.AlreadyLikedException;
 import com.sprint5team.monew.domain.comment.exception.CommentNotFoundException;
+import com.sprint5team.monew.domain.comment.exception.LikeNotFoundException;
 import com.sprint5team.monew.domain.comment.mapper.CommentMapper;
 import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
@@ -15,7 +17,9 @@ import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
 import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,8 +43,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 Service 단위 테스트")
@@ -390,6 +393,68 @@ public class CommentServiceTest {
         verify(userRepository).findById(eq(userId));
         verify(likeRepository).findByUserIdAndCommentId(eq(userId),eq(commentId));
     }
+
+    @Test
+    void 댓글_좋아요_실패_이미_좋아요_누른경우(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+        given(likeRepository.findByUserIdAndCommentId(userId, commentId))
+                .willReturn(Optional.of(mock(Like.class)));  // 좋아요 이미 눌렀을 때
+
+        //then && then
+        assertThatThrownBy(() -> commentService.like(commentId, userId)).isInstanceOf(AlreadyLikedException.class);
+
+    }
+
+    @Test
+    void 댓글_좋아요_실패_유저를_찾지_못한경우(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
+
+        //then && then
+        assertThatThrownBy(() -> commentService.like(commentId, userId)).isInstanceOf(UserNotFoundException.class);
+
+    }
+
+    @Test
+    void 댓글_좋아요_취소_실패_좋아요를_찾지_못함(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+        given(likeRepository.findByUserIdAndCommentId(userId, commentId))
+                .willReturn(Optional.empty());
+
+        //then && then
+        assertThatThrownBy(() -> commentService.cancelLike(commentId, userId)).isInstanceOf(LikeNotFoundException.class);
+
+    }
+
+
+    @Test
+    void 댓글_좋아요_취소_실패_유저를_찾지_못함(){
+        //given
+        UUID userId = UUID.randomUUID();
+        Like like = new Like(comment, user);
+        ReflectionTestUtils.setField(like,"id",UUID.randomUUID());
+        given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+        given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
+
+        //then && then
+        assertThatThrownBy(() -> commentService.cancelLike(commentId, userId)).isInstanceOf(UserNotFoundException.class);
+
+    }
+
 
 
 }
