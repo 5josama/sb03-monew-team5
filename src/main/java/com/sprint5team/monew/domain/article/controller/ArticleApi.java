@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Article", description = "뉴스 기사 관련 API")
+@Tag(name = "뉴스 기사 관리", description = "뉴스 기사 관련 API")
 public interface ArticleApi {
     
     @Operation(summary = "뉴스 기사 목록 조회")
