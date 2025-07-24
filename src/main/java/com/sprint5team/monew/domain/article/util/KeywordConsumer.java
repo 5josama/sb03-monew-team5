@@ -1,4 +1,4 @@
-package com.sprint5team.monew.base.util;
+package com.sprint5team.monew.domain.article.util;
 
 import com.google.common.util.concurrent.RateLimiter;
 import jakarta.annotation.PreDestroy;

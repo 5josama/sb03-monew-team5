@@ -1,8 +1,8 @@
 package com.sprint5team.monew.domain.article.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint5team.monew.base.util.ArticleConsumer;
-import com.sprint5team.monew.base.util.ArticleQueueManager;
+import com.sprint5team.monew.domain.article.util.ArticleConsumer;
+import com.sprint5team.monew.domain.article.util.ArticleQueueManager;
 import com.sprint5team.monew.base.util.InterestMatcher;
 import com.sprint5team.monew.base.util.S3Storage;
 import com.sprint5team.monew.domain.article.dto.*;

@@ -1,4 +1,4 @@
-package com.sprint5team.monew.base.util;
+package com.sprint5team.monew.domain.article.util;
 
 import com.sprint5team.monew.domain.article.entity.Article;
 import com.sprint5team.monew.domain.article.repository.ArticleRepository;

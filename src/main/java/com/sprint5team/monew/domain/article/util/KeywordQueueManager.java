@@ -1,4 +1,4 @@
-package com.sprint5team.monew.base.util;
+package com.sprint5team.monew.domain.article.util;
 
 import org.springframework.stereotype.Component;
 
