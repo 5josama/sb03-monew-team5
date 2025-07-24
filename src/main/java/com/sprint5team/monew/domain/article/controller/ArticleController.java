@@ -19,10 +19,11 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/articles")
-public class ArticleController {
+public class ArticleController implements ArticleApi{
 
     private final ArticleService articleService;
 
+    @Override
     @PostMapping("/{articleId}/article-views")
     public ResponseEntity<ArticleViewDto> createArticleView(
             @PathVariable("articleId") UUID articleId,
@@ -34,6 +35,7 @@ public class ArticleController {
                 .body(articleViewDto);
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<CursorPageResponseArticleDto> getArticles(
             @RequestParam(required = false) String keyword,
@@ -66,6 +68,7 @@ public class ArticleController {
                 .body(articles);
     }
 
+    @Override
     @GetMapping("/sources")
     public ResponseEntity<List<String>> getSources() {
         List<String> sources = articleService.getSources();
@@ -74,11 +77,11 @@ public class ArticleController {
                 .body(sources);
     }
 
+    @Override
     @GetMapping("/restore")
-    public ResponseEntity<ArticleRestoreResultDto>  restoreArticle(
+    public ResponseEntity<ArticleRestoreResultDto> restoreArticle(
             @RequestParam Instant from,
-            @RequestParam Instant to,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @RequestParam Instant to
     ) {
         ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
         return ResponseEntity
@@ -86,20 +89,20 @@ public class ArticleController {
                 .body(articleRestoreResultDto);
     }
 
+    @Override
     @DeleteMapping("/{articleId}")
     public ResponseEntity<Void> softDeleteArticle(
-            @PathVariable UUID articleId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @PathVariable UUID articleId
     ) {
         articleService.softDeleteArticle(articleId);
 
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @DeleteMapping("/{articleId}/hard")
     public ResponseEntity<Void> hardDeleteArticle(
-            @PathVariable UUID articleId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @PathVariable UUID articleId
     ) {
         articleService.hardDeleteArticle(articleId);
         return ResponseEntity.noContent().build();
