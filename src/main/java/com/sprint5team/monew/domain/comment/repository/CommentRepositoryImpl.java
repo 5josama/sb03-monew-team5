@@ -4,8 +4,10 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sprint5team.monew.domain.article.entity.QArticle;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.entity.QComment;
+import com.sprint5team.monew.domain.user.entity.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
     private final QComment comment = QComment.comment;
+    private final QUser user = QUser.user;
+    private final QArticle article = QArticle.article;
 
     @Override
     public long countTotalElements(UUID articleId) {
@@ -34,7 +38,14 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
     }
 
 
-
+    /**
+     * 커서를 통해서 댓글을 조회하는 메서드
+     * @param articleId 댓글 조회를 원하는 기사 ID
+     * @param cursor 검색하길 원하는 커서 (createdAt, likeCount)
+     * @param after 보조검색자 (createdAt)
+     * @param pageable 페이징 조건(정렬 조건)
+     * @return 검색결과
+     */
     @Override
     public List<Comment> findCommentsWithCursor(UUID articleId, String cursor, Instant after, Pageable pageable) {
 
@@ -45,6 +56,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
 
         return queryFactory
                 .selectFrom(comment)                                            // 조건에 만족하는 comment의 내용 모두 검색
+                .join(comment.user, user).fetchJoin()                           // fetchJoin을 통해 N+1 문제 해결
+                .join(comment.article, article).fetchJoin()                     // fetchJoin을 통해 N+1 문제 해결
                 .where(
                         comment.article.id.eq(articleId),                       // articleId가 같은경우 이면서
                         buildCursorCondition(cursor, after, property, order),   // buildCursorCondition을 만족하는경우,

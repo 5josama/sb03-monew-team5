@@ -13,6 +13,7 @@ import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
+import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,9 @@ public class CommentServiceTest {
     @Mock
     private LikeMapper likeMapper;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private CommentServiceImpl commentService;
 
@@ -97,7 +101,7 @@ public class CommentServiceTest {
         given(articleRepository.findById(article.getId())).willReturn(Optional.of(article));
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
-        given(commentMapper.toDto(any(UUID.class),any(Comment.class))).willReturn(createdComment);
+        given(commentMapper.toDto(eq(false),any(Comment.class))).willReturn(createdComment);
 
         //when
         CommentDto result = commentService.create(user.getId(),request);
@@ -107,7 +111,7 @@ public class CommentServiceTest {
         verify(articleRepository).findById(article.getId());
         verify(userRepository).findById(user.getId());
         verify(commentRepository).save(any(Comment.class));
-        verify(commentMapper).toDto(any(UUID.class),any(Comment.class));
+        verify(commentMapper).toDto(eq(false),any(Comment.class));
     }
 
     @Test
@@ -124,7 +128,7 @@ public class CommentServiceTest {
         verify(articleRepository).findById(article.getId());
         verify(userRepository, never()).findById(any(UUID.class));
         verify(commentRepository, never()).save(any(Comment.class));
-        verify(commentMapper, never()).toDto(any(UUID.class),any(Comment.class));
+        verify(commentMapper, never()).toDto(eq(false),any(Comment.class));
     }
 
     @Test
@@ -208,8 +212,8 @@ public class CommentServiceTest {
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(createdAt.toString()), eq(createdAt), any(Pageable.class)))
                 .willReturn(firstPageComments);
-        given(commentMapper.toDto(any(UUID.class),eq(comment1))).willReturn(commentDto1);
-        given(commentMapper.toDto(any(UUID.class),eq(comment2))).willReturn(commentDto2);
+        given(commentMapper.toDto(any(boolean.class),eq(comment1))).willReturn(commentDto1);
+        given(commentMapper.toDto(any(boolean.class),eq(comment2))).willReturn(commentDto2);
 
         // when
         CursorPageResponseCommentDto result = commentService.find(article.getId(),UUID.randomUUID(),createdAt.toString(), createdAt, pageable);
@@ -239,7 +243,7 @@ public class CommentServiceTest {
                 .willReturn(3L);
         given(commentRepository.findCommentsWithCursor(eq(article.getId()), eq(firstPageResponse.nextCursor()), eq(firstPageResponse.nextAfter()), any(Pageable.class)))
                 .willReturn(secondPageMessages);
-        given(commentMapper.toDto(any(UUID.class),eq(comment3))).willReturn(commentDto3);
+        given(commentMapper.toDto(any(boolean.class),eq(comment3))).willReturn(commentDto3);
 
         // when - 두 번째 페이지 요청 (첫 페이지의 커서 사용)
         CursorPageResponseCommentDto secondResult = commentService.find(article.getId(),UUID.randomUUID(), message3CreatedAt.toString(), message3CreatedAt, pageable);
@@ -309,7 +313,7 @@ public class CommentServiceTest {
 
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
-        given(commentMapper.toDto(any(UUID.class),any(Comment.class))).willReturn(updatedComment);
+        given(commentMapper.toDto(any(boolean.class),any(Comment.class))).willReturn(updatedComment);
 
         //when
         CommentDto result = commentService.update(commentId,UUID.randomUUID(),request);
@@ -340,6 +344,7 @@ public class CommentServiceTest {
         CommentLikeDto commentLikeDto = new CommentLikeDto(UUID.randomUUID(),userId,Instant.now(),commentId,UUID.randomUUID(),UUID.randomUUID(),"nickName","댓글내용",1L,Instant.now());
         given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
         given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+
 
         comment.update(comment.getLikeCount() + 1);
 

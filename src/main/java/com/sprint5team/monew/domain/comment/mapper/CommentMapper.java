@@ -29,15 +29,11 @@ public abstract class CommentMapper {
     @Mapping(target = "articleId", source = "comment.article.id")
     @Mapping(target = "userId", source = "comment.user.id")
     @Mapping(target = "userNickname", source = "comment.user.nickname")
-    @Mapping(target = "likedByMe", expression = "java(getLikedByMe(nowUserId,comment))")
+    @Mapping(target = "likedByMe", source = "likedByMe")
     @Mapping(target = "content", source = "comment.content")
     @Mapping(target = "likeCount", source = "comment.likeCount")
     @Mapping(target = "createdAt", source = "comment.createdAt")
-    abstract public CommentDto toDto(UUID nowUserId,Comment comment);
-
-    protected Boolean getLikedByMe(UUID nowUserId, Comment comment) {
-        return likeRepository.findByUserIdAndCommentId(nowUserId, comment.getId()).isPresent();
-    }
+    abstract public CommentDto toDto(boolean likedByMe, Comment comment);
 
     @Mapping(target = "id", source = "like.id")
     @Mapping(target = "likedBy", source = "like.user.id")

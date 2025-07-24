@@ -25,9 +25,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -62,7 +61,7 @@ public class CommentServiceImpl implements CommentService{
         Comment createdComment = commentRepository.save(comment);
 
         log.info("댓글 생성 완료: commentId={}, content={}",createdComment.getId(),createdComment.getContent());
-        return commentMapper.toDto(userId, createdComment);
+        return commentMapper.toDto(false, createdComment);  //아직 댓글 생성만 했으므로 likedByMe는 항상 false
     }
 
     /**
@@ -114,9 +113,23 @@ public class CommentServiceImpl implements CommentService{
             commentList.remove(commentList.size() - 1);                  // 마지막 인덱스 제거
         }
 
+        // N+1 문제를 해결하기 위한 로직으로, 한 유저의 모든 좋아요 리스트의 댓글 ID에서 조회하는 기사의 모든 댓글 ID와 일치하는 값 검색.
+        List<UUID> commentIds = commentList.stream().map(Comment::getId).toList();
+
+        Set<UUID> likedCommentIds = likeRepository.findByUserIdAndCommentIdIn(userId, commentIds)
+                .stream()
+                .map(like -> like.getComment().getId())
+                .collect(Collectors.toSet());
+
         List<CommentDto> list = commentList.stream()
-                .map(comment->commentMapper.toDto(userId,comment))
+                .map(comment->{
+                    boolean likeByMe = likedCommentIds.contains(comment.getId());
+                    CommentDto dto = commentMapper.toDto(likeByMe, comment);        // LikeByMe를 포함한 모든 필드 매핑
+                    return dto;
+                }
+                )
                 .toList();
+
 
         return new CursorPageResponseCommentDto(
                 list,
@@ -140,7 +153,8 @@ public class CommentServiceImpl implements CommentService{
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         comment.update(request.content());
         commentRepository.save(comment);
-        return commentMapper.toDto(userId, comment);
+        boolean likedByMe = likeRepository.findByUserIdAndCommentId(userId, commentId).isPresent();
+        return commentMapper.toDto(likedByMe, comment);
     }
 
     /**
