@@ -24,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
@@ -544,7 +545,6 @@ public class InterestServiceTest {
 
         given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
         given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
-        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
         given(interestMapper.toDto(any(Interest.class), any(), eq(null))).willReturn(interestDto);
 
         // when
@@ -595,9 +595,16 @@ public class InterestServiceTest {
             .willThrow(InterestNotExistsException.class);
 
         // when
-        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request))
+        Throwable thrown = catchThrowable(() -> interestService.updateInterest(interestA.getId(), request));
+
+        // then
+        assertThat(thrown)
             .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
+
+        InterestNotExistsException ex = (InterestNotExistsException) thrown;
+
+        assertThat(ex.getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -617,9 +624,16 @@ public class InterestServiceTest {
         given(keywordRepository.findAllByInterestId(any()))
             .willReturn(keywords);
 
-        // when n then
-        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request))
+        // when
+        Throwable thrown = catchThrowable(() -> interestService.updateInterest(interestA.getId(), request));
+
+        // then
+        assertThat(thrown)
             .isInstanceOf(NoKeywordsToUpdateException.class)
             .hasMessageContaining("변경할 키워드 없음");
+
+        NoKeywordsToUpdateException ex = (NoKeywordsToUpdateException) thrown;
+
+        assertThat(ex.getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

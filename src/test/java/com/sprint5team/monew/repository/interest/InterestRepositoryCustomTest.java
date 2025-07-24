@@ -225,48 +225,53 @@ public class InterestRepositoryCustomTest {
     }
 
     @Test
-    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() {
-        // given
-        keywordRepository.deleteAll();
+    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() throws Exception {
+
         interestRepository.deleteAll();
 
-        Interest i1 = Interest.builder()
-            .name("관심사1")
-            .subscriberCount(100L)
-            .createdAt(baseTime.minus(Duration.ofMinutes(5))) // 최신
+        Interest interestB1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(200L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
             .build();
+        interestRepository.save(interestB1);
 
-        Interest i2 = Interest.builder()
-            .name("관심사2")
-            .subscriberCount(100L)
+        Interest interestA1 = Interest.builder()
+            .name("스포츠")
+            .subscriberCount(50L)
             .createdAt(baseTime.minus(Duration.ofMinutes(10)))
             .build();
+        interestRepository.save(interestA1);
 
-        Interest i3 = Interest.builder()
-            .name("관심사3")
+        Interest interestC1 = Interest.builder()
+            .name("스포츠")
             .subscriberCount(100L)
-            .createdAt(baseTime.minus(Duration.ofMinutes(15))) // 가장 오래됨
+            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
             .build();
+        interestRepository.save(interestC1);
 
-        interestRepository.saveAll(List.of(i1, i2, i3));
-        interestRepository.flush();
+        String keyword = null;
+        String orderBy = "name";
+        String direction = "desc";
+        String cursor = "스포츠";
+
+        Instant after = interestC1.getCreatedAt();
+
+        Integer limit = 10;
+        UUID userId = UUID.randomUUID();
+
+        List<Interest> sortedInterest = List.of(interestA1, interestB1);
+
+        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
 
         // when
-        CursorPageRequest request = CursorPageRequest.builder()
-            .orderBy("subscriberCount")
-            .direction("DESC") // 내림차순
-            .cursor("100")
-            .after(baseTime.minus(Duration.ofMinutes(7)))
-            .limit(10)
-            .build();
-
-        List<Interest> result = (interestRepository)
-            .findAllInterestByRequest(request);
+        List<Interest> result = interestRepository.findAllInterestByRequest(request);
 
         // then
         assertThat(result)
-            .extracting(Interest::getName)
-            .containsExactly("관심사2", "관심사3");
+            .isNotNull()
+            .hasSize(sortedInterest.size())
+            .containsExactlyElementsOf(sortedInterest);
     }
 
 
