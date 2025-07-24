@@ -23,6 +23,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,8 +67,13 @@ public class ArticleS3StorageIntegrationTest {
         );
 
         articleRepository.saveAll(articles);
+        String isoString = LocalDate.of(2025, 7, 23)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant()
+                .toString();
 
         JobParameters jobParameters = new JobParametersBuilder()
+                .addString("lastExecutedAt", isoString)
                 .addLong("timestamp", System.currentTimeMillis())
                 .toJobParameters();
 
