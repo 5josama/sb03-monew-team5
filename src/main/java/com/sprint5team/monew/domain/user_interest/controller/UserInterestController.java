@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/interests")
-public class UserInterestController {
+public class UserInterestController implements UserInterestApi {
 
     private final UserInterestService userInterestService;
 
