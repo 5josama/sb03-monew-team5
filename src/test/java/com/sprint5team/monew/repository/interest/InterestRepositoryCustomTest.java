@@ -4,6 +4,7 @@ import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.interest.repository.InterestRepositoryCustom;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
@@ -224,54 +225,50 @@ public class InterestRepositoryCustomTest {
     }
 
     @Test
-    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() throws Exception {
-
+    void 같은_커서값을_가진_객체가_여러개일_경우_보조커서_기준으로_조회한다_내림차순() {
+        // given
+        keywordRepository.deleteAll();
         interestRepository.deleteAll();
 
-        Interest interestB1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(200L)
-            .createdAt(baseTime.minus(Duration.ofMinutes(20)))
+        Interest i1 = Interest.builder()
+            .name("관심사1")
+            .subscriberCount(100L)
+            .createdAt(baseTime.minus(Duration.ofMinutes(5))) // 최신
             .build();
-        interestRepository.save(interestB1);
 
-        Interest interestA1 = Interest.builder()
-            .name("스포츠")
-            .subscriberCount(50L)
+        Interest i2 = Interest.builder()
+            .name("관심사2")
+            .subscriberCount(100L)
             .createdAt(baseTime.minus(Duration.ofMinutes(10)))
             .build();
-        interestRepository.save(interestA1);
 
-        Interest interestC1 = Interest.builder()
-            .name("스포츠")
+        Interest i3 = Interest.builder()
+            .name("관심사3")
             .subscriberCount(100L)
-            .createdAt(baseTime.minus(Duration.ofMinutes(5)))
+            .createdAt(baseTime.minus(Duration.ofMinutes(15))) // 가장 오래됨
             .build();
-        interestRepository.save(interestC1);
 
-        String keyword = null;
-        String orderBy = "name";
-        String direction = "desc";
-        String cursor = "스포츠";
-
-        Instant after = interestA1.getCreatedAt();
-
-        Integer limit = 10;
-        UUID userId = UUID.randomUUID();
-
-        List<Interest> sortedInterest = List.of(interestB1);
-
-        CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
+        interestRepository.saveAll(List.of(i1, i2, i3));
+        interestRepository.flush();
 
         // when
-        List<Interest> result = interestRepository.findAllInterestByRequest(request);
+        CursorPageRequest request = CursorPageRequest.builder()
+            .orderBy("subscriberCount")
+            .direction("DESC") // 내림차순
+            .cursor("100")
+            .after(baseTime.minus(Duration.ofMinutes(7)))
+            .limit(10)
+            .build();
+
+        List<Interest> result = (interestRepository)
+            .findAllInterestByRequest(request);
 
         // then
         assertThat(result)
-            .isNotNull()
-            .hasSize(sortedInterest.size())
-            .containsExactlyElementsOf(sortedInterest);
+            .extracting(Interest::getName)
+            .containsExactly("관심사2", "관심사3");
     }
+
 
     /**
      * countTotalElements() test

@@ -11,6 +11,7 @@ import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.keyword.exception.NoKeywordsToUpdateException;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
@@ -597,5 +598,28 @@ public class InterestServiceTest {
         assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request))
             .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
+    }
+
+    @Test
+    void 키워드_삭제를_시도할경우_NoKeywordsToUpdateException_404_를_반환한다() throws Exception {
+        // given
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
+
+        List<Keyword> keywords = List.of(
+            new Keyword("cup", interestA),
+            new Keyword("glass", interestA),
+            new Keyword("bottle", interestA)
+        );
+
+        given(interestRepository.findById(any()))
+            .willReturn(Optional.of(interestA));
+
+        given(keywordRepository.findAllByInterestId(any()))
+            .willReturn(keywords);
+
+        // when n then
+        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request))
+            .isInstanceOf(NoKeywordsToUpdateException.class)
+            .hasMessageContaining("변경할 키워드 없음");
     }
 }
