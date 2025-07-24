@@ -306,8 +306,6 @@ public class InterestControllerTest {
     @Test
     void 관심사의_키워드를_추가할_수_있다() throws Exception {
         // given
-
-        UUID userId = UUID.randomUUID();
         UUID interestId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a", "b", "c"));
 
@@ -316,14 +314,13 @@ public class InterestControllerTest {
             .keywords(List.of("a", "b", "c"))
             .build();
 
-        given(interestService.updateInterest(eq(interestId), any(), any()))
+        given(interestService.updateInterest(eq(interestId), any()))
             .willReturn(response);
 
         // when & then
         mockMvc.perform(patch("/api/interests/{interestId}", interestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("monew-request-user-id", userId.toString())
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.keywords.length()").value(3));
@@ -332,7 +329,6 @@ public class InterestControllerTest {
     @Test
     void 관심사의_키워드를_삭제할_수_있다() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
         UUID interestId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a", "b", "c"));
 
@@ -341,7 +337,7 @@ public class InterestControllerTest {
             .keywords(List.of("a"))
             .build();
 
-        given(interestService.updateInterest(eq(interestId), any(), any()))
+        given(interestService.updateInterest(eq(interestId), any()))
             .willReturn(response);
 
 
@@ -349,7 +345,6 @@ public class InterestControllerTest {
         mockMvc.perform(patch("/api/interests/{interestId}", interestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("monew-request-user-id", userId.toString())
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.keywords.length()").value(1));
@@ -358,14 +353,12 @@ public class InterestControllerTest {
     @Test
     void 관심사_수정시_입력값이_잘못되었을때_400_을_반환한다() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
 
         // when n then
         mockMvc.perform(patch("/api/interests/{interestId}", "invalid input")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("monew-request-user-id", userId.toString())
             )
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400))
@@ -375,18 +368,16 @@ public class InterestControllerTest {
     @Test
     void 관심사_정보가_없을때_InterestNotExistException_404_를_반환한다() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
         UUID interestId = UUID.randomUUID();
         InterestUpdateRequest request = new InterestUpdateRequest(List.of("a"));
 
-        given(interestService.updateInterest(eq(interestId), any(), any()))
+        given(interestService.updateInterest(eq(interestId), any()))
             .willThrow(new InterestNotExistsException());
 
         // when n then
         MvcResult result = mockMvc.perform(patch("/api/interests/{interestId}", interestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("monew-request-user-id", userId.toString())
             )
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(404))
