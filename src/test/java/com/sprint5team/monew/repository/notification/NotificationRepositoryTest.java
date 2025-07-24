@@ -15,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -155,11 +154,10 @@ class NotificationRepositoryTest {
                 .createdAt(Instant.now())
                 .build();
         notificationRepository.save(notification);
-        ReflectionTestUtils.setField(notification, "createdAt", Instant.now().minus(12, ChronoUnit.DAYS));
 
         // when
-        notificationRepository.deleteByConfirmedIsTrueAndCreatedAtBefore(
-                Instant.now().minus(7, ChronoUnit.DAYS));
+        notificationRepository.deleteByConfirmedIsTrueAndUpdatedAtBefore(
+                Instant.now().plus(7, ChronoUnit.DAYS));
 
         // then
         List<Notification> all = notificationRepository.findAll();

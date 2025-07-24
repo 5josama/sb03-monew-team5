@@ -2,6 +2,7 @@ package com.sprint5team.monew.service.notification;
 
 
 import com.sprint5team.monew.domain.article.entity.Article;
+import com.sprint5team.monew.domain.article.repository.ArticleRepository;
 import com.sprint5team.monew.domain.comment.entity.Comment;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.interest.entity.Interest;
@@ -10,11 +11,14 @@ import com.sprint5team.monew.domain.notification.dto.CursorPageResponseNotificat
 import com.sprint5team.monew.domain.notification.dto.NotificationDto;
 import com.sprint5team.monew.domain.notification.entity.Notification;
 import com.sprint5team.monew.domain.notification.entity.ResourceType;
+import com.sprint5team.monew.domain.notification.exception.InvalidRequestParameterException;
 import com.sprint5team.monew.domain.notification.mapper.NotificationMapper;
 import com.sprint5team.monew.domain.notification.repository.NotificationRepository;
 import com.sprint5team.monew.domain.notification.service.NotificationServiceImpl;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
+import com.sprint5team.monew.domain.user_interest.repository.UserInterestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,8 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -52,6 +55,12 @@ class NotificationServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private ArticleRepository articleRepository;
+
+    @Mock
+    private UserInterestRepository userInterestRepository;
+
     @InjectMocks
     private NotificationServiceImpl notificationService;
 
@@ -62,6 +71,7 @@ class NotificationServiceTest {
     private UUID commentId;
     private UUID interestId;
     private User testUser;
+    private Interest testInterest;
 
     @BeforeEach
     void setUp() {
@@ -71,6 +81,23 @@ class NotificationServiceTest {
 
         testUser = new User("testUser", "test@abc.com", "1234");
         ReflectionTestUtils.setField(testUser, "id", userId);
+
+        testInterest = Interest.builder()
+                .name("스포츠")
+                .subscriberCount(1)
+                .build();
+        ReflectionTestUtils.setField(testInterest, "id", interestId);
+    }
+
+    private Notification createTestNotification(String content, ResourceType type) {
+        return Notification.builder()
+                .user(testUser)
+                .interest(testInterest)
+                .content(content)
+                .resourceType(type)
+                .confirmed(false)
+                .createdAt(Instant.now())
+                .build();
     }
 
     @Test
@@ -78,25 +105,15 @@ class NotificationServiceTest {
         // given
         String interestName = "축구";
         int articleCount = 5;
-        Interest interest = Interest.builder()
-                .name(interestName)
-                .subscriberCount(0)
-                .build();
 
-        ReflectionTestUtils.setField(interest, "id", interestId);
-
-        Notification notification = Notification.builder()
-                .user(testUser)
-                .content("[축구]와 관련된 기사가 5건 등록되었습니다.")
-                .resourceType(ResourceType.INTEREST)
-                .interest(interest)
-                .createdAt(Instant.now())
-                .confirmed(false)
-                .build();
+        Notification notification = createTestNotification(
+                "[축구]와 관련된 기사가 5건 등록되었습니다.",
+                ResourceType.INTEREST
+        );
 
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
         given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
-        given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
+        given(interestRepository.findById(interestId)).willReturn(Optional.of(testInterest));
 
         // when
         NotificationDto result = notificationService.notifyArticleForInterest(userId, interestId, interestName, articleCount);
@@ -108,6 +125,29 @@ class NotificationServiceTest {
         assertEquals(userId, result.userId());
         assertEquals(ResourceType.INTEREST, result.resourceType());
         assertEquals(interestId, result.resourceId());
+    }
+
+    @Test
+    void 관심사별_기사_등록시_알림이_생성된다() {
+        // given
+        Notification notification = createTestNotification(
+                "[스포츠]와 관련된 기사가 5건 등록되었습니다.",
+                ResourceType.INTEREST
+        );
+
+        given(interestRepository.findAll()).willReturn(List.of(testInterest));
+        given(articleRepository.countRecentArticlesByInterestId(eq(interestId), any())).willReturn(3L);
+        given(userInterestRepository.findUsersByInterestId(interestId)).willReturn(List.of(testUser));
+        given(notificationRepository.existsByUserIdAndInterestIdAndCreatedAtAfter(any(), any(), any())).willReturn(false);
+        given(userRepository.findById(userId)).willReturn(Optional.of(testUser));
+        given(interestRepository.findById(interestId)).willReturn(Optional.of(testInterest));
+        given(notificationRepository.save(any())).willReturn(notification);
+
+        // when
+        notificationService.notifyNewArticles();
+
+        // then
+        then(notificationRepository).should(times(1)).save(any());
     }
 
     @Test
@@ -182,6 +222,7 @@ class NotificationServiceTest {
 
         List<Notification> notificationList = List.of(notification);
 
+        given(userRepository.existsById(userId)).willReturn(true);
         given(notificationRepository.findUnconfirmedNotificationsWithCursorPaging(
                 eq(userId), eq(cursor), eq(after), eq(limit))).willReturn(notificationList);
         given(notificationRepository.countByUserIdAndConfirmedIsFalse(userId)).willReturn(1L);
@@ -199,6 +240,29 @@ class NotificationServiceTest {
         assertEquals(ResourceType.INTEREST, result.content().get(0).resourceType());
         assertEquals(interestId, result.content().get(0).resourceId());
     }
+
+    @Test
+    void userId가_null인_알림목록조회_요청시_예외발생() {
+        // given
+        UUID nullUserId = null;
+
+        // when, then
+        assertThrows(InvalidRequestParameterException.class, () -> {
+            notificationService.getAllNotifications(nullUserId, null, null, 10);
+        });
+    }
+
+    @Test
+    void 존재하지_않는_사용자가_알림목록조회_요청시_예외발생() {
+        // given
+        given(userRepository.existsById(userId)).willReturn(false);
+
+        // when, then
+        assertThrows(UserNotFoundException.class, () -> {
+            notificationService.getAllNotifications(userId, null, null, 10);
+        });
+    }
+
 
     @Test
     void 단일_알림_확인_요청시_알림이_확인된다() {

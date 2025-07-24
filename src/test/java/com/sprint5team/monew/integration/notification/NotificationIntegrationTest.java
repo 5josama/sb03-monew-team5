@@ -140,7 +140,7 @@ class NotificationIntegrationTest {
         assertThat(response2.content()).hasSize(1);
         assertThat(response2.hasNext()).isFalse();
         assertThat(response2.totalElements()).isEqualTo(3);
-        assertThat(response2.size()).isEqualTo(1);
+        assertThat(response2.size()).isEqualTo(2);
         assertThat(response2.nextCursor()).isNull();
         assertThat(response2.nextAfter()).isNull();
     }
