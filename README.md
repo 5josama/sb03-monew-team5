@@ -1,4 +1,4 @@
-# 🪖 5조 5죠 사마 - MoNew 프로젝트
+# 🕺🏻5죠 사마 - MoNew 프로젝트
 
 🔗 [프로젝트 노션 ](https://www.notion.so/ohgiraffers/5-207649136c1180968b6bf8028b42b212)
 
@@ -8,9 +8,9 @@
 | --- | --- | --- | --- |
 | 강호 | 뉴스 기사 관리 | AWS 배포 | https://github.com/kangho1870 |
 | 강문구 | 댓글 관리  | PM | https://github.com/Kangmoongu |
-| 강우진 | 알림 관리  | 문서(노션,회의록) | https://github.com/bladnoch |
-| 김동욱 | 관심사 관리 | CI & CD(Github Actions) |  |
-| 박진솔 | 활동 내역 관리, 사용자 관리 | Git관리 |  |
+| 강우진 | 알림 관리  | 문서(노션,회의록) | https://github.com/WJKANGsw |
+| 김동욱 | 관심사 관리 | CI & CD(Github Actions) | https://github.com/bladnoch |
+| 박진솔 | 활동 내역 관리, 사용자 관리 | Git관리 | https://github.com/JinsolPark |
 
 ---
 ## 📌 프로젝트 소개
@@ -37,6 +37,7 @@
 
 ### 협업 도구
 - Git & GitHub
+- Notion
 - Discord
 - ZEP
   
@@ -131,7 +132,7 @@
 #### 댓글 좋아요 알림
 - 사용자의 댓글에 좋아요가 눌리는 순간, 알림 등록 서비스를 호출하여 해당 댓글 작성자에게 알림을 생성합니다.
 - **알림 메시지 예시:**
-  > `[이름름]님이 나의 댓글을 좋아합니다.`
+  > `[이름]님이 나의 댓글을 좋아합니다.`
 
 
 ### 알림 수정
@@ -184,13 +185,33 @@
 
 
 ### 🗂 박진솔
+### 사용자 관리
+- `이메일`, `닉네임`, `비밀번호`로 **등록**
+- `닉네임` **수정**
+- **논리 삭제, 물리 삭제**
+  - 물리 삭제 시 관련 도메인 소스 삭제 후 사용자 삭제
+  - 삭제되는 도메인 소스
+    - `구독한 관심사`
+    - `작성한 댓글`
+    - `좋아요한 댓글`
+    - `조회한 뉴스 기사`
+    - `알림` 목록
+- `이메일`, `비밀번호`로 **로그인**
+
+### 활동 내역 관리
+- 사용자 별 활동 내역 **조회**
+    - `사용자 정보`
+    - `구독 중인 관심사`
+    - 최근 `작성한 댓글` 최대 10건
+    - 최근 `좋아요를 누른 댓글` 최대 10건
+    - 최근 `본 뉴스 기사` 최대 10건
 
 ---
 
 ## 🌐 배포 주소
 AWS를 통해 배포된 웹 페이지
 
-🔗 MoNew 웹페이지
+[🔗 MoNew 웹페이지](http://13.125.219.34)
 
 ---
 
@@ -208,10 +229,6 @@ AWS를 통해 배포된 웹 페이지
 modu's news
 
 [![codecov](https://codecov.io/gh/5josama/sb03-monew-team5/graphs/tree.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
-
-[![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graphs/sunburst.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
-
-[![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graphs/icicle.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
 
 [![codecov](https://codecov.io/github/5josama/sb03-monew-team5/graph/badge.svg?token=2A4E6S6XJ9)](https://codecov.io/github/5josama/sb03-monew-team5)
 
