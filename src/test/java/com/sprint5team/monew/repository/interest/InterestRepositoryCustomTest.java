@@ -4,6 +4,7 @@ import com.sprint5team.monew.base.config.QuerydslConfig;
 import com.sprint5team.monew.domain.interest.dto.CursorPageRequest;
 import com.sprint5team.monew.domain.interest.entity.Interest;
 import com.sprint5team.monew.domain.interest.repository.InterestRepository;
+import com.sprint5team.monew.domain.interest.repository.InterestRepositoryCustom;
 import com.sprint5team.monew.domain.interest.repository.InterestRepositoryImpl;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
@@ -254,12 +255,12 @@ public class InterestRepositoryCustomTest {
         String direction = "desc";
         String cursor = "스포츠";
 
-        Instant after = interestA1.getCreatedAt();
+        Instant after = interestC1.getCreatedAt();
 
         Integer limit = 10;
         UUID userId = UUID.randomUUID();
 
-        List<Interest> sortedInterest = List.of(interestB1);
+        List<Interest> sortedInterest = List.of(interestA1, interestB1);
 
         CursorPageRequest request = new CursorPageRequest(keyword, orderBy, direction, cursor, after, limit, userId);
 
@@ -272,6 +273,7 @@ public class InterestRepositoryCustomTest {
             .hasSize(sortedInterest.size())
             .containsExactlyElementsOf(sortedInterest);
     }
+
 
     /**
      * countTotalElements() test

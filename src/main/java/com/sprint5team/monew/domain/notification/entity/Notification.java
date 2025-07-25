@@ -10,6 +10,10 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
+/**
+ * 사용자에게 전달되는 알림 엔티티
+ * 알림은 구독한 관심사와 관련된 기사 생성 또는 댓글 좋아요에 의해 생성될 수 있으며, 확인 여부를 포함한다
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
