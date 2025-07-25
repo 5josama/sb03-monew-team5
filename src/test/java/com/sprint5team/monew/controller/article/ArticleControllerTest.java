@@ -16,6 +16,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -121,8 +123,8 @@ public class ArticleControllerTest {
     void 뉴스_복구_API가_정상적으로_동작한다() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        Instant from = Instant.parse("2025-07-01T20:00:00Z");
-        Instant to = Instant.parse("2025-07-12T20:00:00Z");
+        LocalDateTime from = LocalDateTime.parse("2025-07-01T20:00:00");
+        LocalDateTime to = LocalDateTime.parse("2025-07-12T20:00:00");
 
         List<String> restoreArticleIds = Arrays.asList(
                 "ba4b516e-3ab3-44ae-aa9d-713d29911e50",
@@ -133,16 +135,16 @@ public class ArticleControllerTest {
 
         ArticleRestoreResultDto articleRestoreResultDto = new ArticleRestoreResultDto(Instant.now(), restoreArticleIds, 4);
 
-        given(articleService.restoreArticle(from, to)).willReturn(articleRestoreResultDto);
+        given(articleService.restoreArticle(from.atZone(ZoneOffset.UTC).toInstant(), to.atZone(ZoneOffset.UTC).toInstant())).willReturn(List.of(articleRestoreResultDto));
 
         mockMvc.perform(get("/api/articles/restore")
                         .param("from", from.toString())
                         .param("to", to.toString())
                         .header("MoNew-Request-User-ID", userId.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.restoredArticleIds.length()").value(4))
-                .andExpect(jsonPath("$.restoredArticleIds[0]").value("ba4b516e-3ab3-44ae-aa9d-713d29911e50"))
-                .andExpect(jsonPath("$.restoredArticleCount").value(4));
+                .andExpect(jsonPath("$[0].restoredArticleIds.length()").value(4))
+                .andExpect(jsonPath("$[0].restoredArticleIds[0]").value("ba4b516e-3ab3-44ae-aa9d-713d29911e50"))
+                .andExpect(jsonPath("$[0].restoredArticleCount").value(4));
     }
 
     @Test
