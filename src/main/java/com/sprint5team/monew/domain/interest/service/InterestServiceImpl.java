@@ -160,7 +160,9 @@ public class InterestServiceImpl implements InterestService{
 
         Set<String> newKeywordNameSet = new HashSet<>(newKeywordNames);
 
+        log.info("3. 삭제하려는 키워드 있는지 확인");
         if (!newKeywordNames.containsAll(oldKeywordNames)) {
+            log.info("3-1 삭제는 할 수 없음 exception");
             throw new NoKeywordsToUpdateException();
         }
 
@@ -169,11 +171,12 @@ public class InterestServiceImpl implements InterestService{
             return interestMapper.toDto(interest, newKeywordNames, null);
         }
 
-        log.info("3. 키워드 추가");
+        log.info("4. 키워드 추가");
         List<Keyword> keywordsToSave = newKeywordNames.stream()
             .filter(name -> !oldKeywordNames.contains(name))
             .map(name -> new Keyword(name, interest))
             .collect(Collectors.toList());
+
 
         if (!keywordsToSave.isEmpty()) {
             keywordRepository.saveAll(keywordsToSave);

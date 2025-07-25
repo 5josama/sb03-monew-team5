@@ -11,6 +11,7 @@ import com.sprint5team.monew.domain.interest.repository.InterestRepository;
 import com.sprint5team.monew.domain.interest.service.InterestServiceImpl;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
 import com.sprint5team.monew.domain.keyword.entity.Keyword;
+import com.sprint5team.monew.domain.keyword.exception.NoKeywordsToUpdateException;
 import com.sprint5team.monew.domain.keyword.repository.KeywordRepository;
 import com.sprint5team.monew.domain.user_interest.entity.UserInterest;
 import com.sprint5team.monew.domain.interest.mapper.InterestMapper;
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
@@ -543,7 +545,6 @@ public class InterestServiceTest {
 
         given(interestRepository.findById(interestA.getId())).willReturn(Optional.ofNullable(interestA));
         given(keywordRepository.findAllByInterestId(interestA.getId())).willReturn(List.of(keywordA,keywordB));
-        given(userInterestRepository.existsByUserIdAndInterestId(userId,interestA.getId())).willReturn(false);
         given(interestMapper.toDto(any(Interest.class), any(), eq(null))).willReturn(interestDto);
 
         // when
@@ -594,8 +595,45 @@ public class InterestServiceTest {
             .willThrow(InterestNotExistsException.class);
 
         // when
-        assertThatThrownBy(() -> interestService.updateInterest(interestA.getId(), request))
+        Throwable thrown = catchThrowable(() -> interestService.updateInterest(interestA.getId(), request));
+
+        // then
+        assertThat(thrown)
             .isInstanceOf(InterestNotExistsException.class)
             .hasMessageContaining("일치하는 관심사 없음");
+
+        InterestNotExistsException ex = (InterestNotExistsException) thrown;
+
+        assertThat(ex.getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void 키워드_삭제를_시도할경우_NoKeywordsToUpdateException_404_를_반환한다() throws Exception {
+        // given
+        InterestUpdateRequest request = new InterestUpdateRequest(List.of("cup", "glass"));
+
+        List<Keyword> keywords = List.of(
+            new Keyword("cup", interestA),
+            new Keyword("glass", interestA),
+            new Keyword("bottle", interestA)
+        );
+
+        given(interestRepository.findById(any()))
+            .willReturn(Optional.of(interestA));
+
+        given(keywordRepository.findAllByInterestId(any()))
+            .willReturn(keywords);
+
+        // when
+        Throwable thrown = catchThrowable(() -> interestService.updateInterest(interestA.getId(), request));
+
+        // then
+        assertThat(thrown)
+            .isInstanceOf(NoKeywordsToUpdateException.class)
+            .hasMessageContaining("변경할 키워드 없음");
+
+        NoKeywordsToUpdateException ex = (NoKeywordsToUpdateException) thrown;
+
+        assertThat(ex.getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }
