@@ -82,9 +82,39 @@
     - 존재하지 않는 기사만 신규 저장
 - 대량 데이터 대응:
     - **Executor를 이용한 병렬 처리**로 성능 향상
-###🤣 강문구
-### MoNew 댓글 시스템 기능 명세
 
+### 뉴스 기사 삭제
+#### 논리 삭제 (Soft Delete)
+- 뉴스 기사의 데이터를 보존하면서 삭제 처리
+- `is_deleted = true`로 업데이트
+
+#### 물리 삭제 (Hard Delete)
+- 뉴스 기사 및 관련 데이터 완전 삭제
+  - 조회수(ArticleView)
+  - 댓글(Comment)
+
+### 모니터링 - Spring Actuator 기반 Custom Metric
+- `Prometheus` + `Grafana`를 활용한 실시간 지표 수집 및 시각화
+- 정의된 Custom Metric 항목:
+  - 전체 뉴스 기사 수 (`article.count`)
+  - 전체 유저 수 (`user.count`)
+  - 전체 관심사 수 (`interest.count`)
+  - 배치 상태 관련 지표:
+    - 마지막 배치 성공 여부 (`batch.last.success`) → `0` (실패) / `1` (성공)
+    - 누적 배치 성공 횟수 (`batch.success.count`)
+    - 누적 배치 실패 횟수 (`batch.fail.count`)
+
+### 로그 관리 및 S3 업로드
+
+- 요청별 로그 식별을 위한 MDC 설정:
+  - 요청 ID
+  - 클라이언트 IP
+- 응답 헤더에 로그 추적 ID 포함
+- 로그 파일은 **날짜 기준**으로 분리되어 AWS S3에 업로드됨
+  - 예시: `logs/application.2025-07-25.log`
+
+### 🤣 강문구
+### MoNew 댓글 시스템 기능 명세
 ### 댓글 정보 구조
 댓글은 다음의 정보를 포함합니다:
 - 뉴스 기사 정보
