@@ -45,6 +45,8 @@
 
 ## ✨ 구현 기능
 ### 👤강호
+![강호](https://github.com/user-attachments/assets/6e876023-5ac9-4134-8f6e-02bc11157791)
+
 ### 뉴스 기사 수집
 
 - **매 시간마다 Spring Batch**를 통해 뉴스 기사 자동 수집
@@ -113,7 +115,10 @@
 - 로그 파일은 **날짜 기준**으로 분리되어 AWS S3에 업로드됨
   - 예시: `logs/application.2025-07-25.log`
 
+---
 ### 🤣 강문구
+![강문구](https://github.com/user-attachments/assets/a9ee3007-9bf5-4574-9509-09e26b4510d4)
+
 ### MoNew 댓글 시스템 기능 명세
 ### 댓글 정보 구조
 댓글은 다음의 정보를 포함합니다:
@@ -149,7 +154,11 @@
 - **QueryDSL + 커서 기반 페이지네이션** 적용으로 대용량 데이터 조회 성능 최적화
 - 논리/물리 삭제 정책을 통한 데이터 무결성 보장
 - 사용자 권한 기반 수정 제한으로 보안성 확보
+
+---
 ### 🏢 강우진
+![강우진](https://github.com/user-attachments/assets/87442421-b559-4817-bbb5-f1e43d9300b1)
+
 ### 알림 등록
 #### 뉴스 기사 알림
 - 매시간 실행되는 **기사 수집 배치 작업** 에서 다음과 같은 흐름으로 알림을 생성합니다:
@@ -180,7 +189,9 @@
 - 정렬 기준: `createdAt ASC`
 - **QueryDSL + 커서 기반 페이지네이션** 적용으로 성능 최적화된 조회 구현
 
+---
 ### 👨‍💻 김동욱
+![김동욱](https://github.com/user-attachments/assets/c22ca572-526f-4757-8d2c-cb38942fb9f0)
 
 ### 관심사 등록 기능
 - 관심사 등록 기능 구현
@@ -213,8 +224,10 @@
 - Pull Request 생성 시 자동으로 **테스트가 수행**되도록 설정
 - `Codecov`를 연동하여 **테스트 커버리지 80% 이상** 달성을 목표로 커버리지 측정 기능 추가
 
-
+---
 ### 🗂 박진솔
+![ezgif com-crop](https://github.com/user-attachments/assets/9a3719b9-9f05-4761-9b3a-53b5c54441f5)
+
 ### 사용자 관리
 - `이메일`, `닉네임`, `비밀번호`로 **등록**
 - `닉네임` **수정**
@@ -252,7 +265,283 @@ AWS를 통해 배포된 웹 페이지
 
 --- 
 ## 파일 구조
+```
+\---com
+    \---sprint5team
+        \---monew
+            |   MonewApplication.java
+            |   
+            +---base
+            |   +---aop
+            |   |       MetricAspect.java
+            |   |       
+            |   +---config
+            |   |       AppConfig.java
+            |   |       ArticleBackupJobConfig.java
+            |   |       ArticleScraperJobConfig.java
+            |   |       BatchMetaInitializerConfig.java
+            |   |       JpaAuditingConfig.java
+            |   |       MDCLoggingInterceptor.java
+            |   |       QuerydslConfig.java
+            |   |       SchedulerConfig.java
+            |   |       WebMvcConfig.java
+            |   |       
+            |   +---entity
+            |   |       BaseEntity.java
+            |   |       BaseUpdatableEntity.java
+            |   |       
+            |   +---exception
+            |   |       BaseException.java
+            |   |       ErrorResponse.java
+            |   |       GlobalExceptionHandler.java
+            |   |       
+            |   +---health
+            |   |       MonewHealthIndicator.java
+            |   |       
+            |   +---metric
+            |   |       MonewMetrics.java
+            |   |       
+            |   +---service
+            |   |       BatchMetadataService.java
+            |   |       BatchStatusService.java
+            |   |       
+            |   \---util
+            |           ArticleJsonBatchWriter.java
+            |           ArticleScraperTasklet.java
+            |           InterestMatcher.java
+            |           NotificationTasklet.java
+            |           S3Storage.java
+            |           
+            \---domain
+                +---article
+                |   +---controller
+                |   |       ArticleApi.java
+                |   |       ArticleController.java
+                |   |       
+                |   +---dto
+                |   |       ArticleCommentCount.java
+                |   |       ArticleDto.java
+                |   |       ArticleRestoreResultDto.java
+                |   |       ArticleViewDto.java
+                |   |       CursorPageFilter.java
+                |   |       CursorPageResponseArticleDto.java
+                |   |       
+                |   +---entity
+                |   |       Article.java
+                |   |       ArticleCount.java
+                |   |       ArticleKeyword.java
+                |   |       
+                |   +---exception
+                |   |       ArticleNotFoundException.java
+                |   |       
+                |   +---mapper
+                |   |       ArticleMapper.java
+                |   |       ArticleViewMapper.java
+                |   |       
+                |   +---repository
+                |   |       ArticleCountCustomRepository.java
+                |   |       ArticleCountCustomRepositoryImpl.java
+                |   |       ArticleCountRepository.java
+                |   |       ArticleCustomRepository.java
+                |   |       ArticleCustomRepositoryImpl.java
+                |   |       ArticleRepository.java
+                |   |       
+                |   +---service
+                |   |       ArticleScraper.java
+                |   |       ArticleService.java
+                |   |       ArticleServiceImpl.java
+                |   |       
+                |   \---util
+                |           ArticleBackUpScheduler.java
+                |           ArticleConsumer.java
+                |           ArticleQueueManager.java
+                |           ArticleScraperScheduler.java
+                |           KeywordConsumer.java
+                |           KeywordQueueManager.java
+                |           NaverNewsApiClient.java
+                |           
+                +---comment
+                |   +---controller
+                |   |       CommentApi.java
+                |   |       CommentController.java
+                |   |       
+                |   +---dto
+                |   |       CommentActivityDto.java
+                |   |       CommentDto.java
+                |   |       CommentLikeActivityDto.java
+                |   |       CommentLikeDto.java
+                |   |       CommentRegisterRequest.java
+                |   |       CommentUpdateRequest.java
+                |   |       CursorPageResponseCommentDto.java
+                |   |       
+                |   +---entity
+                |   |       Comment.java
+                |   |       Like.java
+                |   |       
+                |   +---exception
+                |   |       AlreadyLikedException.java
+                |   |       CommentException.java
+                |   |       CommentNotFoundException.java
+                |   |       LikeNotFoundException.java
+                |   |       
+                |   +---mapper
+                |   |       CommentMapper.java
+                |   |       LikeMapper.java
+                |   |       
+                |   +---repository
+                |   |       CommentRepository.java
+                |   |       CommentRepositoryCustom.java
+                |   |       CommentRepositoryImpl.java
+                |   |       LikeRepository.java
+                |   |       
+                |   +---service
+                |   |       CommentService.java
+                |   |       CommentServiceImpl.java
+                |   |       
+                |   \---util
+                |           CommentLikedEvent.java
+                |           CommentLikedEventListener.java
+                |           
+                +---interest
+                |   +---controller
+                |   |       InterestApi.java
+                |   |       InterestController.java
+                |   |       
+                |   +---dto
+                |   |       CursorPageRequest.java
+                |   |       CursorPageResponseInterestDto.java
+                |   |       InterestDto.java
+                |   |       InterestRegisterRequest.java
+                |   |       
+                |   +---entity
+                |   |       .DS_Store
+                |   |       Interest.java
+                |   |       
+                |   +---exception
+                |   |       InterestNotExistsException.java
+                |   |       SimilarInterestException.java
+                |   |       
+                |   +---mapper
+                |   |       InterestMapper.java
+                |   |       
+                |   +---repository
+                |   |       InterestRepository.java
+                |   |       InterestRepositoryCustom.java
+                |   |       InterestRepositoryImpl.java
+                |   |       
+                |   \---service
+                |           InterestService.java
+                |           InterestServiceImpl.java
+                |           
+                +---keyword
+                |   +---dto
+                |   |       InterestUpdateRequest.java
+                |   |       
+                |   +---entity
+                |   |       Keyword.java
+                |   |       
+                |   +---exception
+                |   |       NoKeywordsToUpdateException.java
+                |   |       
+                |   \---repository
+                |           KeywordRepository.java
+                |           
+                +---notification
+                |   +---batch
+                |   |       NotificationDeleteBatchConfig.java
+                |   |       NotificationDeleteScheduler.java
+                |   |       NotificationDeleteTasklet.java
+                |   |       
+                |   +---controller
+                |   |       NotificationApi.java
+                |   |       NotificationController.java
+                |   |       
+                |   +---dto
+                |   |       CursorPageResponseNotificationDto.java
+                |   |       NotificationDto.java
+                |   |       
+                |   +---entity
+                |   |       Notification.java
+                |   |       ResourceType.java
+                |   |       
+                |   +---exception
+                |   |       InvalidRequestParameterException.java
+                |   |       NotificationNotFoundException.java
+                |   |       
+                |   +---mapper
+                |   |       NotificationMapper.java
+                |   |       
+                |   +---repository
+                |   |       NotificationRepository.java
+                |   |       NotificationRepositoryCustom.java
+                |   |       NotificationRepositoryImpl.java
+                |   |       
+                |   \---service
+                |           NotificationService.java
+                |           NotificationServiceImpl.java
+                |           
+                +---user
+                |   +---controller
+                |   |       UserActivityApi.java
+                |   |       UserActivityController.java
+                |   |       UserApi.java
+                |   |       UserController.java
+                |   |       
+                |   +---dto
+                |   |       UserActivityDto.java
+                |   |       UserDto.java
+                |   |       UserLoginRequest.java
+                |   |       UserRegisterRequest.java
+                |   |       UserUpdateRequest.java
+                |   |       
+                |   +---entity
+                |   |       User.java
+                |   |       
+                |   +---exception
+                |   |       InvalidInputValueException.java
+                |   |       InvalidLoginException.java
+                |   |       UserAlreadyExistsException.java
+                |   |       UserNotFoundException.java
+                |   |       
+                |   +---mapper
+                |   |       UserMapper.java
+                |   |       
+                |   +---repository
+                |   |       UserRepository.java
+                |   |       
+                |   \---service
+                |           UserActivityService.java
+                |           UserActivityServiceImpl.java
+                |           UserService.java
+                |           UserServiceImpl.java
+                |           
+                \---user_interest
+                    +---controller
+                    |       UserInterestApi.java
+                    |       UserInterestController.java
+                    |       
+                    +---dto
+                    |       SubscriptionDto.java
+                    |       
+                    +---entity
+                    |       UserInterest.java
+                    |       
+                    +---exception
+                    |       InvalidSubscriptionRequestException.java
+                    |       SubscriberNotMatchesException.java
+                    |       
+                    +---mapper
+                    |       UserInterestMapper.java
+                    |       
+                    +---repository
+                    |       UserInterestRepository.java
+                    |       
+                    \---service
+                            UserInterestService.java
+                            UserInterestServiceImpl.java
+                            
 
+```
 ---
 
 # sb03-monew-team5
