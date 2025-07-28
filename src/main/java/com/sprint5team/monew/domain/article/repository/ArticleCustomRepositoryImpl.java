@@ -42,8 +42,16 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
         }
 
         // 출처 필터
-        if (filter.sourceIn() != null) {
+        if (filter.sourceIn() != null && !filter.sourceIn().isEmpty()) {
             builder.and(article.source.in(filter.sourceIn()));
+        }
+
+        if (filter.after() != null) {
+            if (direction == Order.ASC) {
+                builder.and(article.createdAt.gt(filter.after()));
+            } else {
+                builder.and(article.createdAt.lt(filter.after()));
+            }
         }
 
         // 날짜 필터
@@ -91,21 +99,29 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                         .leftJoin(comment).on(comment.article.eq(article))
                         .where(builder)
                         .groupBy(article.id)
-                        .orderBy(direction == Order.ASC
-                                ? comment.count().asc()
-                                : comment.count().desc())
+                        .orderBy(
+                                direction == Order.ASC
+                                        ? comment.count().asc().nullsLast() : comment.count().desc().nullsLast(),
+                                direction == Order.ASC
+                                        ? article.createdAt.asc() : article.createdAt.desc()
+                        )
                         .limit(filter.limit() + 1)
                         .fetch();
 
             case "publishDate":
             default:
                 if (filter.after() != null) {
-                    builder.and(article.createdAt.gt(filter.after()));
+                    if (direction == Order.ASC) {
+                        builder.and(article.createdAt.gt(filter.after()));
+                    } else {
+                        builder.and(article.createdAt.lt(filter.after()));
+                    }
                 }
 
                 orderSpecifier = direction == Order.ASC
                         ? article.createdAt.asc()
                         : article.createdAt.desc();
+
                 return queryFactory
                         .select(article)
                         .from(article)
@@ -116,7 +132,6 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                         .orderBy(orderSpecifier)
                         .limit(filter.limit() + 1)
                         .fetch();
-
         }
     }
 

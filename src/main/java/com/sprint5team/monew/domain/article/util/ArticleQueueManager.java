@@ -1,6 +1,5 @@
 package com.sprint5team.monew.domain.article.util;
 
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,15 +11,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class ArticleQueueManager {
 
-    private final BlockingQueue<List<String>> urlChunks = new LinkedBlockingQueue<>();
-    @Getter
+    private final BlockingQueue<String> urlChunks = new LinkedBlockingQueue<>();
     private final Set<String> existingUrls = ConcurrentHashMap.newKeySet();
 
     public void enqueue(List<String> urls) {
-        urlChunks.offer(urls);
+        urlChunks.addAll(urls);
     }
 
-    public List<String> dequeue() {
+    public String dequeue() {
         return urlChunks.poll();
     }
 
@@ -28,7 +26,11 @@ public class ArticleQueueManager {
         return urlChunks.size();
     }
 
-    public void addAll(List<String> urls) {
-        existingUrls.addAll(urls);
+    public void addExisting(String url) {
+        existingUrls.add(url);
+    }
+
+    public Set<String> getExistingUrls() {
+        return existingUrls;
     }
 }

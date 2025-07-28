@@ -15,11 +15,9 @@ import com.sprint5team.monew.domain.comment.mapper.LikeMapper;
 import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.service.CommentServiceImpl;
-import com.sprint5team.monew.domain.notification.service.NotificationService;
 import com.sprint5team.monew.domain.user.entity.User;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -68,7 +67,7 @@ public class CommentServiceTest {
     private LikeMapper likeMapper;
 
     @Mock
-    private NotificationService notificationService;
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private CommentServiceImpl commentService;

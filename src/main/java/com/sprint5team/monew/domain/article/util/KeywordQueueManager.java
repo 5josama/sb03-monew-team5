@@ -14,8 +14,8 @@ public class KeywordQueueManager {
         keywordQueue.offer(keyword);
     }
 
-    public String dequeue() {
-        return keywordQueue.poll();
+    public String take() throws InterruptedException {
+        return keywordQueue.take();
     }
 
     public int size() {

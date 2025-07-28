@@ -425,13 +425,15 @@ public class ArticleRepositoryTest {
         Article a2 = new Article("NAVER", "https://a2.com", "제목2", "내용2", false, Instant.now(), now.minusSeconds(10), new ArrayList<>());
 
         articleRepository.saveAll(List.of(a1, a2));
+        ReflectionTestUtils.setField(a1, "createdAt", now.minusSeconds(90));
+        ReflectionTestUtils.setField(a2, "createdAt", now.minusSeconds(10));
 
         CursorPageFilter filter = new CursorPageFilter(
                 null,
                 null,
                 List.of("NAVER"),
                 null,
-                base.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime(), // To만 설정
+                base.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime(),
                 "publishDate",
                 "ASC",
                 null,

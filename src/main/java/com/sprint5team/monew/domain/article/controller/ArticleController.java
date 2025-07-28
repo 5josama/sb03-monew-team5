@@ -6,6 +6,7 @@ import com.sprint5team.monew.domain.article.dto.CursorPageFilter;
 import com.sprint5team.monew.domain.article.dto.CursorPageResponseArticleDto;
 import com.sprint5team.monew.domain.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/articles")
@@ -79,11 +82,11 @@ public class ArticleController implements ArticleApi{
 
     @Override
     @GetMapping("/restore")
-    public ResponseEntity<ArticleRestoreResultDto> restoreArticle(
-            @RequestParam Instant from,
-            @RequestParam Instant to
+    public ResponseEntity<List<ArticleRestoreResultDto>> restoreArticle(
+            @RequestParam LocalDateTime from,
+            @RequestParam LocalDateTime to
     ) {
-        ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
+        List<ArticleRestoreResultDto> articleRestoreResultDto = articleService.restoreArticle(from.atZone(ZoneOffset.UTC).toInstant(), to.atZone(ZoneOffset.UTC).toInstant());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(articleRestoreResultDto);

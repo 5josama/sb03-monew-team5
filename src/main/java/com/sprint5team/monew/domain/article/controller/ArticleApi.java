@@ -85,9 +85,9 @@ public interface ArticleApi {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류",
                     content = @Content(schema = @Schema(implementation = ArticleRestoreResultDto.class)))
     })
-    public ResponseEntity<ArticleRestoreResultDto> restoreArticle(
-            @Parameter(description = "날짜 시작(범위)") Instant publishDateFrom,
-            @Parameter(description = "날짜 끝(범위)") Instant publishDateTo
+    public ResponseEntity<List<ArticleRestoreResultDto>> restoreArticle(
+            @Parameter(description = "날짜 시작(범위)") LocalDateTime publishDateFrom,
+            @Parameter(description = "날짜 끝(범위)") LocalDateTime publishDateTo
     );
 
     @Operation(summary = "뉴스 논리 삭제")

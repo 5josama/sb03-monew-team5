@@ -10,8 +10,10 @@ import com.sprint5team.monew.domain.interest.dto.CursorPageResponseInterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestDto;
 import com.sprint5team.monew.domain.interest.dto.InterestRegisterRequest;
 import com.sprint5team.monew.domain.interest.exception.InterestNotExistsException;
+import com.sprint5team.monew.domain.interest.exception.SimilarInterestException;
 import com.sprint5team.monew.domain.interest.service.InterestService;
 import com.sprint5team.monew.domain.keyword.dto.InterestUpdateRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -113,6 +116,50 @@ public class InterestControllerTest {
             .andExpect(jsonPath("$.totalElements").value(3L))
             .andExpect(jsonPath("$.hasNext").value(false));
 
+    }
+
+    @Test
+    void 관심사_이름의_유사도가_높을경우_SimilarInterestException_409_를_반환한다() throws Exception {
+        // given
+        InterestRegisterRequest request = new InterestRegisterRequest("collect old whisky bottle",List.of("keyword"));
+
+        doThrow(new SimilarInterestException())
+            .when(interestService)
+            .registerInterest(any(InterestRegisterRequest.class));
+
+        // when n then
+        MvcResult result = mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(jsonPath("$.message").value("Conflict"))
+            .andExpect(jsonPath("$.details").value("이미 유사한 이름의 관심사가 있습니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+
+        assertThat(exception).isInstanceOf(SimilarInterestException.class);
+
+    }
+
+    @Test
+    void 잘못된_요청이_들어왔을때_MethodArgumentNotValidException_400_을_반환한다() throws Exception {
+        // given
+        InterestRegisterRequest request = new InterestRegisterRequest("invalid interest pneumonoultramicroscopicsilicovolcanoconiosis",List.of("keyword"));
+
+        // when n then
+        MvcResult result = mockMvc.perform(post("/api/interests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Bad Request"))
+            .andExpect(jsonPath("$.details").value("name: size must be between 1 and 50"))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
+        assertThat(exception).isInstanceOf(MethodArgumentNotValidException.class);
     }
 
     @Test
@@ -288,22 +335,6 @@ public class InterestControllerTest {
     }
 
     @Test
-    void 관심사_정보가_없을경우_InterestNotExistException_404_를_반환한다() throws Exception {
-        // given
-        UUID interestId = UUID.randomUUID();
-
-        doThrow(new InterestNotExistsException())
-            .when(interestService)
-            .deleteInterest(interestId);
-
-        // when n then
-        mockMvc.perform(delete("/api/interests/{interestId}", interestId))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.status").value(404))
-            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."));
-    }
-
-    @Test
     void 관심사의_키워드를_추가할_수_있다() throws Exception {
         // given
         UUID interestId = UUID.randomUUID();
@@ -386,6 +417,27 @@ public class InterestControllerTest {
 
         Exception exception = result.getResolvedException();
 
+        assertThat(exception).isInstanceOf(InterestNotExistsException.class);
+    }
+
+    @Test
+    void 관심사를_찾지_못하면_InterestNotExistsException_404_를_반환한다() throws Exception {
+        // given
+        UUID interestId = UUID.randomUUID();
+
+        doThrow(new InterestNotExistsException())
+            .when(interestService)
+            .deleteInterest(interestId);
+
+        // when n then
+        MvcResult result = mockMvc.perform(delete("/api/interests/{interestId}", interestId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.message").value("Not Found"))
+            .andExpect(jsonPath("$.details").value("입력된 관심사 아이디와 일치하는 관심사가 없습니다."))
+            .andReturn();
+
+        Exception exception = result.getResolvedException();
         assertThat(exception).isInstanceOf(InterestNotExistsException.class);
     }
 }
