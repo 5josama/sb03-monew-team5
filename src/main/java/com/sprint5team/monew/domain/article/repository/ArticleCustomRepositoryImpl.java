@@ -99,9 +99,12 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                         .leftJoin(comment).on(comment.article.eq(article))
                         .where(builder)
                         .groupBy(article.id)
-                        .orderBy(direction == Order.ASC
-                                ? comment.count().asc()
-                                : comment.count().desc())
+                        .orderBy(
+                                direction == Order.ASC
+                                        ? comment.count().asc().nullsLast() : comment.count().desc().nullsLast(),
+                                direction == Order.ASC
+                                        ? article.createdAt.asc() : article.createdAt.desc()
+                        )
                         .limit(filter.limit() + 1)
                         .fetch();
 
