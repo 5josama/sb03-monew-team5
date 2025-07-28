@@ -16,6 +16,7 @@ import com.sprint5team.monew.domain.comment.repository.CommentRepository;
 import com.sprint5team.monew.domain.comment.repository.LikeRepository;
 import com.sprint5team.monew.domain.comment.util.CommentLikedEvent;
 import com.sprint5team.monew.domain.user.entity.User;
+import com.sprint5team.monew.domain.user.exception.InvalidLoginException;
 import com.sprint5team.monew.domain.user.exception.UserNotFoundException;
 import com.sprint5team.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -162,6 +163,9 @@ public class CommentServiceImpl implements CommentService{
     public CommentDto update(UUID commentId,UUID userId, CommentUpdateRequest request) {
         log.debug("댓글 수정 시작: commentId={}, content={}",commentId,request.content());
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        if(!comment.getUser().getId().equals(userId)) {
+            throw new InvalidLoginException();
+        }
         comment.update(request.content());
         commentRepository.save(comment);
         boolean likedByMe = likeRepository.findByUserIdAndCommentId(userId, commentId).isPresent();
