@@ -1,5 +1,6 @@
 package com.sprint5team.monew.domain.article.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sprint5team.monew.base.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,7 @@ public class Article extends BaseEntity {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ArticleKeyword> articleKeywords = new ArrayList<>();
 
     public Article(String source, String sourceUrl, String title, String summary, Instant originalDateTime) {

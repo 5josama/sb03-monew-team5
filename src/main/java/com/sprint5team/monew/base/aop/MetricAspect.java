@@ -39,7 +39,7 @@ public class MetricAspect {
         monewMetrics.updateGaugeMetrics();
     }
 
-    @AfterReturning("execution(* com.sprint5team.monew.base.util.*Scheduler.run*Job(..))")
+    @AfterReturning("execution(* com.sprint5team.monew.domain.article.util.*Scheduler.run*Job(..))")
     public void batchMetricsUpdated() {
         monewMetrics.updateBatchMetrics(batchStatusService);
     }

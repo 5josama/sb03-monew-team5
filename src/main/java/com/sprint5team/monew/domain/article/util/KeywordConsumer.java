@@ -1,10 +1,10 @@
 package com.sprint5team.monew.domain.article.util;
 
 import com.google.common.util.concurrent.RateLimiter;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
@@ -20,19 +20,25 @@ public class KeywordConsumer {
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
     private final RateLimiter rateLimiter = RateLimiter.create(5.0);
 
-    @Scheduled(fixedRate = 1000)
+    @PostConstruct
     public void consume() {
         for (int i = 0; i < 5; i++) {
             executor.submit(() -> {
-                String keyword = keywordQueueManager.dequeue();
-                if (keyword == null) return;
+                while (true) {
+                    try {
+                        String keyword = keywordQueueManager.take();
+                        rateLimiter.acquire();
 
-                rateLimiter.acquire();
-                try {
-                    apiClient.scrape(keyword);
-                    log.info("[Naver API] 키워드 '{}' 처리 성공", keyword);
-                } catch (Exception e) {
-                    log.error("[Naver API] 키워드 '{}' 처리 실패 - {}", keyword, e.getMessage());
+                        apiClient.scrape(keyword);
+                        log.info("[Naver API] 키워드 '{}' 처리 성공", keyword);
+
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.warn("키워드 소비 스레드 인터럽트됨");
+                        break;
+                    } catch (Exception e) {
+                        log.error("[Naver API] 키워드 처리 중 오류 발생", e);
+                    }
                 }
             });
         }

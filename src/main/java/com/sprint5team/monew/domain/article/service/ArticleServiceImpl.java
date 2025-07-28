@@ -143,7 +143,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleRestoreResultDto restoreArticle(Instant from, Instant to) {
+    public List<ArticleRestoreResultDto> restoreArticle(Instant from, Instant to) {
         List<String> articleJson = s3Storage.readArticlesFromBackup(from, to);
 
         List<Article> restoredArticles = articleJson.stream()
@@ -160,10 +160,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .distinct()
                 .toList();
 
-        for (int i = 0; i < sourceUrls.size(); i += 500) {
-            List<String> chunk = sourceUrls.subList(i, Math.min(i + 500, sourceUrls.size()));
-            articleQueueManager.enqueue(chunk);
-        }
+        articleQueueManager.enqueue(sourceUrls);
 
         // CountDownLatch로 병렬 처리 완료 대기
         int threadCount = 5;
@@ -192,17 +189,24 @@ public class ArticleServiceImpl implements ArticleService {
                 ))
                 .toList();
 
-        List<Article> savedArticle = articleRepository.saveAll(lostArticles);
+        List<Article> savedArticle;
+        try {
+            savedArticle = articleRepository.saveAll(lostArticles);
+            log.info("실제 저장된 기사 수: {}", savedArticle.size());
+        } catch (Exception e) {
+            log.info("기사 저장 실패: {}", lostArticles, e);
+            throw new RuntimeException("기사 저장 실패", e);
+        }
 
         List<String> restoredIds = savedArticle.stream()
                 .map(article -> article.getId().toString())
                 .toList();
 
-        return new  ArticleRestoreResultDto(
+        return List.of(new ArticleRestoreResultDto(
                 Instant.now(),
                 restoredIds,
                 restoredIds.size()
-        );
+        ));
     }
 
     @Override

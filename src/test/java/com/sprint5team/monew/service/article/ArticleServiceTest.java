@@ -258,11 +258,11 @@ public class ArticleServiceTest {
         }).when(articleConsumer).consume(anyInt(), any(CountDownLatch.class));
 
         // when
-        ArticleRestoreResultDto result = articleService.restoreArticle(from, to);
+        List<ArticleRestoreResultDto> result = articleService.restoreArticle(from, to);
 
         // then
-        assertThat(result.restoredArticleIds().size()).isEqualTo(2);
-        assertThat(result.restoredArticleIds()).containsExactlyInAnyOrderElementsOf(restoredIds);
+        assertThat(result.get(0).restoredArticleIds().size()).isEqualTo(2);
+        assertThat(result.get(0).restoredArticleIds()).containsExactlyInAnyOrderElementsOf(restoredIds);
         verify(s3Storage).readArticlesFromBackup(from, to);
         verify(articleRepository).saveAll(anyList());
     }

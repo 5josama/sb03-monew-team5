@@ -123,10 +123,10 @@ public class ArticleS3StorageIntegrationTest {
         System.out.println("size = " + articleRepository.findAll().size());
 
         // when
-        ArticleRestoreResultDto articleRestoreResultDto = articleService.restoreArticle(from, to);
+        List<ArticleRestoreResultDto> articleRestoreResultDto = articleService.restoreArticle(from, to);
 
         // then
-        assertThat(articleRestoreResultDto.restoredArticleIds()).size().isEqualTo(1);
+        assertThat(articleRestoreResultDto.get(0).restoredArticleIds()).size().isEqualTo(1);
         assertThat(articleRepository.findAll()).hasSize(2);
     }
 }
