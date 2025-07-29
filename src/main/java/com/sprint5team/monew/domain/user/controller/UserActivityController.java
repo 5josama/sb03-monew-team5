@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user-activities")
-public class UserActivityController {
+public class UserActivityController implements UserActivityApi {
 
   private final UserActivityService userActivityService;
 
