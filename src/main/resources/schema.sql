@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS tbl_interest
     subscriber_count BIGINT      NOT NULL,
     name             VARCHAR(50) NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_interest_name_trgm ON tbl_interest USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_interest_lower_name_trgm ON tbl_interest USING gin (lower(name) gin_trgm_ops);
 
 -- 뉴스 관심사
 CREATE TABLE tbl_article_keyword

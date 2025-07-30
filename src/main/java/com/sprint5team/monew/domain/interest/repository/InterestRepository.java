@@ -21,7 +21,9 @@ public interface InterestRepository extends JpaRepository<Interest, UUID>, Inter
     SELECT EXISTS (
         SELECT 1
         FROM tbl_interest
-        WHERE similarity(lower(name), lower(:name)) > :threshold
+        WHERE lower(name) % lower(:name)
+        AND similarity(lower(name), lower(:name)) > :threshold
+        LIMIT 1
     )
     """, nativeQuery = true)
   boolean existsSimilarName(@Param("name") String name, @Param("threshold") double threshold);
